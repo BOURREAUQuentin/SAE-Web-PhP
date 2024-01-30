@@ -80,7 +80,7 @@ class ArtistePDO
         EOF;
         try{
             $stmt = $this->pdo->prepare($maj_artiste);
-            $stmt->bindParam("nom_artiste", $nouveau_nom, PDO::PARAM_STR);
+            $stmt->bindParam("nouveau_nom", $nouveau_nom, PDO::PARAM_STR);
             $stmt->bindParam("id_artiste", $id_artiste, PDO::PARAM_INT);
             $stmt->execute();
         }

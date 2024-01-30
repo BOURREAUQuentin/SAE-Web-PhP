@@ -82,7 +82,7 @@ class AlbumPDO
         EOF;
         try{
             $stmt = $this->pdo->prepare($maj_album);
-            $stmt->bindParam("titre", $nouveau_titre, PDO::PARAM_STR);
+            $stmt->bindParam("nouveau_titre", $nouveau_titre, PDO::PARAM_STR);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->execute();
         }
