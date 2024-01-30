@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS IMAGE;
 -- Création de la table IMAGE
 CREATE TABLE IF NOT EXISTS IMAGE (
    id_image INT PRIMARY KEY,
-   image VARCHAR(255) NOT NULL,
+   image VARCHAR(255) NOT NULL
 );
 
 
