@@ -17,6 +17,11 @@ class Musique
     private $nom_musique;
 
     /**
+     * @var string $duree_musique La durée de la musique.
+     */
+    private $duree_musique;
+
+    /**
      * @var int $id_album L'identifiant unique de l'album auquel la musique est associée.
      */
     private $id_album;
@@ -26,12 +31,14 @@ class Musique
      *
      * @param int    $id_musique  L'identifiant unique de la musique.
      * @param string $nom_musique Le nom de la musique.
+     * @param string $duree_musique La durée de la musique.
      * @param int    $id_album    L'identifiant unique de l'album auquel la musique est associée.
      */
-    public function __construct(int $id_musique, string $nom_musique, int $id_album)
+    public function __construct(int $id_musique, string $nom_musique, string $duree_musique, int $id_album)
     {
         $this->id_musique = $id_musique;
         $this->nom_musique = $nom_musique;
+        $this->duree_musique = $duree_musique;
         $this->id_album = $id_album;
     }
 
@@ -53,6 +60,16 @@ class Musique
     public function getNomMusique(): string
     {
         return $this->nom_musique;
+    }
+
+    /**
+     * Obtient la durée de la musique.
+     *
+     * @return string La durée de la musique.
+     */
+    public function getDureeMusique(): string
+    {
+        return $this->duree_musique;
     }
 
     /**

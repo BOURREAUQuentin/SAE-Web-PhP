@@ -47,18 +47,20 @@ class MusiquePDO
      * Ajoute une nouvelle musique à la base de données.
      *
      * @param string $nom_musique Le nom de la musique à ajouter.
+     * @param string $duree_musique La durée de la musique à ajouter.
      * @param int $id_album L'id de l'album associé à la musique.
      */
-    public function ajouterMusique(string $nom_musique, int $id_album): void
+    public function ajouterMusique(string $nom_musique, string $duree_musique, int $id_album): void
     {
         $new_id_image = $this->getMaxIdMusique() + 1;
         $insertion_image = <<<EOF
-        insert into MUSIQUE (id_image, nom_musique, id_album) values (:id_image, :nom_musique, :id_album);
+        insert into MUSIQUE (id_image, nom_musique, duree_musique, id_album) values (:id_image, :nom_musique, :duree_musique, :id_album);
         EOF;
         try{
             $stmt = $this->pdo->prepare($insertion_image);
             $stmt->bindParam("id_image", $new_id_image, PDO::PARAM_INT);
             $stmt->bindParam("nom_musique", $nom_musique, PDO::PARAM_STR);
+            $stmt->bindParam("duree_musique", $duree_musique, PDO::PARAM_STR);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->execute();
         }
@@ -99,7 +101,7 @@ class MusiquePDO
     public function getMusique(int $id_musique): ?Musique
     {
         $requete_musique = <<<EOF
-        select id_musique, nom_musique, id_album from MUSIQUE;
+        select id_musique, nom_musique, duree_musique, id_album from MUSIQUE;
         EOF;
         try{
             $stmt = $this->pdo->prepare($requete_musique);
@@ -108,7 +110,7 @@ class MusiquePDO
             $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($resultat) {
                 // retourne une instance de la classe Musique avec les données récupérées
-                return new Musique($resultat['id_musique'], $resultat['nom_musique'], $resultat['id_album']);
+                return new Musique($resultat['id_musique'], $resultat['nom_musique'], $resultat['duree_musique'], $resultat['id_album']);
             } else {
                 // Aucune musique trouvée avec l'identifiant donné
                 return null;

@@ -47,17 +47,19 @@ class GenrePDO
      * Ajoute un nouveau genre à la base de données.
      *
      * @param string $nom_genre Le nom du genre à ajouter.
+     * @param int $id_image L'image du genre associé à ajouter.
      */
-    public function ajouterGenre(string $nom_genre): void
+    public function ajouterGenre(string $nom_genre, int $id_image): void
     {
         $new_id_genre = $this->getMaxIdGenre() + 1;
         $insertion_genre = <<<EOF
-        insert into GENRE (id_genre, nom_genre) values (:id_genre, :nom_genre);
+        insert into GENRE (id_genre, nom_genre, id_image) values (:id_genre, :nom_genre, :id_image);
         EOF;
         try{
             $stmt = $this->pdo->prepare($insertion_genre);
             $stmt->bindParam("id_genre", $new_id_genre, PDO::PARAM_INT);
             $stmt->bindParam("nom_genre", $nom_genre, PDO::PARAM_STR);
+            $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
             $stmt->execute();
         }
         catch (PDOException $e){

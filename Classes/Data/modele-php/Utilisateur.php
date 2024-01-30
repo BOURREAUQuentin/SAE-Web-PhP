@@ -17,6 +17,11 @@ class Utilisateur
     private $nom_utilisateur;
 
     /**
+     * @var string $mail_utilisateur Le mail de l'utilisateur.
+     */
+    private $mail_utilisateur;
+
+    /**
      * @var string $mdp Le mot de passe de l'utilisateur.
      */
     private $mdp;
@@ -26,12 +31,14 @@ class Utilisateur
      *
      * @param int    $id_utilisateur  L'identifiant unique de l'utilisateur.
      * @param string $nom_utilisateur Le nom de l'utilisateur.
+     * @param string $mail_utilisateur Le mail de l'utilisateur.
      * @param string $mdp             Le mot de passe de l'utilisateur.
      */
-    public function __construct(int $id_utilisateur, string $nom_utilisateur, string $mdp)
+    public function __construct(int $id_utilisateur, string $nom_utilisateur, string $mail_utilisateur, string $mdp)
     {
         $this->id_utilisateur = $id_utilisateur;
         $this->nom_utilisateur = $nom_utilisateur;
+        $this->mail_utilisateur = $mail_utilisateur;
         $this->mdp = $mdp;
     }
 
@@ -56,6 +63,16 @@ class Utilisateur
     }
 
     /**
+     * Obtient le mail de l'utilisateur.
+     *
+     * @return string Le mail de l'utilisateur.
+     */
+    public function getMailUtilisateur(): string
+    {
+        return $this->mail_utilisateur;
+    }
+
+    /**
      * Obtient le mot de passe de l'utilisateur.
      *
      * @return string Le mot de passe de l'utilisateur.
@@ -73,6 +90,16 @@ class Utilisateur
     public function setNomUtilisateur(string $nom_utilisateur): void
     {
         $this->nom_utilisateur = $nom_utilisateur;
+    }
+
+    /**
+     * Modifie le mail de l'utilisateur.
+     *
+     * @param string $mail_utilisateur Le nouveau mail de l'utilisateur.
+     */
+    public function setMailUtilisateur(string $mail_utilisateur): void
+    {
+        $this->mail_utilisateur = $mail_utilisateur;
     }
 
     /**
