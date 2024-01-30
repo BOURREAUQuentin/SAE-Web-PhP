@@ -72,7 +72,7 @@ class AlbumPDO
     /**
      * Met à jour le nom d'un album dans la base de données.
      *
-     * @param int    $idAlbum   L'identifiant de l'album à mettre à jour.
+     * @param int    $id_album   L'identifiant de l'album à mettre à jour.
      * @param string $nouveau_titre  Le nouveau nom de l'album.
      */
     public function mettreAJourTitreAlbum(int $id_album, string $nouveau_titre): void

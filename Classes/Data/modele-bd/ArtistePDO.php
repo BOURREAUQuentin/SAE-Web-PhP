@@ -70,7 +70,7 @@ class ArtistePDO
     /**
      * Met à jour le nom d'un artiste dans la base de données.
      *
-     * @param int    $idArtiste   L'identifiant de l'artiste à mettre à jour.
+     * @param int    $id_artiste   L'identifiant de l'artiste à mettre à jour.
      * @param string $nouveau_nom  Le nouveau nom de l'artiste.
      */
     public function mettreAJourNomArtiste(int $id_artiste, string $nouveau_nom): void
