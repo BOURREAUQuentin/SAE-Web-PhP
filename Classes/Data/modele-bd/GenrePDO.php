@@ -88,4 +88,36 @@ class GenrePDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Obtient le genre dans la table.
+     *
+     * @param int    $id_genre   L'identifiant du genre à rechercher.
+     * 
+     * @return Genre Le genre correspondant à l'identifiant donné, ou null si le genre n'est pas trouvée.
+     */
+    public function getGenreByIdGenre(int $id_genre): ?Genre
+    {
+        $requete_genre = <<<EOF
+        select id_genre, nom_genre, id_image from GENRE where id_genre = :id_genre;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_genre);
+            $stmt->bindParam("id_genre", $id_genre, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Genre avec les données récupérées
+                return new Genre($resultat['id_genre'], $resultat['nom_genre'], $resultat['id_image']);
+            } else {
+                // Aucun genre trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
 }

@@ -89,4 +89,35 @@ class ArtistePDO
         }
     }
 
+    /**
+     * Obtient l'artiste dans la table.
+     *
+     * @param int    $id_artiste   L'identifiant de l'artiste à rechercher.
+     * 
+     * @return Artiste L'artiste correspondant à l'identifiant donné, ou null si l'artiste n'est pas trouvée.
+     */
+    public function getArtisteByIdArtiste(int $id_artiste): ?Artiste
+    {
+        $requete_artiste = <<<EOF
+        select id_artiste, nom_artiste, id_image from ARTISTE where id_artiste = :id_artiste;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_artiste);
+            $stmt->bindParam("id_artiste", $id_artiste, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Artiste avec les données récupérées
+                return new Artiste($resultat['id_artiste'], $resultat['nom_artiste'], $resultat['id_image']);
+            } else {
+                // Aucun artiste trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
 }

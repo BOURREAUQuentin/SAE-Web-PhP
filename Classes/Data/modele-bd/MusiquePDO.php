@@ -98,13 +98,14 @@ class MusiquePDO
      * 
      * @return Musique La musique correspondant à l'identifiant donné, ou null si la musique n'est pas trouvée.
      */
-    public function getMusique(int $id_musique): ?Musique
+    public function getMusiqueByIdMusique(int $id_musique): ?Musique
     {
         $requete_musique = <<<EOF
-        select id_musique, nom_musique, duree_musique, id_album from MUSIQUE;
+        select id_musique, nom_musique, duree_musique, id_album from MUSIQUE where id_musique = :id_musique;
         EOF;
         try{
             $stmt = $this->pdo->prepare($requete_musique);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
             $stmt->execute();
             // fetch le résultat sous forme de tableau associatif
             $resultat = $stmt->fetch(PDO::FETCH_ASSOC);

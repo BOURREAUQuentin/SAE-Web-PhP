@@ -92,4 +92,60 @@ class AlbumPDO
     }
 
     // pas de setteur de l'année de sortie car ça n'a aucun sens
+
+    /**
+     * Obtient l'album dans la table.
+     *
+     * @param int    $id_album   L'identifiant de l'album à rechercher.
+     * 
+     * @return Album L'album correspondant à l'identifiant donné, ou null si l'album n'est pas trouvée.
+     */
+    public function getAlbumByIdAlbum(int $id_album): ?Album
+    {
+        $requete_album = <<<EOF
+        select id_album, titre, annee_sortie, id_image from ALBUM where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_album);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Album avec les données récupérées
+                return new Album($resultat['id_album'], $resultat['titre'], $resultat['annee_sortie'], $resultat['id_image']);
+            } else {
+                // Aucun album trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Obtient la durée totale d'un album spécifique.
+     *
+     * @param int $id_album L'identifiant de l'album pour lequel calculer la durée totale.
+     *
+     * @return int La durée totale d'un album ou 0 en cas d'erreur.
+     */
+    public function getDureeTotalByIdAlbum(int $id_album){
+        $requete_album = <<<EOF
+        select sum(duree_musique) dureeTotale from COMPOSER where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_album);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+            $dureeTotale = $stmt->fetch();
+            return $dureeTotale;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return 0;
+        }
+    }
 }
