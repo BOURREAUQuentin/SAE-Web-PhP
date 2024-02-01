@@ -3,6 +3,7 @@
 declare(strict_types=1);
 namespace Modele\modele_bd;
 use Modele\modele_php\Album;
+use Modele\modele_php\Musique;
 use PDO;
 use PDOException;
 
@@ -130,26 +131,56 @@ class AlbumPDO
     }
 
     /**
+     * Obtient la liste des musiques d'un album spécifique.
+     *
+     * @param int $id_album L'identifiant de l'album pour lequel calculer la liste des musiques.
+     *
+     * @return array La liste des musiques d'un album ou [] en cas d'erreur.
+     */
+    public function getMusiquesByIdAlbum(int $id_album): array
+    {
+        $requete_musiques = <<<EOF
+        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from ALBUM natural join MUSIQUE where id_album = :id_album;
+        EOF;
+        $les_musiques = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_musiques);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+            $les_musiques_album = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($les_musiques_album as $musique_album){
+                array_push($les_musiques, new Musique($musique_album['id_musique'], $musique_album['nom_musique'], $musique_album['duree_musique'], $musique_album['son_musique'], $musique_album['nb_streams'], $musique_album['id_album']));
+            }
+            return $les_musiques;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return les_musiques;
+        }
+    }
+
+    /**
      * Obtient la durée totale d'un album spécifique.
      *
      * @param int $id_album L'identifiant de l'album pour lequel calculer la durée totale.
      *
-     * @return int La durée totale d'un album ou 0 en cas d'erreur.
+     * @return string La durée totale d'un album ou 0 en cas d'erreur.
      */
-    public function getDureeTotalByIdAlbum(int $id_album){
+    public function getDureeTotalByIdAlbum(int $id_album): string
+    {
         $requete_album = <<<EOF
-        select sum(duree_musique) dureeTotale from COMPOSER where id_album = :id_album;
+        select duree_musique from ALBUM natural join MUSIQUE where id_album = :id_album;
         EOF;
         try{
             $stmt = $this->pdo->prepare($requete_album);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->execute();
-            $dureeTotale = $stmt->fetch();
-            return $dureeTotale;
+            $dureeTotale = $stmt->fetchAll();
+            return "00:00";
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
-            return 0;
+            return "00:00";
         }
     }
 

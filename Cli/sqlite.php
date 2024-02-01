@@ -34,7 +34,7 @@ switch ($argv[2]) {
                 duree_musique VARCHAR(8) NOT NULL,
                 son_musique VARCHAR(255) NOT NULL,
                 nb_streams INT NOT NULL CHECK (nb_streams >= 0),
-                id_album INT UNIQUE,
+                id_album INT,
                 FOREIGN KEY (id_album) REFERENCES ALBUM(id_album)
             )
             CREATE TABLE IF NOT EXISTS COMPOSER (

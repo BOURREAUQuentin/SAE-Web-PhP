@@ -36,18 +36,22 @@ class RealiserParPDO
     public function getIdArtistesByIdAlbum(int $id_album): array
     {
         $requete_id_artiste = <<<EOF
-        select id_artiste from REALISER where id_album = :id_album;
+        select id_artiste from REALISER_PAR where id_album = :id_album;
         EOF;
+        $les_id_artistes = array();
         try{
             $stmt = $this->pdo->prepare($requete_id_artiste);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->execute();
-            $les_id_artistes = $stmt->fetchAll();
+            $resultats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultats as $resultat) {
+                array_push($les_id_artistes , $resultat['id_artiste']);
+            }
             return $les_id_artistes;
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
-            return [];
+            return $les_id_artistes;
         }
     }
 
@@ -60,7 +64,7 @@ class RealiserParPDO
     public function getIdAlbumsByIdArtiste(int $id_artiste): array
     {
         $requete_id_album = <<<EOF
-        select id_artiste from REALISER where id_artiste = :id_artiste;
+        select id_artiste from REALISER_PAR where id_artiste = :id_artiste;
         EOF;
         try{
             $stmt = $this->pdo->prepare($requete_id_album);
@@ -84,7 +88,7 @@ class RealiserParPDO
     public function ajouterRealiser(int $id_album, int $id_artiste): void
     {
         $insertion_realiser = <<<EOF
-        insert into REALISER (id_album, id_artiste) values (:id_album, :id_artiste);
+        insert into REALISER_PAR (id_album, id_artiste) values (:id_album, :id_artiste);
         EOF;
         try{
             $stmt = $this->pdo->prepare($insertion_realiser);
