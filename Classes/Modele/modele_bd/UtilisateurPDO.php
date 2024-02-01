@@ -133,4 +133,42 @@ class UtilisateurPDO
             var_dump($e->getMessage());
         }
     }
+
+
+
+    /**
+     * Obtient l'utilisateur dans la table en utilisant le nom d'utilisateur et le mot de passe.
+     *
+     * @param string $nom_utilisateur Le nom de l'utilisateur à rechercher.
+     * @param string $mdp Le mot de passe de l'utilisateur à vérifier.
+     * 
+     * @return Utilisateur|null L'utilisateur correspondant au nom d'utilisateur et au mot de passe donnés, ou null si l'utilisateur n'est pas trouvé.
+     */
+    public function getUtilisateurByUsername(string $nom_utilisateur, string $mdp): ?Utilisateur
+    {
+        $requete_utilisateur = <<<EOF
+        SELECT id_utilisateur, nom_utilisateur, mail_utilisateur, mdp, admin
+        FROM UTILISATEUR
+        WHERE nom_utilisateur = :nom_utilisateur;
+        EOF;
+
+        try {
+            $stmt = $this->pdo->prepare($requete_utilisateur);
+            $stmt->bindParam("nom_utilisateur", $nom_utilisateur, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($resultat && password_verify($mdp, $resultat['mdp'])) {
+                return new Utilisateur($resultat['id_utilisateur'], $resultat['nom_utilisateur'], $resultat['mail_utilisateur'], $resultat['mdp'], $resultat['admin']);
+            } 
+            else {
+                return null;
+            }
+        } catch (PDOException $e) {
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
+
 }

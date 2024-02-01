@@ -18,6 +18,10 @@ switch ($action) {
     case 'artiste':
         include 'templates/artiste.php';
         break;
+
+    case 'connexion':
+        include 'templates/page_connexion.php';
+        break;
         
     default:
         include 'templates/main.php';
