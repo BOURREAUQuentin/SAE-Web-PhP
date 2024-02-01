@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS MUSIQUE (
    id_musique INT PRIMARY KEY,
    nom_musique VARCHAR(255) NOT NULL,
    duree_musique VARCHAR(8) NOT NULL, -- champ VARCHAR pour stocker une durée au format HH:MM:SS
+   son_musique VARCHAR(255) NOT NULL,
+   nb_streams INT NOT NULL CHECK (nb_streams >= 0),
    id_album INT UNIQUE,
    FOREIGN KEY (id_album) REFERENCES ALBUM(id_album)
 );
@@ -68,7 +70,8 @@ CREATE TABLE IF NOT EXISTS UTILISATEUR (
    id_utilisateur INT PRIMARY KEY,
    nom_utilisateur VARCHAR(255) UNIQUE NOT NULL,
    mail_utilisateur VARCHAR(255) UNIQUE NOT NULL,
-   mdp VARCHAR(255) NOT NULL
+   mdp VARCHAR(255) NOT NULL,
+   admin VARCHAR(1) DEFAULT 'N'
 );
 
 
