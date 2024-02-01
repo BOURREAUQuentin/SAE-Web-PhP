@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_php;
+
 /**
  * Class Utilisateur
  * Représente un utilisateur avec ses propriétés et méthodes associées.
@@ -27,19 +30,26 @@ class Utilisateur
     private $mdp;
 
     /**
+     * @var string $admin Si l'utilisateur est admin.
+     */
+    private $admin;
+
+    /**
      * Constructeur de la classe Utilisateur.
      *
      * @param int    $id_utilisateur  L'identifiant unique de l'utilisateur.
      * @param string $nom_utilisateur Le nom de l'utilisateur.
      * @param string $mail_utilisateur Le mail de l'utilisateur.
      * @param string $mdp             Le mot de passe de l'utilisateur.
+     * @param string $admin             Si l'utilisateur est admin.
      */
-    public function __construct(int $id_utilisateur, string $nom_utilisateur, string $mail_utilisateur, string $mdp)
+    public function __construct(int $id_utilisateur, string $nom_utilisateur, string $mail_utilisateur, string $mdp, string $admin)
     {
         $this->id_utilisateur = $id_utilisateur;
         $this->nom_utilisateur = $nom_utilisateur;
         $this->mail_utilisateur = $mail_utilisateur;
         $this->mdp = $mdp;
+        $this->admin = $admin;
     }
 
     /**
@@ -80,6 +90,16 @@ class Utilisateur
     public function getMdp(): string
     {
         return $this->mdp;
+    }
+
+    /**
+     * Obtient si l'utilisateur est admin.
+     *
+     * @return bool Si l'utilisateur est admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->admin == "O";
     }
 
     /**

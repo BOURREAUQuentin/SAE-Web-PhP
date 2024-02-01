@@ -1,10 +1,16 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\RealiserPar;
+use PDO;
+use PDOException;
+
 /**
  * Class RealiserPDO
  * Gère les requêtes PDO liées à la table Realiser.
  */
-class RealiserPDO
+class RealiserParPDO
 {
     /**
      * @var PDO $pdo L'objet PDO pour les interactions avec la base de données.

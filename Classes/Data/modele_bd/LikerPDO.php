@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\Liker;
+use PDO;
+use PDOException;
+
 /**
  * Class LikerPDO
  * Gère les requêtes PDO liées à la table Liker.

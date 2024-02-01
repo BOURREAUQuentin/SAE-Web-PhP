@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\Noter;
+use PDO;
+use PDOException;
+
 /**
  * Class NoterPDO
  * Gère les requêtes PDO liées à la table Noter.
@@ -94,17 +100,18 @@ class NoterPDO
             $stmt2 = $this->pdo->prepare($requete_nb_notes_album);
             $stmt2->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt2->execute();
+            $nb_notes = $stmt2->fetch();
             // vérifie si des notes existent avant de calculer la moyenne
             if ($nb_notes > 0) {
                 return $moyenne_notes_album / $nb_notes;
             }
             else {
-                return null;
+                return 0;
             }
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
-            return null;
+            return 0;
         }
     }
 }

@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\Contenir;
+use PDO;
+use PDOException;
+
 /**
  * Class ContenirPDO
  * Gère les requêtes PDO liées à la table Contenir.

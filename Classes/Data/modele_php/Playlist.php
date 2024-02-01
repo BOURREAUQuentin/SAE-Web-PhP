@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_php;
+
 /**
  * Class Playlist
  * Représente une playlist avec ses propriétés et méthodes associées.

@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_php;
+
 /**
  * Class Album
  * Représente un album avec ses propriétés et méthodes associées.

@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_php;
+
 /**
  * Class Contenir
  * Représente la relation entre une musique et une playlist avec ses propriétés et méthodes associées.

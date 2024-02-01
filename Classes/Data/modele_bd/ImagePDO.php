@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\Image;
+use PDO;
+use PDOException;
+
 /**
  * Class ImagePDO
  * Gère les requêtes PDO liées à la table Image.
@@ -44,6 +50,38 @@ class ImagePDO
     }
 
     /**
+     * Obtient l'image dans la table.
+     *
+     * @param int    $id_image   L'identifiant de l'image à rechercher.
+     * 
+     * @return Image L'image correspondant à l'identifiant donné, ou null si l'image n'est pas trouvée.
+     */
+    public function getImageByIdImage(int $id_image): ?Image
+    {
+        $requete_image = <<<EOF
+        select id_image, image from IMAGE where id_image = :id_image;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_image);
+            $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Image avec les données récupérées
+                return new Image($resultat['id_image'], $resultat['image']);
+            } else {
+                // Aucun image trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Ajoute une nouvelle image à la base de données.
      *
      * @param string $nom_image Le nom de l'image à ajouter.
@@ -84,38 +122,6 @@ class ImagePDO
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
-        }
-    }
-
-    /**
-     * Obtient l'image dans la table.
-     *
-     * @param int    $id_image   L'identifiant de l'image à rechercher.
-     * 
-     * @return Image L'image correspondant à l'identifiant donné, ou null si l'image n'est pas trouvée.
-     */
-    public function getImageByIdImage(int $id_image): ?Image
-    {
-        $requete_image = <<<EOF
-        select id_image, image from IMAGE where id_image = :id_image;
-        EOF;
-        try{
-            $stmt = $this->pdo->prepare($requete_image);
-            $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
-            $stmt->execute();
-            // fetch le résultat sous forme de tableau associatif
-            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($resultat) {
-                // retourne une instance de la classe Image avec les données récupérées
-                return new Image($resultat['id_image'], $resultat['image']);
-            } else {
-                // Aucune image trouvée avec l'identifiant donné
-                return null;
-            }
-        }
-        catch (PDOException $e){
-            var_dump($e->getMessage());
-            return null;
         }
     }
 }

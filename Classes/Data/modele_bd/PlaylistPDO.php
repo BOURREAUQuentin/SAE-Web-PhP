@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\Playlist;
+use PDO;
+use PDOException;
+
 /**
  * Class PlaylistPDO
  * Gère les requêtes PDO liées à la table Playlist.
@@ -40,6 +46,38 @@ class PlaylistPDO
         catch (PDOException $e){
             var_dump($e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Obtient la playlist dans la table.
+     *
+     * @param int    $id_playlist   L'identifiant de la playlist à rechercher.
+     * 
+     * @return Playlist La playlist correspondante à l'identifiant donné, ou null si la playlist n'est pas trouvée.
+     */
+    public function getPlaylistByIdPlaylist(int $id_playlist): ?Playlist
+    {
+        $requete_playlist = <<<EOF
+        select id_playlist, nom_playlist, id_image, id_utilisateur from PLAYLIST where id_playlist = :id_playlist;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_playlist);
+            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Playlist avec les données récupérées
+                return new Playlist($resultat['id_playlist'], $resultat['nom_playlist'], $resultat['id_image'], $resultat['id_utilisateur']);
+            } else {
+                // Aucun playlist trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
         }
     }
 
@@ -88,38 +126,6 @@ class PlaylistPDO
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
-        }
-    }
-
-    /**
-     * Obtient la playlist dans la table.
-     *
-     * @param int    $id_playlist   L'identifiant de la playlist à rechercher.
-     * 
-     * @return Playlist La playlist correspondant à l'identifiant donné, ou null si la playlist n'est pas trouvée.
-     */
-    public function getPlaylistByIdPlaylist(int $id_playlist): ?Playlist
-    {
-        $requete_playlist = <<<EOF
-        select id_playlist, nom_playlist, id_image, id_utilisateur from PLAYLIST where id_playlist = :id_playlist;
-        EOF;
-        try{
-            $stmt = $this->pdo->prepare($requete_playlist);
-            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
-            $stmt->execute();
-            // fetch le résultat sous forme de tableau associatif
-            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($resultat) {
-                // retourne une instance de la classe Playlist avec les données récupérées
-                return new Playlist($resultat['id_playlist'], $resultat['nom_playlist'], $resultat['id_image'], $resultat['id_utilisateur']);
-            } else {
-                // Aucune playlist trouvée avec l'identifiant donné
-                return null;
-            }
-        }
-        catch (PDOException $e){
-            var_dump($e->getMessage());
-            return null;
         }
     }
 }

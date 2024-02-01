@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\Utilisateur;
+use PDO;
+use PDOException;
+
 /**
  * Class UtilisateurPDO
  * Gère les requêtes PDO liées à la table Utilisateur.
@@ -44,6 +50,38 @@ class UtilisateurPDO
     }
 
     /**
+     * Obtient l'utilisateur dans la table.
+     *
+     * @param int    $id_utilisateur   L'identifiant de l'utilisateur à rechercher.
+     * 
+     * @return Utilisateur L'utilisateur correspondante à l'identifiant donné, ou null si l'utilisateur n'est pas trouvée.
+     */
+    public function getUtilisateurByIdUtilisateur(int $id_utilisateur): ?Utilisateur
+    {
+        $requete_utilisateur = <<<EOF
+        select id_utilisateur, nom_utilisateur, mail_utilisateur, mdp, admin from UTILISATEUR where id_utilisateur = :id_utilisateur;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_utilisateur);
+            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Utilisateur avec les données récupérées
+                return new Utilisateur($resultat['id_utilisateur'], $resultat['nom_utilisateur'], $resultat['mail_utilisateur'], $resultat['mdp'], $resultat['admin']);
+            } else {
+                // Aucun utilisateur trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Ajoute un nouvel utilisateur à la base de données.
      *
      * @param string $nom_utilisateur Le nom de l'utilisateur à ajouter.
@@ -52,9 +90,10 @@ class UtilisateurPDO
      */
     public function ajouterUtilisateur(string $nom_utilisateur, string $mail_utilisateur, string $mdp): void
     {
+        // le nouvel utilisateur ne pourra pas être un administrateur
         $new_id_utilisateur = $this->getMaxIdUtilisateur() + 1;
         $insertion_utilisateur = <<<EOF
-        insert into UTILISATEUR (id_utilisateur, nom_utilisateur, mail_utilisateur, mdp) values (:id_utilisateur, :nom_utilisateur, :mail_utilisateur, :mdp);
+        insert into UTILISATEUR (id_utilisateur, nom_utilisateur, mail_utilisateur, mdp, admin) values (:id_utilisateur, :nom_utilisateur, :mail_utilisateur, :mdp, 'N');
         EOF;
         try{
             $stmt = $this->pdo->prepare($insertion_utilisateur);
@@ -92,38 +131,6 @@ class UtilisateurPDO
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
-        }
-    }
-
-    /**
-     * Obtient l'utilisateur dans la table.
-     *
-     * @param int    $id_utilisateur   L'identifiant de l'utilisateur à rechercher.
-     * 
-     * @return Utilisateur L'utilisateur correspondant à l'identifiant donné, ou null si l'utilisateur n'est pas trouvée.
-     */
-    public function getUtilisateurByIdUtilisateur(int $id_utilisateur): ?Utilisateur
-    {
-        $requete_utilisateur = <<<EOF
-        select id_utilisateur, nom_utilisateur, mail_utilisateur, mdp from UTILISATEUR where id_utilisateur = :id_utilisateur;
-        EOF;
-        try{
-            $stmt = $this->pdo->prepare($requete_utilisateur);
-            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
-            $stmt->execute();
-            // fetch le résultat sous forme de tableau associatif
-            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($resultat) {
-                // retourne une instance de la classe Utilisateur avec les données récupérées
-                return new Utilisateur($resultat['id_utilisateur'], $resultat['nom_utilisateur'], $resultat['mail_utilisateur'], $resultat['mdp']);
-            } else {
-                // Aucun utilisateur trouvé avec l'identifiant donné
-                return null;
-            }
-        }
-        catch (PDOException $e){
-            var_dump($e->getMessage());
-            return null;
         }
     }
 }

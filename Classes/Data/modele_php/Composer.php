@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_php;
+
 /**
  * Class Composer
  * Représente la relation entre une musique et un album avec ses propriétés et méthodes associées.

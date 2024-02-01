@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\Album;
+use PDO;
+use PDOException;
+
 /**
  * Class AlbumPDO
  * Gère les requêtes PDO liées à la table Album.
@@ -91,8 +97,6 @@ class AlbumPDO
         }
     }
 
-    // pas de setteur de l'année de sortie car ça n'a aucun sens
-
     /**
      * Obtient l'album dans la table.
      *
@@ -146,6 +150,62 @@ class AlbumPDO
         catch (PDOException $e){
             var_dump($e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Obtient la liste des albums dans la table.
+     * 
+     * @return array La liste des albums.
+     */
+    public function getAlbums(): array
+    {
+        $requete_albums = <<<EOF
+        select id_album, titre, annee_sortie, id_image from ALBUM;
+        EOF;
+        $les_albums = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_albums);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $album) {
+                array_push($les_albums, new Album($album['id_album'], $album['titre'], $album['annee_sortie'], $album['id_image']));
+            }
+            return $les_albums;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_albums;
+        }
+    }
+
+    /**
+     * Obtient la liste des albums d'un genre dans la table.
+     * 
+     * @param int $id_genre L'identifiant du genre pour lequel récupérer la liste des albums.
+     * 
+     * @return array La liste des albums d'un genre.
+     */
+    public function getAlbumsByIdGenre(int $id_genre): array
+    {
+        $requete_albums_genre = <<<EOF
+        select id_album, titre, annee_sortie, id_image from ALBUM natural join FAIRE_PARTIE where id_genre = :id_genre;
+        EOF;
+        $les_albums_genre = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_albums_genre);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $album) {
+                array_push($les_albums_genre, new Album($album['id_album'], $album['titre'], $album['annee_sortie'], $album['id_image']));
+            }
+            return $les_albums_genre;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_albums_genre;
         }
     }
 }

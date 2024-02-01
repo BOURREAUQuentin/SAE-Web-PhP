@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_php;
+
 /**
  * Class Appartenir
  * Représente la relation entre un artiste et un genre avec ses propriétés et méthodes associées.

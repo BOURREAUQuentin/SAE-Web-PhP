@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\FairePartie;
+use PDO;
+use PDOException;
+
 /**
  * Class FairePartiePDO
  * Gère les requêtes PDO liées à la table FairePartie.

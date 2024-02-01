@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_php;
+
 /**
  * Class Liker
  * Représente la relation entre un utilisateur et une musique qu'il a aimée, avec ses propriétés et méthodes associées.

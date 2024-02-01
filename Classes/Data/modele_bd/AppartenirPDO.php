@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+namespace Data\modele_bd;
+use Data\modele_php\Appartenir;
+use PDO;
+use PDOException;
+
 /**
  * Class AppartenirPDO
  * Gère les requêtes PDO liées à la table Appartenir.
