@@ -57,6 +57,10 @@ $les_artistes_genre = $artistePDO->getArtistesByIdGenre($id_genre);
             max-width: 100%;
             height: auto;
         }
+
+        h2, p{
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>

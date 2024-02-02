@@ -11,6 +11,10 @@ Autoloader::register();
 $action = $_REQUEST['action'] ?? 'main';
 ob_start();
 switch ($action) {
+    case 'playlist':
+        include 'templates/playlist.php';
+        break;
+
     case 'genre':
         include 'templates/genre.php';
         break;
