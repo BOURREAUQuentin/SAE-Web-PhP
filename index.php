@@ -22,6 +22,9 @@ switch ($action) {
     case 'page_connexion':
         include 'templates/page_connexion.php';
         break;
+    case 'page_inscription':
+        include 'templates/page_inscription.php';
+        break;
         
     default:
         include 'templates/main.php';

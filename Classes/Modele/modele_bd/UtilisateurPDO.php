@@ -35,13 +35,16 @@ class UtilisateurPDO
     public function getMaxIdUtilisateur(): int
     {
         $requete_max_id = <<<EOF
-        select max(id_utilisateur) maxIdUtilisateur from UTILISATEUR;
+        select max(id_utilisateur) as maxIdUtilisateur from UTILISATEUR;
         EOF;
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $max_id = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($max_id['maxIdUtilisateur'] == null) {
+                return 0;
+            }
+            return $max_id['maxIdUtilisateur'];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -99,7 +102,7 @@ class UtilisateurPDO
             $stmt = $this->pdo->prepare($insertion_utilisateur);
             $stmt->bindParam("id_utilisateur", $new_id_utilisateur, PDO::PARAM_INT);
             $stmt->bindParam("nom_utilisateur", $nom_utilisateur, PDO::PARAM_STR);
-            $stmt->bindParam("mail_utilisateur", $mail_utilisateur, PDO::PARAM_STR);$
+            $stmt->bindParam("mail_utilisateur", $mail_utilisateur, PDO::PARAM_STR);
             $stmt->bindParam("mdp", $mdp, PDO::PARAM_STR);
             $stmt->execute();
         }
@@ -170,6 +173,42 @@ class UtilisateurPDO
         } catch (PDOException $e) {
             var_dump($e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Obtient l'utilisateur dans la table en utilisant le nom d'utilisateur ou le mail.
+     *
+     * @param string $nom_utilisateur Le nom de l'utilisateur à rechercher.
+     * @param string $mail Le mail de l'utilisateur à vérifier.
+     * 
+     * @return bool true si l'utilisateur est trouvé, false sinon.
+     */
+    public function getUtilisateurByUsername_mail(string $nom_utilisateur, string $mail): bool
+    {
+        $requete_utilisateur = <<<EOF
+        SELECT id_utilisateur, nom_utilisateur, mail_utilisateur, mdp, admin
+        FROM UTILISATEUR
+        WHERE (nom_utilisateur = :nom_utilisateur or mail_utilisateur = :mail_utilisateur);
+        EOF;
+
+        try {
+            $stmt = $this->pdo->prepare($requete_utilisateur);
+            $stmt->bindParam("nom_utilisateur", $nom_utilisateur, PDO::PARAM_STR);
+            $stmt->bindParam("mail_utilisateur", $mail, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($resultat) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            var_dump($e->getMessage());
+            return false;
         }
     }
 
