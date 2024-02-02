@@ -1,5 +1,5 @@
 <?php
-use Modele\modele_bd\AlbumPDO;
+use Modele\modele_bd\GenrePDO;
 use Modele\modele_bd\ImagePDO;
 use PDO;
 
@@ -9,11 +9,12 @@ $pdo = new PDO('sqlite:Data/sae_php.db');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Instanciation des classes PDO
-$albumPDO = new AlbumPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 
-// Récupération de la liste des albums
-$les_albums = $albumPDO->getAlbums();
+// Récupération de la liste des genres
+$les_genres = $genrePDO->getGenres();
+
 ?>
 
 <!DOCTYPE html>
@@ -27,13 +28,13 @@ $les_albums = $albumPDO->getAlbums();
             background-color: #424242;
         }
 
-        .album-list {
+        .genre-list {
             display: flex;
             overflow-x: auto;
             white-space: nowrap; /* Empêche le retour à la ligne des éléments */
         }
 
-        .album-container {
+        .genre-container {
             border: 1px solid #ccc;
             margin: 10px;
             padding: 10px;
@@ -42,12 +43,12 @@ $les_albums = $albumPDO->getAlbums();
             text-align: center;
         }
 
-        .album-image {
+        .genre-image {
             max-width: 100%;
             height: auto;
         }
 
-        .view-album-button {
+        .view-genre-button {
             margin-top: 10px;
             background-color: #2196F3;
             color: white;
@@ -60,17 +61,16 @@ $les_albums = $albumPDO->getAlbums();
 </head>
 <body>
 
-<div class="album-list">
-    <?php foreach ($les_albums as $album):
-        $image_album = $imagePDO->getImageByIdImage($album->getIdAlbum());
-        $image_path = $image_album->getImage() ? "../images/" . $image_album->getImage() : '../images/default.jpg';
+<div class="genre-list">
+    <?php foreach ($les_genres as $genre):
+        $image_genre = $imagePDO->getImageByIdImage($genre->getIdImage());
+        $image_path = $image_genre->getImage() ? "../images/" . $image_genre->getImage() : '../images/default.jpg';
         ?>
-        <div class="album-container">
-            <p>Titre : <?php echo $album->getTitre(); ?></p>
-            <p>Année de sortie : <?php echo $album->getAnneeSortie(); ?></p>
-            <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
-            <a href="/?action=album&id_album=<?php echo $album->getIdAlbum(); ?>">
-                <button class="view-album-button">Voir l'album</button>
+        <div class="genre-container">
+            <p>Nom : <?php echo $genre->getNomGenre(); ?></p>
+            <img class="genre-image" src="<?php echo $image_path ?>" alt="Image du genre <?php echo $genre->getNomGenre(); ?>"/>
+            <a href="/?action=genre&id_genre=<?php echo $genre->getIdGenre(); ?>">
+                <button class="view-genre-button">Voir le genre</button>
             </a>
         </div>
     <?php endforeach; ?>

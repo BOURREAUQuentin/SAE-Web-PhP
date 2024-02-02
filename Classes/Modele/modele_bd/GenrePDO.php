@@ -126,4 +126,31 @@ class GenrePDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Obtient la liste des genres dans la table.
+     * 
+     * @return array La liste des genres.
+     */
+    public function getGenres(): array
+    {
+        $requete_genres = <<<EOF
+        select id_genre, nom_genre, id_image from GENRE;
+        EOF;
+        $les_genres = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_genres);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $genre) {
+                array_push($les_genres, new Genre($genre['id_genre'], $genre['nom_genre'], $genre['id_image']));
+            }
+            return $les_genres;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_genres;
+        }
+    }
 }
