@@ -226,6 +226,7 @@ class AlbumPDO
         $les_albums_genre = array();
         try{
             $stmt = $this->pdo->prepare($requete_albums_genre);
+            $stmt->bindParam("id_genre", $id_genre, PDO::PARAM_INT);
             $stmt->execute();
             // fetch le résultat sous forme de tableau associatif
             $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);

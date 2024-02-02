@@ -141,11 +141,12 @@ class MusiquePDO
     public function getMusiquesByIdGenre(int $id_genre): array
     {
         $requete_musiques_genre = <<<EOF
-        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE natural join COMPOSER natural join ALBUM natural join APPARTENIR where id_genre = :id_genre;
+        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE natural join ALBUM natural join FAIRE_PARTIE where id_genre = :id_genre;
         EOF;
         $les_musiques_genre = array();
         try{
             $stmt = $this->pdo->prepare($requete_musiques_genre);
+            $stmt->bindParam("id_genre", $id_genre, PDO::PARAM_INT);
             $stmt->execute();
             // fetch le résultat sous forme de tableau associatif
             $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -157,6 +158,31 @@ class MusiquePDO
         catch (PDOException $e){
             var_dump($e->getMessage());
             return $les_musiques_genre;
+        }
+    }
+    
+    /**
+     * Obtient l'id de l'image de la musique (associé à l'album) dans la table.
+     * 
+     * @param int $id_musique L'identifiant de la musique pour lequel récupérer l'id image.
+     * 
+     * @return int L'id de l'image de la musique (associé à l'album).
+     */
+    public function getIdImageByIdMusique(int $id_musique): int
+    {
+        $requete_id_image_musique = <<<EOF
+        select id_image from MUSIQUE natural join ALBUM where id_musique = :id_musique;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_id_image_musique);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
+            $stmt->execute();
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["id_image"];
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return 0;
         }
     }
 }
