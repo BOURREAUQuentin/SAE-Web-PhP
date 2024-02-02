@@ -5,7 +5,7 @@ use PDO;
 $pdo = new PDO('sqlite:Data/sae_php.db');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$utilisateur = new UtilisateurPDO($pdo);
+$utilisateurPDO = new UtilisateurPDO($pdo);
 
 // si c'est une methode POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,11 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($username) && !empty($password)) {
         
-        $user = $utilisateur->getUtilisateurByUsername($username);
+        $user = $utilisateurPDO->getUtilisateurByUsername($username, $password);
 
-        if ($user && password_verify($password, $user->getPassword())) {
-            header("Location: album");
-            exit();
+        if ($user != null) {
+            exit(header('Location: ?action=main'));
         } 
         else {
             $error_message = "Invalid username or password.";

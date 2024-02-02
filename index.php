@@ -19,7 +19,7 @@ switch ($action) {
         include 'templates/artiste.php';
         break;
 
-    case 'connexion':
+    case 'page_connexion':
         include 'templates/page_connexion.php';
         break;
         

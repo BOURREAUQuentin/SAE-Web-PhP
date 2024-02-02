@@ -149,19 +149,21 @@ class UtilisateurPDO
         $requete_utilisateur = <<<EOF
         SELECT id_utilisateur, nom_utilisateur, mail_utilisateur, mdp, admin
         FROM UTILISATEUR
-        WHERE nom_utilisateur = :nom_utilisateur;
+        WHERE (nom_utilisateur = :nom_utilisateur or mail_utilisateur = :mail_utilisateur) and mdp = :mdp;
         EOF;
 
         try {
             $stmt = $this->pdo->prepare($requete_utilisateur);
             $stmt->bindParam("nom_utilisateur", $nom_utilisateur, PDO::PARAM_STR);
+            $stmt->bindParam("mail_utilisateur", $nom_utilisateur, PDO::PARAM_STR);
+            $stmt->bindParam("mdp", $mdp, PDO::PARAM_STR);
             $stmt->execute();
 
             $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($resultat && password_verify($mdp, $resultat['mdp'])) {
+            if ($resultat) {
                 return new Utilisateur($resultat['id_utilisateur'], $resultat['nom_utilisateur'], $resultat['mail_utilisateur'], $resultat['mdp'], $resultat['admin']);
-            } 
+            }
             else {
                 return null;
             }
