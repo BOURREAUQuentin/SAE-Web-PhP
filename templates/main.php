@@ -1,6 +1,7 @@
 <?php
 use Modele\modele_bd\GenrePDO;
 use Modele\modele_bd\ImagePDO;
+use Modele\modele_bd\PlaylistPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -15,10 +16,11 @@ if (isset($_SESSION["username"])) {
 // Instanciation des classes PDO
 $genrePDO = new GenrePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
+$playlistPDO = new PlaylistPDO($pdo);
 
 // Récupération de la liste des genres
 $les_genres = $genrePDO->getGenres();
-
+$les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 ?>
 
 <!DOCTYPE html>
@@ -75,11 +77,16 @@ $les_genres = $genrePDO->getGenres();
             border-radius: 5px;
             cursor: pointer;
         }
+
+        .image-playlists{
+            max-width: 20%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
-<h1><?php echo $nom_utilisateur_connecte ?></h1>
 <?php if (isset($_SESSION["username"])) : ?>
+    <h1>Bienvenue <?php echo $nom_utilisateur_connecte ?> !</h1>
     <form method="post" action="?action=logout">
         <button class="logout-button" type="submit">Logout</button>
     </form>
@@ -88,6 +95,20 @@ $les_genres = $genrePDO->getGenres();
         <button class="login-button">Login</button>
     </a>
 <?php endif; ?>
+
+<?php foreach ($les_playlists_utilisateur as $playlist_utilisateur):
+    $image_playlist = $imagePDO->getImageByIdImage($playlist_utilisateur->getIdImage());
+    $image_path_playlist = $image_playlist->getImage() ? "../images/" . $image_playlist->getImage() : '../images/default.jpg';
+    ?>
+    <div class="genre-container">
+        <p><?php echo $playlist_utilisateur->getNomPlaylist(); ?></p>
+        <img class="image-playlists" src="<?php echo $image_path_playlist ?>" alt="Image de la playlist <?php echo $playlist_utilisateur->getNomPlaylist(); ?>"/>
+        <a href="/?action=playlist&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>">
+            <button class="view-genre-button">Voir la playlist</button>
+        </a>
+    </div>
+<?php endforeach; ?>
+
 <div class="genre-list">
     <?php foreach ($les_genres as $genre):
         $image_genre = $imagePDO->getImageByIdImage($genre->getIdImage());
