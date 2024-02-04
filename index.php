@@ -64,6 +64,15 @@ switch ($action) {
             exit;
         }
         break;
+    
+    case 'supprimer_musique':
+        $id_musique = $_GET['id_musique'] ?? null;
+        $id_playlist = $_GET['id_playlist'] ?? null;
+        $contenirPDO->supprimerContenir($id_musique, $id_playlist);
+        // Redirection de l'utilisateur vers la page de la playlist
+        header('Location: ?action=playlist&id_playlist=' . $id_playlist);
+        exit;
+        break;
 
     default:
         include 'templates/main.php';

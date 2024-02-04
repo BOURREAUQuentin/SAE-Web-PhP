@@ -111,4 +111,25 @@ class ContenirPDO
         }
     }
 
+    /**
+     * Supprime un contenir à la base de données.
+     *
+     * @param int    $id_musique    L'identifiant de la musique associée à la playlist.
+     * @param int    $id_playlist    L'identifiant de la playlist associée à la musique.
+     */
+    public function supprimerContenir(int $id_musique, int $id_playlist): void
+    {
+        $suppression_contenir = <<<EOF
+        delete from CONTENIR where id_musique = :id_musique and id_playlist = :id_playlist;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($suppression_contenir);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
+            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }
