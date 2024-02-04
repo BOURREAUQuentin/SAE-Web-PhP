@@ -10,6 +10,14 @@ Autoloader::register();
 // lancement de la session
 session_start();
 
+// Connection en utlisant la connexion PDO avec le moteur en prefixe
+$pdo = new PDO('sqlite:Data/sae_php.db');
+// Permet de gérer le niveau des erreurs
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+use Modele\modele_bd\ContenirPDO;
+// instanciation des classes PDO
+$contenirPDO = new ContenirPDO($pdo);
+
 // Manage action / controller
 $action = $_REQUEST['action'] ?? 'main';
 ob_start();
@@ -41,6 +49,20 @@ switch ($action) {
         break;
     case 'page_inscription':
         include 'templates/page_inscription.php';
+        break;
+    
+    case 'ajouter_playlist':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_musique = $_POST['id_musique'];
+            $id_playlist = $_POST['id_playlist'];
+            $ajoutReussi = $contenirPDO->ajouterContenir($id_musique, $id_playlist);
+            if (!$ajoutReussi) {
+                // message d'erreur à afficher -> La musique est déjà dans la playlist
+            }
+            // redirection de l'utilisateur vers la page de la playlist
+            header('Location: ?action=playlist&id_playlist=' . $id_playlist);
+            exit;
+        }
         break;
 
     default:
