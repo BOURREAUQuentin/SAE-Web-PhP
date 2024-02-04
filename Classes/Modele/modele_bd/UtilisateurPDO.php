@@ -212,4 +212,35 @@ class UtilisateurPDO
         }
     }
 
+    /**
+     * Obtient l'utilisateur dans la table.
+     *
+     * @param string    $nom_utilisateur   Le nom de l'utilisateur à rechercher.
+     * 
+     * @return Utilisateur L'utilisateur correspondante au nom d'utilisateur donné, ou null si l'utilisateur n'est pas trouvé.
+     */
+    public function getUtilisateurByNomUtilisateur(string $nom_utilisateur): ?Utilisateur
+    {
+        $requete_utilisateur = <<<EOF
+        select id_utilisateur, nom_utilisateur, mail_utilisateur, mdp, admin from UTILISATEUR where nom_utilisateur = :nom_utilisateur;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_utilisateur);
+            $stmt->bindParam("nom_utilisateur", $nom_utilisateur, PDO::PARAM_STR);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Utilisateur avec les données récupérées
+                return new Utilisateur($resultat['id_utilisateur'], $resultat['nom_utilisateur'], $resultat['mail_utilisateur'], $resultat['mdp'], $resultat['admin']);
+            } else {
+                // Aucun utilisateur trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
 }

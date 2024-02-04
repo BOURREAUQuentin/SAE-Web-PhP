@@ -40,8 +40,8 @@ class ImagePDO
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["maxIdImage"];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -82,6 +82,38 @@ class ImagePDO
     }
 
     /**
+     * Obtient l'image dans la table.
+     *
+     * @param string    $nom_image   Le nom de l'image à rechercher.
+     * 
+     * @return Image L'image correspondant au nom d'image donné, ou null si l'image n'est pas trouvée.
+     */
+    public function getImageByNomImage(string $nom_image): ?Image
+    {
+        $requete_image = <<<EOF
+        select id_image, image from IMAGE where image = :nom_image;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_image);
+            $stmt->bindParam("nom_image", $nom_image, PDO::PARAM_STR);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Image avec les données récupérées
+                return new Image($resultat['id_image'], $resultat['image']);
+            } else {
+                // Aucun image trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Ajoute une nouvelle image à la base de données.
      *
      * @param string $nom_image Le nom de l'image à ajouter.
@@ -90,7 +122,7 @@ class ImagePDO
     {
         $new_id_image = $this->getMaxIdImage() + 1;
         $insertion_image = <<<EOF
-        insert into IMAGE (id_image, nom_image) values (:id_image, :nom_image);
+        insert into IMAGE (id_image, image) values (:id_image, :nom_image);
         EOF;
         try{
             $stmt = $this->pdo->prepare($insertion_image);
@@ -112,7 +144,7 @@ class ImagePDO
     public function mettreAJourNomImage(int $id_image, string $nouveau_nom): void
     {
         $maj_image = <<<EOF
-        update IMAGE set nom_image = :nouveau_nom where id_image = :id_image;
+        update IMAGE set image = :nouveau_nom where id_image = :id_image;
         EOF;
         try{
             $stmt = $this->pdo->prepare($maj_image);

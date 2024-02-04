@@ -90,24 +90,37 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
     <form method="post" action="?action=logout">
         <button class="logout-button" type="submit">Logout</button>
     </form>
+    <?php if (empty($les_playlists_utilisateur)) : ?>
+        <h2>Vous n'avez pas encore de playlists.</h2>
+    <?php else : ?>
+        <?php foreach ($les_playlists_utilisateur as $playlist_utilisateur):
+            $image_playlist = $imagePDO->getImageByIdImage($playlist_utilisateur->getIdImage());
+            $image_path_playlist = $image_playlist->getImage() ? "../images/" . $image_playlist->getImage() : '../images/default.jpg';
+            ?>
+            <div class="genre-container">
+                <p><?php echo $playlist_utilisateur->getNomPlaylist(); ?></p>
+                <img class="image-playlists" src="<?php echo $image_path_playlist ?>" alt="Image de la playlist <?php echo $playlist_utilisateur->getNomPlaylist(); ?>"/>
+                <a href="/?action=playlist&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>">
+                    <button class="view-genre-button">Voir la playlist</button>
+                </a>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+    <h2>Ajout d'une nouvelle playlist</h2>
+    <form method="post" action="?action=creer_playlist" enctype="multipart/form-data">
+        <label for="nom_playlist">Nom de la playlist :</label>
+        <input type="text" id="nom_playlist" name="nom_playlist" required>
+        
+        <label for="image_playlist">Image de la playlist :</label>
+        <input type="file" id="image_playlist" name="image_playlist" accept="image/*" required>
+
+        <button type="submit">Créer la playlist</button>
+    </form>
 <?php else : ?>
     <a href="?action=page_connexion">
         <button class="login-button">Login</button>
     </a>
 <?php endif; ?>
-
-<?php foreach ($les_playlists_utilisateur as $playlist_utilisateur):
-    $image_playlist = $imagePDO->getImageByIdImage($playlist_utilisateur->getIdImage());
-    $image_path_playlist = $image_playlist->getImage() ? "../images/" . $image_playlist->getImage() : '../images/default.jpg';
-    ?>
-    <div class="genre-container">
-        <p><?php echo $playlist_utilisateur->getNomPlaylist(); ?></p>
-        <img class="image-playlists" src="<?php echo $image_path_playlist ?>" alt="Image de la playlist <?php echo $playlist_utilisateur->getNomPlaylist(); ?>"/>
-        <a href="/?action=playlist&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>">
-            <button class="view-genre-button">Voir la playlist</button>
-        </a>
-    </div>
-<?php endforeach; ?>
 
 <div class="genre-list">
     <?php foreach ($les_genres as $genre):

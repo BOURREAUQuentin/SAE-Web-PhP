@@ -41,8 +41,8 @@ class PlaylistPDO
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["maxIdPlaylist"];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -89,7 +89,7 @@ class PlaylistPDO
      * @param int    $id_image    L'identifiant de l'image associée à la playlist.
      * @param int    $id_utilisateur    L'identifiant de l'utilisateur associée à la playlist.
      */
-    public function ajouterPlaylist(string $nom_playlist, int $id_image, int $id_utilisateur): void
+    public function creerPlaylist(string $nom_playlist, int $id_image, int $id_utilisateur): void
     {
         $new_id_playlist = $this->getMaxIdPlaylist() + 1;
         $insertion_artiste = <<<EOF

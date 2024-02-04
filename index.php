@@ -14,9 +14,17 @@ session_start();
 $pdo = new PDO('sqlite:Data/sae_php.db');
 // Permet de gérer le niveau des erreurs
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 use Modele\modele_bd\ContenirPDO;
+use Modele\modele_bd\PlaylistPDO;
+use Modele\modele_bd\ImagePDO;
+use Modele\modele_bd\UtilisateurPDO;
+
 // instanciation des classes PDO
 $contenirPDO = new ContenirPDO($pdo);
+$playlistPDO = new PlaylistPDO($pdo);
+$imagePDO = new ImagePDO($pdo);
+$utilisateurPDO = new UtilisateurPDO($pdo);
 
 // Manage action / controller
 $action = $_REQUEST['action'] ?? 'main';
@@ -72,6 +80,30 @@ switch ($action) {
         // Redirection de l'utilisateur vers la page de la playlist
         header('Location: ?action=playlist&id_playlist=' . $id_playlist);
         exit;
+        break;
+    
+    case 'creer_playlist':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // récupération des données du formulaire
+            $nom_playlist = $_POST['nom_playlist'];
+
+            // gestion de l'image de la playlist
+            $image_playlist = $_FILES['image_playlist']['name'];
+            $image_temp = $_FILES['image_playlist']['tmp_name'];
+            
+            $nom_image_playlist_transformee = str_replace(' ', '-', $image_playlist);
+            $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nom_image_playlist_transformee); // nom image -> nom_playlist-nom_utilisateur
+            move_uploaded_file($image_temp, "../images/" . $nom_image_playlist_transformee);
+
+            // appel de la méthode pour créer la playlist
+            $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nom_image_playlist_transformee))->getIdImage();
+            $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($_SESSION["username"]);
+            $playlistPDO->creerPlaylist($nom_playlist, $id_new_image, $utilisateur_connecte->getIdUtilisateur());
+
+            // redirection de l'utilisateur vers la page principale ou autre
+            header('Location: ?action=main');
+            exit;
+        }
         break;
 
     default:

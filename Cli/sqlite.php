@@ -13,7 +13,7 @@ switch ($argv[2]) {
         $query =<<<EOF
             CREATE TABLE IF NOT EXISTS IMAGE (
                 id_image INT PRIMARY KEY,
-                image VARCHAR(255) NOT NULL
+                image VARCHAR(255) NOT NULL UNIQUE
             )
             CREATE TABLE IF NOT EXISTS ARTISTE (
                 id_artiste INT PRIMARY KEY,
@@ -35,13 +35,6 @@ switch ($argv[2]) {
                 son_musique VARCHAR(255) NOT NULL,
                 nb_streams INT NOT NULL CHECK (nb_streams >= 0),
                 id_album INT,
-                FOREIGN KEY (id_album) REFERENCES ALBUM(id_album)
-            )
-            CREATE TABLE IF NOT EXISTS COMPOSER (
-                id_musique INT,
-                id_album INT,
-                PRIMARY KEY (id_musique, id_album),
-                FOREIGN KEY (id_musique) REFERENCES MUSIQUE(id_musique),
                 FOREIGN KEY (id_album) REFERENCES ALBUM(id_album)
             )
             CREATE TABLE IF NOT EXISTS UTILISATEUR (
