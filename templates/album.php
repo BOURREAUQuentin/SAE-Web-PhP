@@ -3,7 +3,6 @@ use Modele\modele_bd\AlbumPDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\ArtistePDO;
-use PDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');

@@ -1,6 +1,5 @@
 <?php
 use Modele\modele_bd\UtilisateurPDO;
-use PDO;
 
 $pdo = new PDO('sqlite:Data/sae_php.db');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -18,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $utilisateurPDO->getUtilisateurByUsername($username, $password);
 
         if ($user != null) {
+            // stockage du nom d'utilisateur dans la session
+            $_SESSION["username"] = $username;
             exit(header('Location: ?action=main'));
         } 
         else {
@@ -74,6 +75,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 3px;
             cursor: pointer;
         }
+
+        .register-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <button type="submit">Login</button>
     </form>
+    <!-- bouton pour se rediriger vers la page d'inscription -->
+    <a href="?action=page_inscription" class="register-button">S'inscrire</a>
 </div>
 
 </body>

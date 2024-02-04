@@ -1,12 +1,16 @@
 <?php
 use Modele\modele_bd\GenrePDO;
 use Modele\modele_bd\ImagePDO;
-use PDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
 // Permet de gérer le niveau des erreurs
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$nom_utilisateur_connecte = "pas connecté";
+if (isset($_SESSION["username"])) {
+    $nom_utilisateur_connecte = $_SESSION["username"];
+}
 
 // Instanciation des classes PDO
 $genrePDO = new GenrePDO($pdo);
@@ -57,10 +61,33 @@ $les_genres = $genrePDO->getGenres();
             border-radius: 5px;
             cursor: pointer;
         }
+
+        h1{
+            color: white;
+        }
+
+        .login-button,
+        .logout-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-
+<h1><?php echo $nom_utilisateur_connecte ?></h1>
+<?php if (isset($_SESSION["username"])) : ?>
+    <form method="post" action="?action=logout">
+        <button class="logout-button" type="submit">Logout</button>
+    </form>
+<?php else : ?>
+    <a href="?action=page_connexion">
+        <button class="login-button">Login</button>
+    </a>
+<?php endif; ?>
 <div class="genre-list">
     <?php foreach ($les_genres as $genre):
         $image_genre = $imagePDO->getImageByIdImage($genre->getIdImage());
