@@ -4,7 +4,7 @@ use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\MusiquePDO;
 use Modele\modele_bd\GenrePDO;
-use PDO;
+use Modele\modele_bd\PlaylistPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -17,6 +17,7 @@ $imagePDO = new ImagePDO($pdo);
 $artistePDO = new ArtistePDO($pdo);
 $musiquePDO = new MusiquePDO($pdo);
 $genrePDO = new GenrePDO($pdo);
+$playlistPDO = new PlaylistPDO($pdo);
 
 // Récupération de l'id de l'album
 $id_genre = intval($_GET['id_genre']);
@@ -24,6 +25,12 @@ $genre = $genrePDO->getGenreByIdGenre($id_genre);
 $les_albums_genre = $albumPDO->getAlbumsByIdGenre($id_genre);
 $les_musiques_genre = $musiquePDO->getMusiquesByIdGenre($id_genre);
 $les_artistes_genre = $artistePDO->getArtistesByIdGenre($id_genre);
+
+$nom_utilisateur_connecte = "pas connecté";
+if (isset($_SESSION["username"])) {
+    $nom_utilisateur_connecte = $_SESSION["username"];
+}
+$playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 ?>
 
 <!DOCTYPE html>
@@ -58,7 +65,7 @@ $les_artistes_genre = $artistePDO->getArtistesByIdGenre($id_genre);
             height: auto;
         }
 
-        h2, p{
+        h2{
             color: #ffffff;
         }
     </style>
@@ -98,6 +105,17 @@ $les_artistes_genre = $artistePDO->getArtistesByIdGenre($id_genre);
                 <a href="/?action=musique&id_musique=<?php echo $musique_genre->getIdMusique(); ?>">
                     <button class="view-genre-button">Voir la musique</button>
                 </a>
+
+                <!-- formulaire pour choisir la playlist dans laquelle ajouter la musique-->
+                <form method="post" action="?action=ajouter_playlist">
+                    <input type="hidden" name="id_musique" value="<?php echo $musique_genre->getIdMusique(); ?>">
+                    <select name="id_playlist">
+                        <?php foreach ($playlists_utilisateur as $playlist): ?>
+                            <option value="<?php echo $playlist->getIdPlaylist(); ?>"><?php echo $playlist->getNomPlaylist(); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit">Ajouter à la playlist</button>
+                </form>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>

@@ -41,8 +41,8 @@ class PlaylistPDO
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["maxIdPlaylist"];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -89,7 +89,7 @@ class PlaylistPDO
      * @param int    $id_image    L'identifiant de l'image associée à la playlist.
      * @param int    $id_utilisateur    L'identifiant de l'utilisateur associée à la playlist.
      */
-    public function ajouterPlaylist(string $nom_playlist, int $id_image, int $id_utilisateur): void
+    public function creerPlaylist(string $nom_playlist, int $id_image, int $id_utilisateur): void
     {
         $new_id_playlist = $this->getMaxIdPlaylist() + 1;
         $insertion_artiste = <<<EOF
@@ -157,6 +157,36 @@ class PlaylistPDO
         catch (PDOException $e){
             var_dump($e->getMessage());
             return $les_musiques_playlist;
+        }
+    }
+
+    /**
+     * Obtient la liste des playlists d'un artiste dans la table.
+     * 
+     * @param string $nom_utilisateur Le nom d'utilisateur pour lequel récupérer la liste des playlists.
+     * 
+     * @return array La liste des playlist d'un utilisateur.
+     */
+    public function getPlaylistsByNomUtilisateur(string $nom_utilisateur): array
+    {
+        $requete_playlists_utilisateur = <<<EOF
+        select id_playlist, nom_playlist, id_image, id_utilisateur from PLAYLIST natural join UTILISATEUR where nom_utilisateur = :nom_utilisateur;
+        EOF;
+        $les_playlists_utilisateur = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_playlists_utilisateur);
+            $stmt->bindParam("nom_utilisateur", $nom_utilisateur, PDO::PARAM_STR);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $playlist) {
+                array_push($les_playlists_utilisateur, new Playlist($playlist['id_playlist'], $playlist['nom_playlist'], $playlist['id_image'], $playlist['id_utilisateur']));
+            }
+            return $les_playlists_utilisateur;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_playlists_utilisateur;
         }
     }
 }

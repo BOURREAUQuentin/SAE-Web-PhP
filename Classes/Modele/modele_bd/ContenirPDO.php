@@ -56,14 +56,74 @@ class ContenirPDO
      *
      * @param int    $id_musique    L'identifiant de la musique associée à la playlist.
      * @param int    $id_playlist    L'identifiant de la playlist associée à la musique.
+     * @return bool Retourne true si la musique est bien ajoutée, sinon false (cas d'erreur que la musique est déjà présente dans la playlist)
      */
-    public function ajouterContenir(int $id_musique, int $id_playlist): void
+    public function ajouterContenir(int $id_musique, int $id_playlist): bool
     {
+        // vérification de si la musique est déjà dans la playlist
+        if ($this->estMusiqueDansPlaylist($id_musique, $id_playlist)) {
+            return false;
+        }
         $insertion_contenir = <<<EOF
         insert into CONTENIR (id_musique, id_playlist) values (:id_musique, :id_playlist);
         EOF;
         try{
             $stmt = $this->pdo->prepare($insertion_contenir);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
+            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
+            $stmt->execute();
+            return true;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Vérifie si une musique est déjà dans une playlist.
+     *
+     * @param int $id_musique L'identifiant de la musique.
+     * @param int $id_playlist L'identifiant de la playlist.
+     *
+     * @return bool Retourne true si la musique est déjà dans la playlist, sinon false.
+     *
+     */
+    private function estMusiqueDansPlaylist($id_musique, $id_playlist): bool
+    {
+        $requete_est_dans_contenir = <<<EOF
+        select * from CONTENIR where id_musique = :id_musique and id_playlist = :id_playlist;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_est_dans_contenir);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
+            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
+            $stmt->execute();
+            $resultat = $stmt->fetch();
+            if ($resultat != null){
+                return true;
+            }
+            return false;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Supprime un contenir à la base de données.
+     *
+     * @param int    $id_musique    L'identifiant de la musique associée à la playlist.
+     * @param int    $id_playlist    L'identifiant de la playlist associée à la musique.
+     */
+    public function supprimerContenir(int $id_musique, int $id_playlist): void
+    {
+        $suppression_contenir = <<<EOF
+        delete from CONTENIR where id_musique = :id_musique and id_playlist = :id_playlist;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($suppression_contenir);
             $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
             $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
             $stmt->execute();
