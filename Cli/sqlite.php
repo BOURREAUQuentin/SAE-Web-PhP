@@ -109,7 +109,6 @@ switch ($argv[2]) {
     case 'delete':
         echo '→ delete table tables' . PHP_EOL;
         $query =<<<EOF
-            DROP TABLE quiz
             DROP TABLE IF EXISTS LIKER;
             DROP TABLE IF EXISTS CONTENIR;
             DROP TABLE IF EXISTS PLAYLIST;
