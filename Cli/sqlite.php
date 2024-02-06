@@ -104,6 +104,12 @@ switch ($argv[2]) {
                 FOREIGN KEY (id_utilisateur) REFERENCES UTILISATEUR(id_utilisateur)
             );
         EOF;
+        try {
+            $pdo->exec($query);
+        }
+        catch (PDOException $e) {
+            var_dump($e->getMessage());
+        }
         break;
 
     case 'delete':
@@ -123,10 +129,17 @@ switch ($argv[2]) {
             DROP TABLE IF EXISTS ARTISTE;
             DROP TABLE IF EXISTS IMAGE;
         EOF;
+        try {
+            $pdo->exec($query);
+        }
+        catch (PDOException $e) {
+            var_dump($e->getMessage());
+        }
         break;
 
     case 'load':
         echo '→ load data tables' . PHP_EOL;
+
         $query =<<<EOF
             insert into IMAGE (id_image, image) VALUES
             (1, "il-le-fallait.jpg"),
@@ -443,17 +456,176 @@ switch ($argv[2]) {
             (8, 2),
             (9, 2);
         EOF;
+        try {
+            $pdo->exec($query);
+        }
+        catch (PDOException $e) {
+            var_dump($e->getMessage());
+        }
+
+
+        // chargement du fichier yml donné dans le sujet
+
+        // Chargement du contenu du fichier YML
+        $fileContent = file_get_contents('./Data/extrait.yml');
+
+        if ($fileContent === false) { // vérifie si le chargement a réussi
+            die('Erreur de chargement du fichier YML.');
+        }
+
+        // converti le fichier YML en tableau associatif
+        $lines = explode("\n", $fileContent);
+        $les_albums = [];
+        $current_album = [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+
+
+            if (empty($line)) { // ignore les lignes vides
+                continue;
+            }
+
+            if (strpos($line, '- by:') === 0) { // identifie le début d'un nouvel album
+                if (!empty($current_album)) { // ajoute l'album actuel au tableau
+                    $les_albums[] = $current_album;
+                    $current_album = [];
+                }
+            }
+
+            // extraire les clés et les valeurs
+            list($key, $value) = explode(':', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+
+            if ($key === 'genre') { // gére le cas où la valeur est un tableau
+                $current_album[$key] = array_map('trim', explode(',', substr($value, 1, -1)));
+            }
+            else if ($key === '- by'){
+                $current_album[str_replace("- ", "", $key)] = $value;
+            }
+            else {
+                $current_album[$key] = $value;
+            }
+        }
+
+        // ajoute le dernier album au tableau
+        if (!empty($current_album)) {
+            $les_albums[] = $current_album;
+        }
+
+        $requete_max_id_image = <<<EOF
+            select max(id_image) maxIdImage from IMAGE;
+        EOF;
+        $stmt = $pdo->prepare($requete_max_id_image);
+        $stmt->execute();
+        $max_id_image = $stmt->fetch(PDO::FETCH_ASSOC)['maxIdImage'];
+        if ($max_id_image === null) {
+            // aucune entrée dans la table
+            $new_id_image = 1;
+        }
+        else {
+            // ajout 1 à la valeur maximale récupérée
+            $new_id_image = $max_id_image + 1;
+        }
+
+        $requete_max_id_genre = <<<EOF
+            select max(id_genre) maxIdGenre from GENRE;
+        EOF;
+        $stmt = $pdo->prepare($requete_max_id_genre);
+        $stmt->execute();
+        $max_id_genre = $stmt->fetch(PDO::FETCH_ASSOC)['maxIdGenre'];
+        if ($max_id_genre === null) {
+            // aucune entrée dans la table
+            $new_id_genre = 1;
+        }
+        else {
+            // ajout 1 à la valeur maximale récupérée
+            $new_id_genre = $max_id_genre + 1;
+        }
+
+        // insertion image default pour genre
+        $image_default = 'default.jpg';
+        $insertion_image_default = <<<EOF
+            INSERT INTO IMAGE (id_image, image) VALUES (:id_image, :image);
+        EOF;
+        $stmt = $pdo->prepare($insertion_image_default);
+        $stmt->bindParam(':id_image', $new_id_image, PDO::PARAM_INT);
+        $stmt->bindParam(':image', $image_default, PDO::PARAM_STR);
+        $stmt->execute();
+        $id_image_default = $new_id_image;
+        $new_id_image += 1;
+
+        // parcours des albums
+        foreach ($les_albums as $album) {
+
+            $image_album = isset($album['img']) ? $album['img'] : 'default.jpg';
+            if ($image_album != "null"){
+                $insertion_image = <<<EOF
+                    INSERT INTO IMAGE (id_image, image) VALUES (:id_image, :image);
+                EOF;
+                $stmt = $pdo->prepare($insertion_image);
+                $stmt->bindParam(':id_image', $new_id_image, PDO::PARAM_INT);
+                $stmt->bindParam(':image', $image_album, PDO::PARAM_STR);
+                $stmt->execute();
+            }
+
+            $insertion_album = <<<EOF
+                INSERT INTO ALBUM (id_album, titre, annee_sortie, id_image) VALUES (:id_album, :titre, :annee_sortie, :id_image);
+            EOF;
+            $stmt = $pdo->prepare($insertion_album);
+            $stmt->bindParam(':id_album', $album['entryId'], PDO::PARAM_INT);
+            $stmt->bindParam(':titre', $album['title'], PDO::PARAM_STR);
+            $stmt->bindParam(':annee_sortie', $album['releaseYear'], PDO::PARAM_STR);
+            if ($image_album != "null"){
+                $stmt->bindParam(':id_image', $new_id_image, PDO::PARAM_INT);
+            }
+            else{
+                $stmt->bindParam(':id_image', $id_image_default, PDO::PARAM_INT);
+            }
+            $stmt->execute();
+
+            foreach ($album["genre"] as $genre_album){
+
+                $contient_deja_genre = <<<EOF
+                    SELECT id_genre FROM GENRE WHERE nom_genre = :nom_genre;
+                EOF;
+                $stmt = $pdo->prepare($contient_deja_genre);
+                $stmt->bindParam(':nom_genre', $genre_album, PDO::PARAM_STR);
+                $stmt->execute();
+                $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$resultat) {
+                    // Le genre n'existe pas dans la base de données
+                    $insertion_genre = <<<EOF
+                        INSERT INTO GENRE (id_genre, nom_genre, id_image) VALUES (:id_genre, :nom_genre, :id_image);
+                    EOF;
+                    $stmt = $pdo->prepare($insertion_genre);
+                    $stmt->bindParam(':id_genre', $new_id_genre, PDO::PARAM_INT);
+                    $stmt->bindParam(':nom_genre', $genre_album, PDO::PARAM_STR);
+                    $stmt->bindParam(':id_image', $id_image_default, PDO::PARAM_INT);
+                    $stmt->execute();
+                }
+                $id_genre_album = isset($resultat['id_genre']) ? $resultat['id_genre'] : $new_id_genre;
+
+                // insertion lien album et genre
+                $insertion_faire_partie = <<<EOF
+                    INSERT INTO FAIRE_PARTIE (id_album, id_genre) VALUES (:id_album, :id_genre);
+                EOF;
+                $stmt = $pdo->prepare($insertion_faire_partie);
+                $stmt->bindParam(':id_album', $album['entryId'], PDO::PARAM_INT);
+                $stmt->bindParam(':id_genre', $id_genre_album, PDO::PARAM_INT);
+                $stmt->execute();
+
+                // incrémentation nouvel id pour le prochain genre de l'album
+                $new_id_genre += 1;
+            }
+
+            // incrémentation nouvel id pour le prochain album (nouvelle image future)
+            $new_id_image += 1;
+        }
         break;
     
     default:
         echo "Pas d'action associée".PHP_EOL;
         break;
-}
-
-if ($query) {
-    try {
-        $pdo->exec($query);
-    } catch (PDOException $e) {
-        var_dump($e->getMessage());
-    }
 }
