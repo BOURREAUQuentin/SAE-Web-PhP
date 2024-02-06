@@ -1,6 +1,5 @@
 <?php
 use Modele\modele_bd\UtilisateurPDO;
-use PDO;
 
 $pdo = new PDO('sqlite:Data/sae_php.db');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

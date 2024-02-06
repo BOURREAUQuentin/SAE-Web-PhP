@@ -62,15 +62,22 @@ switch ($action) {
     
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id_musique = $_POST['id_musique'];
-            $id_playlist = $_POST['id_playlist'];
-            $ajoutReussi = $contenirPDO->ajouterContenir($id_musique, $id_playlist);
-            if (!$ajoutReussi) {
-                // message d'erreur à afficher -> La musique est déjà dans la playlist
+            if (isset($_SESSION["username"])){
+                $id_musique = $_POST['id_musique'];
+                $id_playlist = $_POST['id_playlist'];
+                $ajoutReussi = $contenirPDO->ajouterContenir($id_musique, $id_playlist);
+                if (!$ajoutReussi) {
+                    // message d'erreur à afficher -> La musique est déjà dans la playlist
+                }
+                // redirection de l'utilisateur vers la page de la playlist
+                header('Location: ?action=playlist&id_playlist=' . $id_playlist);
+                exit;
             }
-            // redirection de l'utilisateur vers la page de la playlist
-            header('Location: ?action=playlist&id_playlist=' . $id_playlist);
-            exit;
+            else{
+                // redirection de l'utilisateur vers la page de connexion
+                header('Location: ?action=page_connexion_inscription');
+                exit;
+            }
         }
         break;
     
