@@ -117,7 +117,7 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
         <button type="submit">Créer la playlist</button>
     </form>
 <?php else : ?>
-    <a href="?action=page_connexion">
+    <a href="?action=page_connexion_inscription">
         <button class="login-button">Login</button>
     </a>
 <?php endif; ?>
@@ -136,6 +136,10 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
         </div>
     <?php endforeach; ?>
 </div>
-
+<form method="GET" action="">
+    <input type="hidden" name="action" value="rechercher_requete">
+    <input type="text" name="search_query" placeholder="Albums, Artistes...">
+    <button type="submit">Rechercher</button>
+</form>
 </body>
 </html>

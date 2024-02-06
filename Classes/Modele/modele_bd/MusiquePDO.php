@@ -185,4 +185,35 @@ class MusiquePDO
             return 0;
         }
     }
+
+    /**
+     * Obtient la liste des musiques pour la recherche dans la table.
+     * 
+     * @param string $intitule_recherche L'intitulé de la recherche pour lequel récupérer la liste des musiques.
+     * 
+     * @return array La liste des musiques des résultats de la recherche.
+     */
+    public function getMusiquesByRecherche(string $intitule_recherche): array
+    {
+        $requete_musiques_recherche = <<<EOF
+        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE where nom_musique LIKE :intitule_recherche;
+        EOF;
+        $les_musiques_genre = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_musiques_recherche);
+            $intitule_recherche = '%' . $intitule_recherche . '%';
+            $stmt->bindParam("intitule_recherche", $intitule_recherche, PDO::PARAM_STR);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $musique) {
+                array_push($les_musiques_genre, new Musique($musique['id_musique'], $musique['nom_musique'], $musique['duree_musique'], $musique['son_musique'], $musique['nb_streams'], $musique['id_album']));
+            }
+            return $les_musiques_genre;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_musiques_genre;
+        }
+    }
 }

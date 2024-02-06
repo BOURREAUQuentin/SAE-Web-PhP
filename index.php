@@ -51,12 +51,13 @@ switch ($action) {
     case 'artiste':
         include 'templates/artiste.php';
         break;
-
-    case 'page_connexion':
-        include 'templates/page_connexion.php';
+    
+    case 'recherche':
+        include 'templates/recherche.php';
         break;
-    case 'page_inscription':
-        include 'templates/page_inscription.php';
+
+    case 'page_connexion_inscription':
+        include 'templates/page_connexion_inscription.php';
         break;
     
     case 'ajouter_playlist':
@@ -79,6 +80,14 @@ switch ($action) {
         $contenirPDO->supprimerContenir($id_musique, $id_playlist);
         // Redirection de l'utilisateur vers la page de la playlist
         header('Location: ?action=playlist&id_playlist=' . $id_playlist);
+        exit;
+        break;
+    
+    case 'rechercher_requete':
+        // récupération de la valeur saisie dans le champ de recherche
+        $intitule_playlist = $_GET['search_query'] ?? ''; // si la valeur n'est pas définie, utilisez une chaîne vide par défaut
+        // Redirection de l'utilisateur vers la page de la recherche
+        header('Location: ?action=recherche&intitule_recherche=' . $intitule_playlist);
         exit;
         break;
     
