@@ -31,16 +31,24 @@ foreach ($id_artistes as $id_artiste){
 }
 $les_musiques = $albumPDO->getMusiquesByIdAlbum($id_album);
 $utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($_SESSION['username']);
-// Handle POST request
+
+// Vérifie si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_musique = $_POST['id_musique'];
-    $isChecked = $_POST['isChecked'];
+    // Récupère les données de la requête
+    $musiqueId = intval($_POST['musiqueId']);
+    $isChecked = $_POST['isChecked'] === 'true';
+
+    // Ajoute ou supprime le like
     if ($isChecked) {
-        $likePDO->ajouterLiker($id_musique, $utilisateur->getIdUtilisateur());
+        $likePDO->ajouterLiker($musiqueId, $utilisateur->getIdUtilisateur());
     } else {
-        $likePDO->supprimerLiker($id_musique, $utilisateur->getIdUtilisateur());
+        $likePDO->supprimerLiker($musiqueId, $utilisateur->getIdUtilisateur());
     }
-    exit(json_encode(['status' => 'success']));
+
+    // Envoie une réponse JSON
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true]);
+    exit;
 }
 ?>
 
@@ -153,22 +161,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endforeach; ?>
     </div>
 </div>
-
 <script>
-    document.querySelectorAll('#like').forEach(like => {
-        like.addEventListener('change', async (e) => {
-            const idMusique = like.dataset.id;
-            const isChecked = e.target.checked;
-            const response = await fetch('', {
+    
+    // Récupère tous les éléments avec l'ID "like"
+    const likeElements = document.querySelectorAll('#like');
+
+    // Ajoute un écouteur d'événements à chaque élément
+    likeElements.forEach(likeElement => {
+        likeElement.addEventListener('change', async (event) => {
+            const musiqueId = likeElement.getAttribute('data-id');
+            const isChecked = event.target.checked;
+
+            // Envoie une requête POST à la page actuelle
+            const response = await fetch(window.location.href, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `id_musique=${idMusique}&isChecked=${isChecked}`
+                body: new URLSearchParams({
+                    musiqueId,
+                    isChecked,
+                }),
             });
-            const data = await response.json();
-            if (data.status === 'success') {
+
+            // Vérifie si la requête a réussi
+            if (response.ok) {
                 console.log('Like ajouté ou supprimé');
+            } else {
+                console.error('Erreur lors de la requête');
             }
         });
     });
