@@ -36,7 +36,37 @@ Pour respecter les bonnes pratiques de programmation et de gestion de projet vu 
 
 Lien du GitHub : [Lien vers le GitHub](https://github.com/BOURREAUQuentin/SAE-Web-PhP)
 
-### Le lancement du site
+## Les lancements
+
+### Le lancement de notre base de données
+Lors de la récupération de notre dépot sur GitHub, notre base de données est déjà remplie avec nos insertions ajoutées et celles données dans le sujet (YML). Néanmoins, nous avons choisi d'utiliser un cli pour gérer automatiquement et simplement notre base de données. Effectivement, nous avons donc les commandes suivantes possibles (à utiliser dans la racine du projet) :
+
+- Pour la création de la base de données
+```bash
+php Cli/sqlite.php sqlite db
+```
+
+- Pour la création des tables dans la base de données
+```bash
+php Cli/sqlite.php sqlite create
+```
+
+- Pour l'ajout des insertions dans la base de données
+```bash
+php Cli/sqlite.php sqlite load
+```
+
+- Pour la suppression des tables dans la base de données
+```bash
+php Cli/sqlite.php sqlite delete
+```
+
+### Le lancement de l'application
+Pour lancer notre application, il suffit uniquement d'entrer la commande suivante (à utiliser dans la racine du projet) et d'aller vers l'url "localhost:8000" :
+
+```bash
+php -S localhost:8000
+```
 
 #
 
