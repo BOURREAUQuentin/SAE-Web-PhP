@@ -58,7 +58,10 @@ switch ($action) {
     case 'page_inscription':
         include 'templates/page_inscription.php';
         break;
-    
+
+    case 'titre_like':
+        include 'templates/titre_like.php';
+        break;    
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_musique = $_POST['id_musique'];
