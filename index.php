@@ -59,11 +59,15 @@ switch ($action) {
     case 'page_connexion_inscription':
         include 'templates/page_connexion_inscription.php';
         break;
-    
+
     case 'filtre_annee':
         include 'templates/filtre_annee.php';
         break;
-    
+
+    case 'titre_like':
+        include 'templates/titre_like.php';
+        break;    
+
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_SESSION["username"])){
