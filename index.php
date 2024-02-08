@@ -52,13 +52,13 @@ switch ($action) {
         include 'templates/artiste.php';
         break;
 
-    case 'page_connexion':
-        include 'templates/page_connexion.php';
+    case 'page_connexion_inscription':
+        include 'templates/page_connexion_inscription.php';
         break;
-    case 'page_inscription':
-        include 'templates/page_inscription.php';
-        break;
-    
+
+    case 'titre_like':
+        include 'templates/titre_like.php';
+        break;    
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_musique = $_POST['id_musique'];

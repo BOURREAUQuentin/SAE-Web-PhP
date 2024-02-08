@@ -3,6 +3,7 @@
 declare(strict_types=1);
 namespace Modele\modele_bd;
 use Modele\modele_php\Liker;
+use Modele\modele_php\Musique;
 use PDO;
 use PDOException;
 
@@ -44,6 +45,35 @@ class LikerPDO
             $stmt->execute();
             $les_id_musiques = $stmt->fetchAll();
             return $les_id_musiques;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Obtient les musiques à partir de l'identifiant d'un utilisateur.
+     *
+     * @param int $id_musique L'identifiant de la musique pour laquelle récupérer les identifiants des utilisateurs.
+     * @return array Retourne un tableau d'identifiants d'utilisateurs associés à la musique
+     */
+    public function getMusiqueByUtilisateur(int $id_utilisateur): array
+    {
+        $requete_id_musique = <<<EOF
+        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from LIKER natural join MUSIQUE where id_utilisateur = :id_utilisateur;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_id_musique);
+            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $les_id_musiques = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $les_musiques = array();
+            foreach ($les_id_musiques as $musique){
+                array_push($les_musiques, new Musique($musique['id_musique'], $musique['nom_musique'], $musique['duree_musique'], $musique['son_musique'], $musique['nb_streams'], $musique['id_album']));
+            }
+            return $les_musiques;
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
