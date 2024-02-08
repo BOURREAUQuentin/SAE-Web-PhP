@@ -2,21 +2,26 @@
 use Modele\modele_bd\GenrePDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\PlaylistPDO;
+use Modele\modele_bd\UtilisateurPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
 // Permet de gérer le niveau des erreurs
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$nom_utilisateur_connecte = "pas connecté";
-if (isset($_SESSION["username"])) {
-    $nom_utilisateur_connecte = $_SESSION["username"];
-}
-
 // Instanciation des classes PDO
 $genrePDO = new GenrePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
+$utilisateurPDO = new utilisateurPDO($pdo);
+
+// récupération de l'utilisateur connecté et s'il est admin
+$nom_utilisateur_connecte = "pas connecté";
+$est_admin = false;
+if (isset($_SESSION["username"])) {
+    $nom_utilisateur_connecte = $_SESSION["username"];
+    $est_admin = ($utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte))->isAdmin();
+}
 
 // Récupération de la liste des genres
 $les_genres = $genrePDO->getGenres();
@@ -86,6 +91,11 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
     </style>
 </head>
 <body>
+<?php if ($est_admin) : ?>
+    <a href="/?action=admin">
+        <button class="login-button">Admin</button>
+    </a>
+<?php endif; ?>
 <?php if (isset($_SESSION["username"])) : ?>
     <h1>Bienvenue <?php echo $nom_utilisateur_connecte ?> !</h1>
     <form method="post" action="?action=logout">
@@ -118,7 +128,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
         <button type="submit">Créer la playlist</button>
     </form>
 <?php else : ?>
-    <a href="?action=page_connexion_inscription">
+    <a href="?action=connexion_inscription">
         <button class="login-button">Login</button>
     </a>
 <?php endif; ?>

@@ -216,4 +216,31 @@ class MusiquePDO
             return $les_musiques_genre;
         }
     }
+
+    /**
+     * Obtient la liste des musiques dans la table.
+     * 
+     * @return array La liste des musiques.
+     */
+    public function getMusiques(): array
+    {
+        $requete_musiques = <<<EOF
+        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE;
+        EOF;
+        $les_musiques = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_musiques);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $musique) {
+                array_push($les_musiques, new Musique($musique['id_musique'], $musique['nom_musique'], $musique['duree_musique'], $musique['son_musique'], $musique['nb_streams'], $musique['id_album']));
+            }
+            return $les_musiques;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_musiques;
+        }
+    }
 }

@@ -182,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Vérifie si l'utilisateur est connecté
             if (!<?php echo isset($utilisateur) ? 'true' : 'false' ?>) {
                 // Redirige l'utilisateur vers la page de connexion
-                window.location.href = '/?action=page_connexion_inscription';
+                window.location.href = '/?action=connexion_inscription';
                 return;
             }
 
