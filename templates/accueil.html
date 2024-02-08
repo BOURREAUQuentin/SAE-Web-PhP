@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../static/style/accueil.css">
+</head>
+<body ng-app="app">
+	<section class='global-wrapper' ng-controller="ctrl">
+		<aside>
+			<h1>logo</h1>
+			<!--top nav -->
+			<ul>
+				<li>
+          <a href="#" onclick="toggleSearchBar()">
+              <div class="nav-item">
+                  <img src="../static/images/loupe.png" alt="">
+                  <span>Recherche</span>
+              </div>
+          </a>
+      </li>
+				<li class="active">
+            <a href="accueil.html">
+                <div class="nav-item">
+						    <img src="../static/images/home.png" alt="">
+						    <span>Accueil</span>
+					    </div>
+                    </a>	
+				</li>
+        <li>
+            <a href="#">
+                <div class="nav-item">
+                    <img src="../static/images/add-to-playlist.png" alt="">
+                    <span>Playlist</span>
+                </div>
+            </a>
+				</li>
+			</ul>
+
+			<!--bottom nav -->
+			<ul>
+				<li>
+          <a href="#">
+              <div class="nav-item">
+                  <img src="../static/images/setting.png" alt="">
+                  <span>Paramètres</span>
+              </div>
+          </a>
+				</li>
+			</ul>
+		</aside>
+
+		<main id="main">
+			<div id="blackout-on-hover"></div>
+        <header>
+            <h2>Nom du site</h2>
+          <div id="search-bar" class="div-top">
+          <div class="search-box">
+						<input id="search-input" class="search-input" type="text" placeholder="Rechercher...">
+            <button class="search-button">Go</button>
+        </div>
+        <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
+      </div>
+          <a href="login-register.html">login</a>
+        </header>
+                <!-- genres -->
+        <div class="genres">
+				<div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Rap
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Rock
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Pop
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Jazz
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Soul
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Country
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Reggae
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Blues
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Classique
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ag-format-container">
+                    <div class="ag-courses_box">
+                      <div class="ag-courses_item">
+                        <a href="#" class="ag-courses-item_link">
+                          <div class="ag-courses-item_bg">
+                          </div>
+                          <div class="ag-courses-item_title">
+                            Phonk
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+		</main>
+
+	</section>
+	<script src="../static/script/search.js"></script>
+</body>
+</html>
+
