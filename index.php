@@ -253,6 +253,19 @@ switch ($action) {
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_album');
         exit;
+    
+    case 'modifier_album':
+        // récupération de l'id de l'album
+        $id_album = $_GET['id_album'] ?? null;
+        var_dump($id_album);
+
+        $nouveau_titre_album = $_POST["nouveau_titre"];
+        $nouvelle_annee_sortie_album = $_POST["nouvelle_annee_sortie"];
+        $albumPDO->mettreAJourInfosAlbum($id_album, $nouveau_titre_album, $nouvelle_annee_sortie_album); // modification du nom et de l'année de sortie de l'album
+
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=admin_album');
+        exit;
 
     default:
         include 'templates/main.php';

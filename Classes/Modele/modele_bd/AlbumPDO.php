@@ -85,15 +85,17 @@ class AlbumPDO
      *
      * @param int    $id_album   L'identifiant de l'album à mettre à jour.
      * @param string $nouveau_titre  Le nouveau nom de l'album.
+     * @param int $nouvelle_annee_sortie  La nouvelle année de sortie de l'album.
      */
-    public function mettreAJourTitreAlbum(int $id_album, string $nouveau_titre): void
+    public function mettreAJourInfosAlbum(int $id_album, string $nouveau_titre, int $nouvelle_annee_sortie): void
     {
         $maj_album = <<<EOF
-        update ALBUM set titre = :nouveau_titre where id_album = :id_album;
+        update ALBUM set titre = :nouveau_titre, annee_sortie = :nouvelle_annee_sortie where id_album = :id_album;
         EOF;
         try{
             $stmt = $this->pdo->prepare($maj_album);
             $stmt->bindParam("nouveau_titre", $nouveau_titre, PDO::PARAM_STR);
+            $stmt->bindParam("nouvelle_annee_sortie", $nouvelle_annee_sortie, PDO::PARAM_INT);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->execute();
         }

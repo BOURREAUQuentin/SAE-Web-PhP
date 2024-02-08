@@ -35,7 +35,40 @@ $les_albums = $albumPDO->getAlbums();
 $les_genres = $genrePDO->getGenres();
 $les_artistes = $artistePDO->getArtistes();
 ?>
+<script>
+    function confirmSuppressionAlbum(id_album) {
+        // Affiche une boîte de dialogue de confirmation
+        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer cet album ?");
+        // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
+        // Sinon, retourne false (arrête la suppression)
+        if (confirmation) {
+            window.location.href = "?action=supprimer_album&id_album=" + id_album;
+        }
+        return false;
+    }
+    function showEditForm(albumId) {
+        // Récupérer le formulaire de modification correspondant à l'ID de l'album
+        var editForm = document.getElementById("editForm_" + albumId);
+        // Afficher le formulaire de modification en le rendant visible
+        editForm.style.display = "block";
+        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
+        return false;
+    }
+    function cancelEdit(albumId) {
+        // Récupérer le formulaire de modification correspondant à l'ID de l'album
+        var editForm = document.getElementById("editForm_" + albumId);
+        // Masquer le formulaire de modification
+        editForm.style.display = "none";
 
+        // Récupérer les champs de saisie correspondants
+        var nomAlbumInput = document.getElementById("nouveau_nom_album_" + albumId);
+        var anneeSortieInput = document.getElementById("nouvelle_annee_sortie_" + albumId);
+
+        // Masquer les champs de saisie correspondants
+        nomAlbumInput.style.display = "none";
+        anneeSortieInput.style.display = "none";
+    }
+</script>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -116,9 +149,22 @@ $les_artistes = $artistePDO->getArtistes();
         <a href="/?action=album&id_album=<?php echo $album->getIdAlbum(); ?>">
             <button class="view-album-button">Voir l'album</button>
         </a>
-        <a href="/?action=supprimer_album&id_album=<?php echo $album->getIdAlbum(); ?>">
+        <a href="#" onclick="return confirmSuppressionAlbum(<?php echo $album->getIdAlbum(); ?>)">
             <button class="view-album-button">Supprimer l'album</button>
         </a>
+        <!-- Bouton de modification -->
+        <button class="view-album-button" onclick="showEditForm(<?php echo $album->getIdAlbum(); ?>)">Modifier l'album</button>
+        <!-- Formulaire de modification -->
+        <form id="editForm_<?php echo $album->getIdAlbum(); ?>" style="display: none;" action="/?action=modifier_album&id_album=<?php echo $album->getIdAlbum(); ?>" method="post">
+            <input type="hidden" name="id_album" value="<?php echo $album->getIdAlbum(); ?>">
+            <label for="nouveau_titre">Nouveau titre de l'album :</label>
+            <input type="text" id="nouveau_titre" name="nouveau_titre" value="<?php echo $album->getTitre(); ?>" required>
+            <label for="nouvelle_annee_sortie">Nouvelle année de sortie :</label>
+            <input type="text" id="nouvelle_annee_sortie" name="nouvelle_annee_sortie" value="<?php echo $album->getAnneeSortie(); ?>" required>
+            <button class="view-album-button" type="submit">Modifier</button>
+            <!-- Bouton Annuler -->
+            <button class="view-album-button" type="button" onclick="cancelEdit(<?php echo $album->getIdAlbum(); ?>)">Annuler</button>
+        </form>
     </div>
 <?php endforeach; ?>
 </body>
