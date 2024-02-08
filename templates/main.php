@@ -1,7 +1,5 @@
 <?php
 use Modele\modele_bd\GenrePDO;
-use Modele\modele_bd\ImagePDO;
-use Modele\modele_bd\PlaylistPDO;
 use Modele\modele_bd\UtilisateurPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
@@ -11,9 +9,7 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Instanciation des classes PDO
 $genrePDO = new GenrePDO($pdo);
-$imagePDO = new ImagePDO($pdo);
-$playlistPDO = new PlaylistPDO($pdo);
-$utilisateurPDO = new utilisateurPDO($pdo);
+$utilisateurPDO = new UtilisateurPDO($pdo);
 
 // récupération de l'utilisateur connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -23,9 +19,8 @@ if (isset($_SESSION["username"])) {
     $est_admin = ($utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte))->isAdmin();
 }
 
-// Récupération de la liste des genres
+// Récupération de la liste des genres et des filtres par années
 $les_genres = $genrePDO->getGenres();
-$les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 ?>
 
@@ -55,13 +50,13 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 				<li class="active">
             <a href="">
                 <div class="nav-item">
-						    <img src="../static/images/home.png" alt="">
-						    <span>Accueil</span>
-					    </div>
-                    </a>	
-				</li>
+						<img src="../static/images/home.png" alt="">
+					    <span>Accueil</span>
+				</div>
+            </a>	
+		</li>
         <li>
-            <a href="#">
+            <a href="/?action=playlists_utilisateur">
                 <div class="nav-item">
                     <img src="../static/images/add-to-playlist.png" alt="">
                     <span>Playlist</span>

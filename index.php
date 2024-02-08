@@ -69,6 +69,10 @@ switch ($action) {
     case 'titres_likes':
         include 'templates/titres_likes.php';
         break;
+    
+    case 'playlists_utilisateur':
+        include 'templates/playlists_utilisateur.php';
+        break;
 
     case 'admin':
         include 'templates/admin.php';
