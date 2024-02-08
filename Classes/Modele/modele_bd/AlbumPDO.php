@@ -41,8 +41,8 @@ class AlbumPDO
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["maxIdAlbum"];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -56,8 +56,10 @@ class AlbumPDO
      * @param string $titre Le nom de l'album à ajouter.
      * @param string $annee_sortie L'année de sortie de l'album à ajouter.
      * @param int    $id_image    L'identifiant de l'image associée à l'album.
+     * 
+     * @return int L'identifiant du nouvel album.
      */
-    public function ajouterAlbum(string $titre, string $annee_sortie, int $id_image): void
+    public function ajouterAlbum(string $titre, string $annee_sortie, int $id_image): int
     {
         $new_id_album = $this->getMaxIdAlbum() + 1;
         $insertion_album = <<<EOF
@@ -70,9 +72,11 @@ class AlbumPDO
             $stmt->bindParam("annee_sortie", $annee_sortie, PDO::PARAM_STR);
             $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
             $stmt->execute();
+            return $new_id_album;
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
+            return 0;
         }
     }
 

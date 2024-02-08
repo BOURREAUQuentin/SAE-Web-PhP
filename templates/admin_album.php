@@ -2,6 +2,8 @@
 use Modele\modele_bd\AlbumPDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
+use Modele\modele_bd\GenrePDO;
+use Modele\modele_bd\ArtistePDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -12,6 +14,8 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $albumPDO = new AlbumPDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new utilisateurPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
+$artistePDO = new ArtistePDO($pdo);
 
 // vérification de si l'utilisateur est connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -26,8 +30,10 @@ if (!$est_admin) {
     exit();
 }
 
-// Récupération de la liste des albums
+// Récupération de la liste des albums, des genres, des artistes
 $les_albums = $albumPDO->getAlbums();
+$les_genres = $genrePDO->getGenres();
+$les_artistes = $artistePDO->getArtistes();
 ?>
 
 <!DOCTYPE html>
@@ -72,6 +78,33 @@ $les_albums = $albumPDO->getAlbums();
     </style>
 </head>
 <body>
+<h1>Ajouter un album</h1>
+<div class="album-container">
+    <!-- Formulaire pour ajouter un nouvel album -->
+    <form action="?action=ajouter_album" method="post" enctype="multipart/form-data">
+        <label for="nom_album">Nom de l'album :</label>
+        <input type="text" id="nom_album" name="nom_album" required>
+        <label for="annee_sortie">Année de sortie :</label>
+        <input type="text" id="annee_sortie" name="annee_sortie" required>
+        <label for="genre">Genre associé :</label>
+        <select name="genre" id="genre">
+        <?php foreach ($les_genres as $genre): ?>
+            <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+        <?php endforeach; ?>
+        </select>
+        <label for="artiste">Artiste associé :</label>
+        <select name="artiste" id="artiste">
+        <?php foreach ($les_artistes as $artiste): ?>
+            <option value="<?php echo $artiste->getIdArtiste(); ?>"><?php echo $artiste->getNomArtiste(); ?></option>
+        <?php endforeach; ?>
+        </select>
+        <label for="image_album">Image de l'album :</label>
+        <img id="preview" class="album-image" src="#" alt="Image de l'album" style="display: none;">
+        <input type="file" id="image_album" name="image_album" accept="image/*" required onchange="previewImage()">
+        <button type="submit">Ajouter un album</button>
+    </form>
+</div>
+<h1>Listes des albums</h1>
 <?php foreach ($les_albums as $album):
     $image_album = $imagePDO->getImageByIdImage($album->getIdImage());
     $image_path = $image_album->getImage() ? "../images/" . $image_album->getImage() : '../images/default.jpg';

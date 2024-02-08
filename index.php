@@ -20,6 +20,10 @@ use Modele\modele_bd\PlaylistPDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\ArtistePDO;
+use Modele\modele_bd\AlbumPDO;
+use Modele\modele_bd\FairePartiePDO;
+use Modele\modele_bd\RealiserParPDO;
+use Modele\modele_bd\AppartenirPDO;
 
 // instanciation des classes PDO
 $contenirPDO = new ContenirPDO($pdo);
@@ -27,6 +31,10 @@ $playlistPDO = new PlaylistPDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
 $artistePDO = new ArtistePDO($pdo);
+$albumPDO = new AlbumPDO($pdo);
+$fairePartiePDO = new FairePartiePDO($pdo);
+$realiserParPDO = new RealiserParPDO($pdo);
+$appartenirPDO = new AppartenirPDO($pdo);
 
 // Manage action / controller
 $action = $_REQUEST['action'] ?? 'main';
@@ -162,8 +170,8 @@ switch ($action) {
             $nom_image = $_FILES['image_artiste']['name'];
             $image_temp = $_FILES['image_artiste']['tmp_name'];
 
-            $nombre_aleatoire = rand(1, 1000);
-            $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_artiste); // nom image -> nom_utilisateur-nombre_aleatoire-nom_artiste
+            $nombre_aleatoire = rand(1, 10000);
+            $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_artiste); // nom image -> nombre_aleatoire-nom_artiste
             move_uploaded_file($image_temp, "./images/" . $nombre_aleatoire . "-" . $nom_artiste);
 
             // appel de la méthode pour créer l'artiste
@@ -171,6 +179,39 @@ switch ($action) {
             $artistePDO->ajouterArtiste($nom_artiste, $id_new_image);
             // redirection de l'utilisateur vers la même page
             header('Location: ?action=admin_artiste');
+            exit;
+        }
+        break;
+    
+    case 'ajouter_album':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // récupération des données du formulaire
+            $nom_album = $_POST['nom_album'];
+            $annee_sortie_album = $_POST['annee_sortie'];
+            $id_genre_album = $_POST['genre']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id
+            $id_artiste_album = $_POST['artiste']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id
+
+            // gestion de l'image de l'album
+            $nom_image = $_FILES['image_album']['name'];
+            $image_temp = $_FILES['image_album']['tmp_name'];
+
+            $nombre_aleatoire = rand(1, 10000);
+            $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_album . "-" . $artiste_album); // nom image -> nombre_aleatoire-nom_album-artiste_album
+            move_uploaded_file($image_temp, "./images/" . $nombre_aleatoire . "-" . $nom_album . "-" . $artiste_album);
+
+            // appel de la méthode pour créer l'album
+            $id_new_image = ($imagePDO->getImageByNomImage($nombre_aleatoire . "-" . $nom_album . "-" . $artiste_album))->getIdImage();
+            $id_new_album = $albumPDO->ajouterAlbum($nom_album, $annee_sortie_album, $id_new_image);
+
+            // création du lien entre album et genre (donc artiste aura ce genre aussi)
+            $fairePartiePDO->ajouterFairePartie($id_new_album, $id_genre_album);
+            $appartenirPDO->ajouterAppartenir($id_artiste_album, $id_genre_album);
+
+            // création du lien entre album et artiste
+            $realiserParPDO->ajouterRealiser($id_new_album, $id_artiste_album);
+            
+            // redirection de l'utilisateur vers la même page
+            header('Location: ?action=admin_album');
             exit;
         }
         break;
