@@ -24,6 +24,9 @@ use Modele\modele_bd\AlbumPDO;
 use Modele\modele_bd\FairePartiePDO;
 use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\AppartenirPDO;
+use Modele\modele_bd\MusiquePDO;
+use Modele\modele_bd\LikerPDO;
+use Modele\modele_bd\NoterPDO;
 
 // instanciation des classes PDO
 $contenirPDO = new ContenirPDO($pdo);
@@ -35,6 +38,9 @@ $albumPDO = new AlbumPDO($pdo);
 $fairePartiePDO = new FairePartiePDO($pdo);
 $realiserParPDO = new RealiserParPDO($pdo);
 $appartenirPDO = new AppartenirPDO($pdo);
+$musiquePDO = new MusiquePDO($pdo);
+$likerPDO = new LikerPDO($pdo);
+$noterPDO = new NoterPDO($pdo);
 
 // Manage action / controller
 $action = $_REQUEST['action'] ?? 'main';
@@ -215,6 +221,38 @@ switch ($action) {
             exit;
         }
         break;
+    
+    case 'supprimer_album':
+        // récupération de l'id de l'album
+        $id_album = $_GET['id_album'] ?? null;
+
+        // suppression des musiques associées à l'album
+        $likerPDO->supprimerLikesByIdAlbum($id_album); // suppression clés étrangères des musiques de l'album
+        $contenirPDO->supprimerMusiquesPlaylistsByIdAlbum($id_album); // suppression clés étrangères des musiques de l'album
+        $musiquePDO->supprimerMusiquesByIdAlbum($id_album); // suppression des musiques de l'album
+
+        // suppression du lien entre album et artiste
+        $realiserParPDO->supprimerAlbumByIdAlbum($id_album);
+
+        // suppression du lien entre album et utilisateur (notes)
+        $noterPDO->supprimerNotesByIdAlbum($id_album);
+
+        // suppression du lien entre album et genre
+        $fairePartiePDO->supprimerGenresByIdAlbum($id_album);
+
+        // récupération id_image de l'album pour supprimer après
+        $album = $albumPDO->getAlbumByIdAlbum($id_album);
+        $id_image_album = $album->getIdImage();
+
+        // suppression de l'album
+        $albumPDO->supprimerAlbumByIdAlbum($id_album);
+
+        // suppression de l'image associée à l'album
+        $imagePDO->supprimerImageByIdImage($id_image_album);
+        
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=admin_album');
+        exit;
 
     default:
         include 'templates/main.php';

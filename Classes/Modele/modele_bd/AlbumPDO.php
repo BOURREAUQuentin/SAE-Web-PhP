@@ -307,4 +307,24 @@ class AlbumPDO
             return $les_albums_genre;
         }
     }
+
+    /**
+     * Supprime l'album associé à l'id album dans la table.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel supprimer l'album.
+     */
+    public function supprimerAlbumByIdAlbum(int $id_album): void
+    {
+        $requete_suppression_album = <<<EOF
+        delete from ALBUM where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_album);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

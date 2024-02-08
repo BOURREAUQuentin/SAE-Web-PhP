@@ -114,4 +114,24 @@ class NoterPDO
             return 0;
         }
     }
+
+    /**
+     * Supprime les notes d'un album dans la table.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel supprimer les notes.
+     */
+    public function supprimerNotesByIdAlbum(int $id_album): void
+    {
+        $requete_suppression_notes = <<<EOF
+        delete from NOTER where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_notes);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

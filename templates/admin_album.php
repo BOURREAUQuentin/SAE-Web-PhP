@@ -116,6 +116,9 @@ $les_artistes = $artistePDO->getArtistes();
         <a href="/?action=album&id_album=<?php echo $album->getIdAlbum(); ?>">
             <button class="view-album-button">Voir l'album</button>
         </a>
+        <a href="/?action=supprimer_album&id_album=<?php echo $album->getIdAlbum(); ?>">
+            <button class="view-album-button">Supprimer l'album</button>
+        </a>
     </div>
 <?php endforeach; ?>
 </body>

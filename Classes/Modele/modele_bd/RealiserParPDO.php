@@ -100,4 +100,24 @@ class RealiserParPDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Supprime l'album d'un artiste dans la table.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel le supprimer.
+     */
+    public function supprimerAlbumByIdAlbum(int $id_album): void
+    {
+        $requete_suppression_album = <<<EOF
+        delete from REALISER_PAR where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_album);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }
