@@ -60,6 +60,10 @@ switch ($action) {
         include 'templates/page_connexion_inscription.php';
         break;
     
+    case 'filtre_annee':
+        include 'templates/filtre_annee.php';
+        break;
+    
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_SESSION["username"])){
@@ -88,7 +92,6 @@ switch ($action) {
         // Redirection de l'utilisateur vers la page de la playlist
         header('Location: ?action=playlist&id_playlist=' . $id_playlist);
         exit;
-        break;
     
     case 'rechercher_requete':
         // récupération de la valeur saisie dans le champ de recherche
@@ -96,7 +99,6 @@ switch ($action) {
         // Redirection de l'utilisateur vers la page de la recherche
         header('Location: ?action=recherche&intitule_recherche=' . $intitule_playlist);
         exit;
-        break;
     
     case 'creer_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -106,13 +108,16 @@ switch ($action) {
             // gestion de l'image de la playlist
             $image_playlist = $_FILES['image_playlist']['name'];
             $image_temp = $_FILES['image_playlist']['tmp_name'];
-            
-            $nom_image_playlist_transformee = str_replace(' ', '-', $image_playlist);
-            $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nom_image_playlist_transformee); // nom image -> nom_playlist-nom_utilisateur
-            move_uploaded_file($image_temp, "../images/" . $nom_image_playlist_transformee);
+
+            $nombre_aleatoire = rand(1, 1000);
+            $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nombre_aleatoire); // nom image -> nom_playlist-nombre_aleatoire
+            if ($_FILES["image_playlist"]["error"] > 0){
+                $image_temp = "./images/default.jpg";
+            }
+            move_uploaded_file($image_temp, "./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire);
 
             // appel de la méthode pour créer la playlist
-            $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nom_image_playlist_transformee))->getIdImage();
+            $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nombre_aleatoire))->getIdImage();
             $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($_SESSION["username"]);
             $playlistPDO->creerPlaylist($nom_playlist, $id_new_image, $utilisateur_connecte->getIdUtilisateur());
 
