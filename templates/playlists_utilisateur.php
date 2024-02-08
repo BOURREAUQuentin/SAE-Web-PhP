@@ -92,7 +92,6 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
     </style>
 </head>
 <body>
-<h1>Bienvenue <?php echo $nom_utilisateur_connecte ?> !</h1>
 <?php if (empty($les_playlists_utilisateur)) : ?>
     <h2>Vous n'avez pas encore de playlists.</h2>
 <?php else : ?>
