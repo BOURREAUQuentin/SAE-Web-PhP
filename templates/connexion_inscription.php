@@ -11,7 +11,7 @@ $message_erreur = "";
 // si c'est une méthode POST pour la connexion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['submit'] === 'login') {
     
-    $username = $_POST['username']; // On récupère le champ username
+    $username = $_POST['username']; // On récupère le champ username (nom utilisateur ou email)
     $password = $_POST['password']; // On récupère le mot de passe
 
     if (!empty($username) && !empty($password)) {
@@ -20,7 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
 
         if ($user != null) {
             // stockage du nom d'utilisateur dans la session
-            $_SESSION["username"] = $username;
+            $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($username);
+            if ($utilisateur_connecte != null) { // si l'utilisateur s'est connecté avec son nom d'utilisateur
+                $_SESSION["username"] = $username;
+            }
+            else{ // si l'utilisateur s'est connecté avec son mail, dans la session on stocke son nom d'utilisateur et pas son mail
+                $_SESSION["username"] = ($utilisateurPDO->getUtilisateurByMailUtilisateur($username))->getNomUtilisateur();
+            }
             exit(header('Location: ?action=main'));
         }
         else {
@@ -44,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
 
         if ($user_exists) {
             $message_erreur = "Le nom d'utilisateur ou l'adresse e-mail existe déjà. Veuillez en choisir un autre.";
-        } 
+        }
         else {
             $utilisateurPDO->ajouterUtilisateur($username, $mail, $password);
             $user = $utilisateurPDO->getUtilisateurByUsername($username, $password);
@@ -58,113 +64,151 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
 }
 
 ?>
-
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        body {
-            background-color: #424242;
-            font-family: Arial, sans-serif;
-        }
-
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .register-button {
-            background-color: #2196F3;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-        }
-    </style>
+    <title>Music'O</title>
+    <link rel="stylesheet" href="../static/style/login-register.css">
+    <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
 </head>
-<body>
+<body ng-app="app">
+	<section class='global-wrapper' ng-controller="ctrl">
+		<aside>
+			<h1>logo</h1>
+			<!--top nav -->
+			<ul>
+				<li class="active">
+          <a href="#" onclick="toggleSearchBar()">
+              <div class="nav-item">
+                  <img src="../static/images/loupe.png" alt="">
+                  <span>Recherche</span>
+              </div>
+          </a>
+      </li>
+				<li>
+            <a href="/?action=main">
+                <div class="nav-item">
+						    <img src="../static/images/home.png" alt="">
+						    <span>Accueil</span>
+					    </div>
+                    </a>	
+				</li>
+        <li>
+            <a href="/?action=playlists_utilisateur">
+                <div class="nav-item">
+                    <img src="../static/images/add-to-playlist.png" alt="">
+                    <span>Playlist</span>
+                </div>
+            </a>
+				</li>
+			</ul>
 
-<div class="login-container">
-    <h2>Login</h2>
+			<!--bottom nav -->
+			<ul>
+				<li>
+          <a href="#">
+              <div class="nav-item">
+                  <img src="../static/images/setting.png" alt="">
+                  <span>Paramètres</span>
+              </div>
+          </a>
+				</li>
+			</ul>
+		</aside>
 
-    <?php if (!empty($message_erreur)): ?>
-        <p style="color: red;"><?php echo $message_erreur; ?></p>
-    <?php endif; ?>
-
-    <!-- Formulaire de connexion -->
-    <form method="post" action="">
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+		<main id="main">
+			<div id="blackout-on-hover"></div>
+        <header>
+            <h2>Music'O</h2>
+          <div id="search-bar" class="div-top">
+          <div class="search-box">
+            <form method="GET" action="">
+                <input type="hidden" name="action" value="rechercher_requete">
+                <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                <button class="search-button">Go</button>
+            </form>
         </div>
-
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,}$" title="Le mot de passe doit comporter au moins 8 caractères, y compris au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.">
+        <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
         </div>
-
-        <button type="submit" name="submit" value="login">Login</button>
-    </form>
-
-    <hr> <!-- Séparateur entre le formulaire de connexion et d'inscription -->
-
-    <h2>Register</h2>
-
-    <!-- Formulaire d'inscription -->
-    <form method="post" action="">
-        <div class="form-group">
-            <label for="username">Username :</label>
-            <input type="text" id="username" name="username" required>
+          <a href="?action=connexion_inscription">login</a>
+        </header>
+                
+        <div class="container">
+            <div class="forms-container">
+                <div class="signin-signup">
+                    <form action="" method="post" class="sign-in-form">
+                        <h2 class="title">Sign in</h2>
+                        <?php if (!empty($message_erreur) && $_POST['submit'] === 'login'): ?>
+                            <p style="color: red;"><?php echo $message_erreur; ?></p>
+                        <?php endif; ?>
+                        <div class="input-field">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="username" placeholder="Nom d'utilisateur ou email" required/>
+                        </div>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" name="password" placeholder="Mot de passe" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,}$" title="Le mot de passe doit comporter au moins 8 caractères, y compris au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial."/>
+                        </div>
+                        <input type="submit" name="submit" value="login" class="btn solid" />
+                    </form>
+                    <form action="" method="post" class="sign-up-form">
+                        <h2 class="title">Sign up</h2>
+                        <?php if (!empty($message_erreur) && $_POST['submit'] === 'register'): ?>
+                            <p style="color: red;"><?php echo $message_erreur; ?></p>
+                        <?php endif; ?>
+                        <div class="input-field">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="username" placeholder="Nom d'utilisateur" required/>
+                        </div>
+                        <div class="input-field">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" name="mail" placeholder="Email" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}" title="Entrez une adresse e-mail valide"/>
+                        </div>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" name="password" placeholder="Mot de passe" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,}$" title="Le mot de passe doit comporter au moins 8 caractères, y compris au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial."/>
+                        </div>
+                        <input type="submit" name="submit" value="register" class="btn" />
+                    </form>
+                </div>
+            </div>
+    
+            <div class="panels-container">
+                <div class="panel left-panel">
+                    <div class="content">
+                        <h3>Vous êtes nouveau ?</h3>
+                        <p>
+                            Rejoignez nous en vous inscrivant avec le bouton ci-dessous. 
+                            Vous donnant accès à de nouvelles fonctionnalités tel que le création de playlist et bien plus encore
+                        </p>
+                        <button class="btn transparent" id="sign-up-btn">
+                            Sign up
+                        </button>
+                    </div>
+                </div>
+                <div class="panel right-panel">
+                    <div class="content">
+                        <h3>Vous possédez déjà un compte.</h3>
+                        <p>
+                            Merci de nous soutenir. 
+                            Connectez vous a votre compte en appuyant sur le bouton ci-dessous.
+                        </p>
+                        <button class="btn transparent" id="sign-in-btn">
+                            Sign in
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
+    
+        <script src="../static/script/login-register.js"></script>
 
-        <div class="form-group">
-            <label for="mail">Mail :</label>
-            <input type="email" id="mail" name="mail" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}" title="Entrez une adresse e-mail valide">
-        </div>
 
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,}$" title="Le mot de passe doit comporter au moins 8 caractères, y compris au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.">
-        </div>
+		</main>
 
-        <button type="submit" name="submit" value="register">Register</button>
-    </form>
-</div>
-
+	</section>
+	<script src="../static/script/search.js"></script>
 </body>
 </html>
