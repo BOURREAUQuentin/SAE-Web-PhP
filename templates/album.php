@@ -23,7 +23,7 @@ $utilisateurPDO = new UtilisateurPDO($pdo);
 $id_album = intval($_GET['id_album']);
 $album = $albumPDO->getAlbumByIdAlbum($id_album);
 $image_album = $imagePDO->getImageByIdImage($album->getIdImage());
-$image_path = $image_album->getImage() ? "../images/" . $image_album->getImage() : '../images/default.jpg';
+$image_path = $image_album->getImage() ? "../images/" . urlencode($image_album->getImage()) : '../images/default.jpg';
 $id_artistes = $realiserParPDO->getIdArtistesByIdAlbum($id_album);
 $les_artistes = array();
 foreach ($id_artistes as $id_artiste){

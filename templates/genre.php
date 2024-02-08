@@ -78,7 +78,7 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
             <div class="genre-container">
                 <?php foreach ($les_albums_genre as $album_genre):
                     $image_album = $imagePDO->getImageByIdImage($album_genre->getIdImage());
-                    $image_path_album = $image_album->getImage() ? "../images/" . $image_album->getImage() : '../images/default.jpg';
+                    $image_path_album = $image_album->getImage() ? "../images/" . urlencode($image_album->getImage()) : '../images/default.jpg';
                     ?>
                     <p>Titre : <?php echo $album_genre->getTitre(); ?></p>
                     <img class="genre-image" src="<?php echo $image_path_album ?>" alt="Image de l'album <?php echo $album_genre->getTitre(); ?>"/>
