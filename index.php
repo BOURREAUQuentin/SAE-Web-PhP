@@ -52,11 +52,8 @@ switch ($action) {
         include 'templates/artiste.php';
         break;
 
-    case 'page_connexion':
-        include 'templates/page_connexion.php';
-        break;
-    case 'page_inscription':
-        include 'templates/page_inscription.php';
+    case 'page_connexion_inscription':
+        include 'templates/page_connexion_inscription.php';
         break;
 
     case 'titre_like':
