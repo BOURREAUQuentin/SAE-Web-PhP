@@ -544,6 +544,21 @@ switch ($argv[2]) {
             $new_id_genre = $max_id_genre + 1;
         }
 
+        $requete_max_id_artiste = <<<EOF
+            select max(id_artiste) maxIdArtiste from ARTISTE;
+        EOF;
+        $stmt = $pdo->prepare($requete_max_id_artiste);
+        $stmt->execute();
+        $max_id_artiste = $stmt->fetch(PDO::FETCH_ASSOC)['maxIdArtiste'];
+        if ($max_id_artiste === null) {
+            // aucune entrée dans la table
+            $new_id_artiste = 1;
+        }
+        else {
+            // ajout 1 à la valeur maximale récupérée
+            $new_id_artiste = $max_id_artiste + 1;
+        }
+
         // insertion image default pour genre
         $image_default = 'default.jpg';
         $insertion_image_default = <<<EOF
@@ -619,6 +634,44 @@ switch ($argv[2]) {
                 // incrémentation nouvel id pour le prochain genre de l'album
                 $new_id_genre += 1;
             }
+
+            $contient_deja_artiste = <<<EOF
+                SELECT id_artiste FROM ARTISTE WHERE nom_artiste = :nom_artiste;
+            EOF;
+            $stmt = $pdo->prepare($contient_deja_artiste);
+            $stmt->bindParam(':nom_artiste', $album["by"], PDO::PARAM_STR);
+            $stmt->execute();
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$resultat) {
+                // L'artiste n'existe pas dans la base de données
+                $insertion_artiste = <<<EOF
+                    insert into ARTISTE (id_artiste, nom_artiste, id_image) values (:id_artiste, :nom_artiste, :id_image);
+                EOF;
+                $stmt = $pdo->prepare($insertion_artiste);
+                $stmt->bindParam(':id_artiste', $new_id_artiste, PDO::PARAM_INT);
+                $stmt->bindParam(':nom_artiste', $album["by"], PDO::PARAM_STR);
+                $stmt->bindParam(':id_image', $id_image_default, PDO::PARAM_INT);
+                $stmt->execute();
+
+                // incrémente pour le nouveau prochain artiste à ajouter
+                $new_id_artiste += 1;
+
+                // pour l'insertion realiser_par
+                $id_artiste_actuel = $new_id_artiste;
+            }
+            else{
+                // pour l'insertion realiser_par
+                $id_artiste_actuel = $resultat["id_artiste"];
+            }
+
+            // insertion lien album et artiste
+            $insertion_realiser_par = <<<EOF
+                INSERT INTO REALISER_PAR (id_album, id_artiste) VALUES (:id_album, :id_artiste);
+            EOF;
+            $stmt = $pdo->prepare($insertion_realiser_par);
+            $stmt->bindParam(':id_album', $album['entryId'], PDO::PARAM_INT);
+            $stmt->bindParam(':id_artiste', $id_artiste_actuel, PDO::PARAM_INT);
+            $stmt->execute();
 
             // incrémentation nouvel id pour le prochain album (nouvelle image future)
             $new_id_image += 1;
