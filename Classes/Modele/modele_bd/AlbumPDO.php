@@ -155,7 +155,7 @@ class AlbumPDO
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
-            return les_musiques;
+            return $les_musiques;
         }
     }
 
@@ -227,6 +227,69 @@ class AlbumPDO
         try{
             $stmt = $this->pdo->prepare($requete_albums_genre);
             $stmt->bindParam("id_genre", $id_genre, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $album) {
+                array_push($les_albums_genre, new Album($album['id_album'], $album['titre'], $album['annee_sortie'], $album['id_image']));
+            }
+            return $les_albums_genre;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_albums_genre;
+        }
+    }
+
+    /**
+     * Obtient la liste des albums pour la recherche dans la table.
+     * 
+     * @param string $intitule_recherche L'intitulé de la recherche pour lequel récupérer la liste des albums.
+     * 
+     * @return array La liste des albums des résultats de la recherche.
+     */
+    public function getAlbumsByRecherche(string $intitule_recherche): array
+    {
+        $requete_albums_recherche = <<<EOF
+        select id_album, titre, annee_sortie, id_image from ALBUM where titre LIKE :intitule_recherche;
+        EOF;
+        $les_albums_genre = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_albums_recherche);
+            $intitule_recherche = '%' . $intitule_recherche . '%';
+            $stmt->bindParam("intitule_recherche", $intitule_recherche, PDO::PARAM_STR);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $album) {
+                array_push($les_albums_genre, new Album($album['id_album'], $album['titre'], $album['annee_sortie'], $album['id_image']));
+            }
+            return $les_albums_genre;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_albums_genre;
+        }
+    }
+
+    /**
+     * Obtient la liste des albums pour le filtre d'année choisi dans la table.
+     * 
+     * @param string $annee L'année choisie pour lequel récupérer la liste des albums.
+     * 
+     * @return array La liste des albums des résultats du filtre.
+     */
+    public function getAlbumsByFiltreAnnee(string $annee): array
+    {
+        $requete_albums_recherche = <<<EOF
+        select id_album, titre, annee_sortie, id_image from ALBUM where annee_sortie >= :annee and annee_sortie < :annee_max;
+        EOF;
+        $les_albums_genre = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_albums_recherche);
+            $stmt->bindParam("annee", $annee, PDO::PARAM_STR);
+            $annee_max = strval((intval($annee)+10));
+            $stmt->bindParam("annee_max", $annee_max, PDO::PARAM_STR);
             $stmt->execute();
             // fetch le résultat sous forme de tableau associatif
             $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);

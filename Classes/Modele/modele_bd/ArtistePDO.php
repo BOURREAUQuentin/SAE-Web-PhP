@@ -186,4 +186,35 @@ class ArtistePDO
             return $les_musiques_plus_streames;
         }
     }
+
+    /**
+     * Obtient la liste des artistes pour la recherche dans la table.
+     * 
+     * @param string $intitule_recherche L'intitulé de la recherche pour lequel récupérer la liste des artistes.
+     * 
+     * @return array La liste des artistes des résultats de la recherche.
+     */
+    public function getArtistesByRecherche(string $intitule_recherche): array
+    {
+        $requete_artistes_recherche = <<<EOF
+        select id_artiste, nom_artiste, id_image from ARTISTE where nom_artiste LIKE :intitule_recherche;
+        EOF;
+        $les_artistes_genre = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_artistes_recherche);
+            $intitule_recherche = '%' . $intitule_recherche . '%';
+            $stmt->bindParam("intitule_recherche", $intitule_recherche, PDO::PARAM_STR);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $artiste) {
+                array_push($les_artistes_genre, new Artiste($artiste['id_artiste'], $artiste['nom_artiste'], $artiste['id_image']));
+            }
+            return $les_artistes_genre;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_artistes_genre;
+        }
+    }
 }

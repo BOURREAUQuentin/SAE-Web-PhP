@@ -21,6 +21,7 @@ $playlistPDO = new PlaylistPDO($pdo);
 // Récupération de la liste des genres
 $les_genres = $genrePDO->getGenres();
 $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
+$les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 ?>
 
 <!DOCTYPE html>
@@ -117,7 +118,7 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
         <button type="submit">Créer la playlist</button>
     </form>
 <?php else : ?>
-    <a href="?action=page_connexion">
+    <a href="?action=page_connexion_inscription">
         <button class="login-button">Login</button>
     </a>
 <?php endif; ?>
@@ -137,5 +138,21 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
     <?php endforeach; ?>
 </div>
 
+<div class="genre-list">
+    <?php foreach ($les_filtres_annees as $filtre_annee):?>
+        <div class="genre-container">
+            <p>Année <?php echo $filtre_annee; ?></p>
+            <a href="/?action=filtre_annee&annee=<?php echo $filtre_annee; ?>">
+                <button class="view-genre-button">Voir le filtre</button>
+            </a>
+        </div>
+    <?php endforeach; ?>
+</div>
+
+<form method="GET" action="">
+    <input type="hidden" name="action" value="rechercher_requete">
+    <input type="text" name="search_query" placeholder="Albums, Artistes...">
+    <button type="submit">Rechercher</button>
+</form>
 </body>
 </html>
