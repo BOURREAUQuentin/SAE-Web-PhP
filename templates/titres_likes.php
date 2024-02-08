@@ -18,7 +18,7 @@ $musiquePDO = new MusiquePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 
 if (!isset($_SESSION['username'])) {
-    header('Location: ?action=page_connexion_inscription');
+    header('Location: ?action=connexion_inscription');
     exit;
 }
 

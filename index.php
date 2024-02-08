@@ -19,12 +19,14 @@ use Modele\modele_bd\ContenirPDO;
 use Modele\modele_bd\PlaylistPDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
+use Modele\modele_bd\ArtistePDO;
 
 // instanciation des classes PDO
 $contenirPDO = new ContenirPDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
+$artistePDO = new ArtistePDO($pdo);
 
 // Manage action / controller
 $action = $_REQUEST['action'] ?? 'main';
@@ -56,17 +58,33 @@ switch ($action) {
         include 'templates/recherche.php';
         break;
 
-    case 'page_connexion_inscription':
-        include 'templates/page_connexion_inscription.php';
+    case 'connexion_inscription':
+        include 'templates/connexion_inscription.php';
         break;
 
     case 'filtre_annee':
         include 'templates/filtre_annee.php';
         break;
 
-    case 'titre_like':
-        include 'templates/titre_like.php';
-        break;    
+    case 'titres_likes':
+        include 'templates/titres_likes.php';
+        break;
+
+    case 'admin':
+        include 'templates/admin.php';
+        break;
+    
+    case 'admin_album':
+        include 'templates/admin_album.php';
+        break;
+    
+    case 'admin_musique':
+        include 'templates/admin_musique.php';
+        break;
+    
+    case 'admin_artiste':
+        include 'templates/admin_artiste.php';
+        break;
 
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -83,7 +101,7 @@ switch ($action) {
             }
             else{
                 // redirection de l'utilisateur vers la page de connexion
-                header('Location: ?action=page_connexion_inscription');
+                header('Location: ?action=connexion_inscription');
                 exit;
             }
         }
@@ -114,19 +132,41 @@ switch ($action) {
             $image_temp = $_FILES['image_playlist']['tmp_name'];
 
             $nombre_aleatoire = rand(1, 1000);
-            $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nombre_aleatoire); // nom image -> nom_playlist-nombre_aleatoire
+            $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist); // nom image -> nom_utilisateur-nombre_aleatoire-nom_playlist
             if ($_FILES["image_playlist"]["error"] > 0){
                 $image_temp = "./images/default.jpg";
             }
-            move_uploaded_file($image_temp, "./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire);
+            move_uploaded_file($image_temp, "./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist);
 
             // appel de la méthode pour créer la playlist
-            $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nombre_aleatoire))->getIdImage();
+            $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist))->getIdImage();
             $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($_SESSION["username"]);
             $playlistPDO->creerPlaylist($nom_playlist, $id_new_image, $utilisateur_connecte->getIdUtilisateur());
 
             // redirection de l'utilisateur vers la page principale ou autre
             header('Location: ?action=main');
+            exit;
+        }
+        break;
+
+    case 'ajouter_artiste':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // récupération des données du formulaire
+            $nom_artiste = $_POST['nom_artiste'];
+
+            // gestion de l'image de l'artiste
+            $nom_image = $_FILES['image_artiste']['name'];
+            $image_temp = $_FILES['image_artiste']['tmp_name'];
+
+            $nombre_aleatoire = rand(1, 1000);
+            $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_artiste); // nom image -> nom_utilisateur-nombre_aleatoire-nom_artiste
+            move_uploaded_file($image_temp, "./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_artiste);
+
+            // appel de la méthode pour créer l'artiste
+            $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_artiste))->getIdImage();
+            $artistePDO->ajouterArtiste($nom_artiste, $id_new_image);
+            // redirection de l'utilisateur vers la même page
+            header('Location: ?action=admin_artiste');
             exit;
         }
         break;

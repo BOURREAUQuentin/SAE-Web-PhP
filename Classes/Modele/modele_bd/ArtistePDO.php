@@ -41,8 +41,8 @@ class ArtistePDO
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["maxIdArtiste"];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -215,6 +215,33 @@ class ArtistePDO
         catch (PDOException $e){
             var_dump($e->getMessage());
             return $les_artistes_genre;
+        }
+    }
+
+    /**
+     * Obtient la liste des artistes dans la table.
+     * 
+     * @return array La liste des artistes.
+     */
+    public function getArtistes(): array
+    {
+        $requete_artistes = <<<EOF
+        select id_artiste, nom_artiste, id_image from ARTISTE;
+        EOF;
+        $les_artistes = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_artistes);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $artiste) {
+                array_push($les_artistes, new Artiste($artiste['id_artiste'], $artiste['nom_artiste'], $artiste['id_image']));
+            }
+            return $les_artistes;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_artistes;
         }
     }
 }
