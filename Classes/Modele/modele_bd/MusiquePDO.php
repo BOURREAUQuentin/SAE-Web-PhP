@@ -243,4 +243,24 @@ class MusiquePDO
             return $les_musiques;
         }
     }
+
+    /**
+     * Supprime la liste des musiques associés à l'album dans la table.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel supprimer la liste des musiques.
+     */
+    public function supprimerMusiquesByIdAlbum(int $id_album): void
+    {
+        $requete_suppression_musiques = <<<EOF
+        delete from MUSIQUE where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_musiques);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

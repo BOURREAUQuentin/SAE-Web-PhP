@@ -156,4 +156,24 @@ class ImagePDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Supprime l'image associé à l'id_image dans la table.
+     * 
+     * @param int $id_image L'identifiant de l'image pour lequel supprimer l'image.
+     */
+    public function supprimerImageByIdImage(int $id_image): void
+    {
+        $requete_suppression_image = <<<EOF
+        delete from IMAGE where id_image = :id_image;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_image);
+            $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

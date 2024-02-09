@@ -150,4 +150,24 @@ class LikerPDO
             return false;
         }
     }
+
+    /**
+     * Supprime la liste des likes associés à une musique donc un album dans la table.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel supprimer la liste des likes.
+     */
+    public function supprimerLikesByIdAlbum(int $id_album): void
+    {
+        $requete_suppression_musiques = <<<EOF
+        delete from LIKER where id_musique in (select id_musique from MUSIQUE where id_album = :id_album);
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_musiques);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

@@ -41,8 +41,8 @@ class AlbumPDO
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["maxIdAlbum"];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -56,8 +56,10 @@ class AlbumPDO
      * @param string $titre Le nom de l'album à ajouter.
      * @param string $annee_sortie L'année de sortie de l'album à ajouter.
      * @param int    $id_image    L'identifiant de l'image associée à l'album.
+     * 
+     * @return int L'identifiant du nouvel album.
      */
-    public function ajouterAlbum(string $titre, string $annee_sortie, int $id_image): void
+    public function ajouterAlbum(string $titre, string $annee_sortie, int $id_image): int
     {
         $new_id_album = $this->getMaxIdAlbum() + 1;
         $insertion_album = <<<EOF
@@ -70,9 +72,11 @@ class AlbumPDO
             $stmt->bindParam("annee_sortie", $annee_sortie, PDO::PARAM_STR);
             $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
             $stmt->execute();
+            return $new_id_album;
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
+            return 0;
         }
     }
 
@@ -81,15 +85,17 @@ class AlbumPDO
      *
      * @param int    $id_album   L'identifiant de l'album à mettre à jour.
      * @param string $nouveau_titre  Le nouveau nom de l'album.
+     * @param int $nouvelle_annee_sortie  La nouvelle année de sortie de l'album.
      */
-    public function mettreAJourTitreAlbum(int $id_album, string $nouveau_titre): void
+    public function mettreAJourInfosAlbum(int $id_album, string $nouveau_titre, int $nouvelle_annee_sortie): void
     {
         $maj_album = <<<EOF
-        update ALBUM set titre = :nouveau_titre where id_album = :id_album;
+        update ALBUM set titre = :nouveau_titre, annee_sortie = :nouvelle_annee_sortie where id_album = :id_album;
         EOF;
         try{
             $stmt = $this->pdo->prepare($maj_album);
             $stmt->bindParam("nouveau_titre", $nouveau_titre, PDO::PARAM_STR);
+            $stmt->bindParam("nouvelle_annee_sortie", $nouvelle_annee_sortie, PDO::PARAM_INT);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->execute();
         }
@@ -301,6 +307,26 @@ class AlbumPDO
         catch (PDOException $e){
             var_dump($e->getMessage());
             return $les_albums_genre;
+        }
+    }
+
+    /**
+     * Supprime l'album associé à l'id album dans la table.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel supprimer l'album.
+     */
+    public function supprimerAlbumByIdAlbum(int $id_album): void
+    {
+        $requete_suppression_album = <<<EOF
+        delete from ALBUM where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_album);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
         }
     }
 }

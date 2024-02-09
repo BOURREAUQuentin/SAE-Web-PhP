@@ -96,4 +96,24 @@ class FairePartiePDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Supprime la liaison des genres associés à un album dans la table.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel supprimer ses genres.
+     */
+    public function supprimerGenresByIdAlbum(int $id_album): void
+    {
+        $requete_suppression_genres = <<<EOF
+        delete from FAIRE_PARTIE where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_genres);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }
