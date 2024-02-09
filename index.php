@@ -88,6 +88,10 @@ switch ($action) {
         include 'templates/playlists_utilisateur.php';
         break;
 
+    case 'profil':
+        include 'templates/profil.php';
+        break;
+
     case 'admin':
         include 'templates/admin.php';
         break;
