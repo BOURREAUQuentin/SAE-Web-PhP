@@ -172,4 +172,24 @@ class ContenirPDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Supprime la liste des musiques d'une playlist dans la table.
+     * 
+     * @param int $id_playlist L'identifiant de la playlist pour lequel supprimer la liste des musiques de celle-ci.
+     */
+    public function supprimerMusiquesPlaylistsByIdPlaylist(int $id_playlist): void
+    {
+        $requete_suppression_musiques = <<<EOF
+        delete from CONTENIR where id_playlist = :id_playlist;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_musiques);
+            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

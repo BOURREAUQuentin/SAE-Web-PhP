@@ -28,8 +28,20 @@ else{
 
 // Récupération de la liste des playlists
 $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
-?>
 
+?>
+<script>
+    function confirmSuppressionPlaylist(id_playlist) {
+        // Affiche une boîte de dialogue de confirmation
+        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer cette playlist ?");
+        // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
+        // Sinon, retourne false (arrête la suppression)
+        if (confirmation) {
+            window.location.href = "?action=supprimer_playlist&id_playlist=" + id_playlist;
+        }
+        return false;
+    }
+</script>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -104,6 +116,9 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
             <img class="image-playlists" src="<?php echo $image_path_playlist ?>" alt="Image de la playlist <?php echo $playlist_utilisateur->getNomPlaylist(); ?>"/>
             <a href="/?action=playlist&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>">
                 <button class="view-genre-button">Voir la playlist</button>
+            </a>
+            <a href="#" onclick="return confirmSuppressionPlaylist(<?php echo $playlist_utilisateur->getIdPlaylist(); ?>)">
+                <button class="view-genre-button">Supprimer la playlist</button>
             </a>
         </div>
     <?php endforeach; ?>

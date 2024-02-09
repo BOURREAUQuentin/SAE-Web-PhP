@@ -103,6 +103,10 @@ switch ($action) {
     case 'admin_artiste':
         include 'templates/admin_artiste.php';
         break;
+    
+    case 'admin_utilisateur':
+        include 'templates/admin_utilisateur.php';
+        break;
 
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -167,6 +171,27 @@ switch ($action) {
             exit;
         }
         break;
+
+    case 'supprimer_playlist':
+        // récupération de l'id de la playlist
+        $id_playlist = $_GET['id_playlist'] ?? null;
+
+        // suppression lien playlist et musique
+        $contenirPDO->supprimerMusiquesPlaylistsByIdPlaylist($id_playlist);
+
+        // récupération id_image de la playlist pour supprimer après
+        $playlist = $playlistPDO->getPlaylistByIdPlaylist($id_playlist);
+        $id_image_playlist = $playlist->getIdImage();
+
+        // suppression de la playlist
+        $playlistPDO->supprimerPlaylistByIdPlaylist($id_playlist);
+
+        // suppression de l'image associée à la playlist
+        $imagePDO->supprimerImageByIdImage($id_image_playlist);
+
+        // redirection de l'utilisateur vers la page principale ou autre
+        header('Location: ?action=playlists_utilisateur');
+        exit;
 
     case 'ajouter_artiste':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -312,7 +337,7 @@ switch ($action) {
             $id_album_musique = $_POST['album']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id de l'abum
 
             // appel de la méthode pour créer la musique
-            $id_new_musique = $musiquePDO->ajouterMusique($nom_musique, $duree_musique, $nom_musique.".mp3", $id_album_musique);
+            $musiquePDO->ajouterMusique($nom_musique, $duree_musique, $nom_musique.".mp3", $id_album_musique);
 
             // redirection de l'utilisateur vers la même page
             header('Location: ?action=admin_musique');
@@ -328,6 +353,26 @@ switch ($action) {
         $artistePDO-> modifierArtiste($id_artiste, $nouveau_nom_artiste); // modification du nom de l'artiste
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_artiste');
+        exit;
+
+    case 'supprimer_utilisateur':
+        // récupération de l'id de l'utilisateur
+        $id_utilisateur = $_GET['id_utilisateur'] ?? null;
+
+        // suppression des likes de l'utilisateur
+        $likerPDO->supprimerLikesByIdUtilisateur($id_utilisateur);
+
+        // suppression du lien entre utilisateur et note
+        $noterPDO->supprimerNotesByIdUtilisateur($id_utilisateur);
+
+        // suppression du lien des playlists de l'utilisateur
+        $playlistPDO->supprimerPlaylistsByIdUtilisateur($id_utilisateur);
+
+        // suppression de l'utilisateur
+        $utilisateurPDO->supprimerUtilisateurByIdUtilisateur($id_utilisateur);
+
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=admin_utilisateur');
         exit;
 
     default:

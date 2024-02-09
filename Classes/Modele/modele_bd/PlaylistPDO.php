@@ -189,4 +189,44 @@ class PlaylistPDO
             return $les_playlists_utilisateur;
         }
     }
+
+    /**
+     * Supprime les playlists d'un utilisateur dans la table.
+     * 
+     * @param int $id_utilisateur L'identifiant de l'utilisateur pour lequel supprimer les playlists.
+     */
+    public function supprimerPlaylistsByIdUtilisateur(int $id_utilisateur): void
+    {
+        $requete_suppression_playlists = <<<EOF
+        delete from PLAYLIST where id_utilisateur = :id_utilisateur;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_playlists);
+            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
+
+    /**
+     * Supprime la playlist associée à l'id playlist dans la table.
+     * 
+     * @param int $id_playlist L'identifiant de la playlist pour lequel supprimer la playlist.
+     */
+    public function supprimerPlaylistByIdPlaylist(int $id_playlist): void
+    {
+        $requete_suppression_playlist = <<<EOF
+        delete from PLAYLIST where id_playlist = :id_playlist;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_playlist);
+            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }
