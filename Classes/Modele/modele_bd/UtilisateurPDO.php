@@ -275,4 +275,51 @@ class UtilisateurPDO
             return null;
         }
     }
+
+    /**
+     * Obtient la liste des musiques dans la table.
+     * 
+     * @return array La liste des musiques.
+     */
+    public function getUtilisateursNonAdmin(): array
+    {
+        $requete_utilisateurs_non_admin = <<<EOF
+        select id_utilisateur, nom_utilisateur, mail_utilisateur, mdp, admin from UTILISATEUR where admin = 'N';
+        EOF;
+        $les_utilisateurs_non_admin = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_utilisateurs_non_admin);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $utilisateur) {
+                array_push($les_utilisateurs_non_admin, new Utilisateur($utilisateur['id_utilisateur'], $utilisateur['nom_utilisateur'], $utilisateur['mail_utilisateur'], $utilisateur['mdp'], $utilisateur['admin']));
+            }
+            return $les_utilisateurs_non_admin;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_utilisateurs_non_admin;
+        }
+    }
+
+    /**
+     * Supprime un utilisateur dans la table.
+     * 
+     * @param int $id_utilisateur L'identifiant de l'utilisateur à supprimer.
+     */
+    public function supprimerUtilisateurByIdUtilisateur(int $id_utilisateur): void
+    {
+        $requete_suppression_utilisateur = <<<EOF
+        delete from UTILISATEUR where id_utilisateur = :id_utilisateur;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_utilisateur);
+            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

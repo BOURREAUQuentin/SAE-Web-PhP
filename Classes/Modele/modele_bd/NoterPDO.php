@@ -134,4 +134,24 @@ class NoterPDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Supprime les notes d'un utilisateur dans la table.
+     * 
+     * @param int $id_utilisateur L'identifiant de l'utilisateur pour lequel supprimer les notes.
+     */
+    public function supprimerNotesByIdUtilisateur(int $id_utilisateur): void
+    {
+        $requete_suppression_notes = <<<EOF
+        delete from NOTER where id_utilisateur = :id_utilisateur;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_notes);
+            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

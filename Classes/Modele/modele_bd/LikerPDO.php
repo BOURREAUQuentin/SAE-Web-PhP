@@ -190,4 +190,24 @@ class LikerPDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Supprime la liste des likes associés à un utilisateur dans la table.
+     * 
+     * @param int $id_utilisateur L'identifiant de l'utilisateur pour lequel supprimer la liste des likes.
+     */
+    public function supprimerLikesByIdUtilisateur(int $id_utilisateur): void
+    {
+        $requete_suppression_musiques = <<<EOF
+        delete from LIKER where id_utilisateur = :id_utilisateur;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_musiques);
+            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

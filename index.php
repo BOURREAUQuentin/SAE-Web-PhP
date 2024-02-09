@@ -103,6 +103,10 @@ switch ($action) {
     case 'admin_artiste':
         include 'templates/admin_artiste.php';
         break;
+    
+    case 'admin_utilisateur':
+        include 'templates/admin_utilisateur.php';
+        break;
 
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -328,6 +332,26 @@ switch ($action) {
         $artistePDO-> modifierArtiste($id_artiste, $nouveau_nom_artiste); // modification du nom de l'artiste
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_artiste');
+        exit;
+
+    case 'supprimer_utilisateur':
+        // récupération de l'id de l'utilisateur
+        $id_utilisateur = $_GET['id_utilisateur'] ?? null;
+
+        // suppression des likes de l'utilisateur
+        $likerPDO->supprimerLikesByIdUtilisateur($id_utilisateur);
+
+        // suppression du lien entre utilisateur et note
+        $noterPDO->supprimerNotesByIdUtilisateur($id_utilisateur);
+
+        // suppression du lien des playlists de l'utilisateur
+        $playlistPDO->supprimerPlaylistsByIdUtilisateur($id_utilisateur);
+
+        // suppression de l'utilisateur
+        $utilisateurPDO->supprimerUtilisateurByIdUtilisateur($id_utilisateur);
+
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=admin_utilisateur');
         exit;
 
     default:
