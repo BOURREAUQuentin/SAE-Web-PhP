@@ -63,7 +63,7 @@ $image_path = $image_playlist->getImage() ? "../images/" . $image_playlist->getI
                 <p>Nombre d'écoutes : <?php echo $musique_playlist->getNbStreams(); ?></p>
                 <img class="image-musique" src="<?php echo $image_path_musique ?>" alt="Image de la musique <?php echo $musique_playlist->getNomMusique(); ?>"/>
                 
-                <a href="/?action=supprimer_musique&id_musique=<?php echo $musique_playlist->getIdMusique(); ?>&id_playlist=<?php echo $id_playlist; ?>">
+                <a href="/?action=supprimer_musique_playlist&id_musique=<?php echo $musique_playlist->getIdMusique(); ?>&id_playlist=<?php echo $id_playlist; ?>">
                     <button class="delete-button">Supprimer</button>
                 </a>
             <?php endforeach; ?>

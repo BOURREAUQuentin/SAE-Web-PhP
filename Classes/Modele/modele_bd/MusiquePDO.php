@@ -40,8 +40,8 @@ class MusiquePDO
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["maxIdMusique"];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -91,13 +91,13 @@ class MusiquePDO
      */
     public function ajouterMusique(string $nom_musique, string $duree_musique, string $son_musique, int $id_album): void
     {
-        $new_id_image = $this->getMaxIdMusique() + 1;
+        $new_id_musique = $this->getMaxIdMusique() + 1;
         $insertion_image = <<<EOF
-        insert into MUSIQUE (id_image, nom_musique, duree_musique, son_musique, nb_streams, id_album) values (:id_image, :nom_musique, :duree_musique, :son_musique, 0, :id_album);
+        insert into MUSIQUE (id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album) values (:id_musique, :nom_musique, :duree_musique, :son_musique, 0, :id_album);
         EOF;
         try{
             $stmt = $this->pdo->prepare($insertion_image);
-            $stmt->bindParam("id_image", $new_id_image, PDO::PARAM_INT);
+            $stmt->bindParam("id_musique", $new_id_musique, PDO::PARAM_INT);
             $stmt->bindParam("nom_musique", $nom_musique, PDO::PARAM_STR);
             $stmt->bindParam("duree_musique", $duree_musique, PDO::PARAM_STR);
             $stmt->bindParam("son_musique", $son_musique, PDO::PARAM_STR);
@@ -112,18 +112,18 @@ class MusiquePDO
     /**
      * Met à jour le nom d'une musique dans la base de données.
      *
-     * @param int    $id_image   L'identifiant de la musique à mettre à jour.
+     * @param int    $id_musique   L'identifiant de la musique à mettre à jour.
      * @param string $nouveau_nom  Le nouveau nom de la musique.
      */
-    public function mettreAJourNomMusique(int $id_image, string $nouveau_nom): void
+    public function mettreAJourNomMusique(int $id_musique, string $nouveau_nom): void
     {
         $maj_image = <<<EOF
-        update MUSIQUE set nom_musique = :nouveau_nom where id_image = :id_image;
+        update MUSIQUE set nom_musique = :nouveau_nom where id_musique = :id_musique;
         EOF;
         try{
             $stmt = $this->pdo->prepare($maj_image);
             $stmt->bindParam("nouveau_nom", $nouveau_nom, PDO::PARAM_STR);
-            $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
             $stmt->execute();
         }
         catch (PDOException $e){
@@ -257,6 +257,26 @@ class MusiquePDO
         try{
             $stmt = $this->pdo->prepare($requete_suppression_musiques);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
+
+    /**
+     * Supprime la musique dans la table.
+     * 
+     * @param int $id_musique L'identifiant de la musique à supprimer.
+     */
+    public function supprimerMusiqueByIdMusique(int $id_musique): void
+    {
+        $requete_suppression_musique = <<<EOF
+        delete from MUSIQUE where id_musique = :id_musique;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_musique);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
             $stmt->execute();
         }
         catch (PDOException $e){
