@@ -88,6 +88,10 @@ switch ($action) {
         include 'templates/playlists_utilisateur.php';
         break;
 
+    case 'profil':
+        include 'templates/profil.php';
+        break;
+
     case 'admin':
         include 'templates/admin.php';
         break;
@@ -373,6 +377,22 @@ switch ($action) {
 
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_utilisateur');
+        exit;
+
+    case 'modifier_infos_utilisateur':
+        $id_utilisateur = $_GET['id_utilisateur'] ?? null;
+
+        // récupération des informations du formulaire
+        $nom_utilisateur = $_POST['nouveau_nom_utilisateur'];
+        $mail_utilisateur = $_POST['nouveau_mail_utilisateur'];
+        $mdp = $_POST['nouveau_mdp'];
+
+        $_SESSION["username"] = $nom_utilisateur;
+
+        $utilisateurPDO->mettreAJourInfosUtilisateur($id_utilisateur, $nom_utilisateur, $mail_utilisateur, $mdp);
+
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=profil');
         exit;
 
     default:

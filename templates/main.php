@@ -68,7 +68,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 			<!--bottom nav -->
 			<ul>
 				<li>
-          <a href="#">
+          <a href="/?action=profil">
               <div class="nav-item">
                   <img src="../static/images/setting.png" alt="">
                   <span>Paramètres</span>
