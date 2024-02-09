@@ -29,6 +29,38 @@ if (!$est_admin) {
 // Récupération de la liste des artistes
 $les_artistes = $artistePDO->getArtistes();
 ?>
+<script>
+    function confirmSuppressionArtiste(id_artiste) {
+        // Affiche une boîte de dialogue de confirmation
+        console.log(id_artiste);
+        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer l'artiste ?");
+        // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
+        // Sinon, retourne false (arrête la suppression)
+        if (confirmation) {
+            window.location.href = "?action=supprimer_artiste&id_artiste=" + id_artiste;
+        }
+        return false;
+    }
+
+
+    function showEditForm(artisteId) {
+        // Récupérer le formulaire de modification correspondant à l'ID de l'artiste
+        var editForm = document.getElementById("editForm_" + artisteId);
+        // Afficher le formulaire de modification en le rendant visible
+        editForm.style.display = "block";
+        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
+        return false;
+    }
+
+    function cancelEdit(artisteId) {
+        // Récupérer le formulaire de modification correspondant à l'ID de l'artiste
+        var editForm = document.getElementById("editForm_" + artisteId);
+        // Masquer le formulaire de modification
+        editForm.style.display = "none";
+        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
+        return false;
+    }
+</script>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -99,8 +131,25 @@ $les_artistes = $artistePDO->getArtistes();
         <a href="/?action=artiste&id_artiste=<?php echo $artiste->getIdArtiste(); ?>">
             <button class="view-artiste-button">Voir l'artiste</button>
         </a>
+        <!-- Bouton de Suppression -->
+        <a href="#" onclick="return confirmSuppressionArtiste(<?php echo $artiste->getIdArtiste() ?>)">
+            <button class="view-artiste-button">Supprimer l'artiste</button>
+        </a>
+        <!-- Bouton de modification -->
+        <button class="view-album-button" onclick="showEditForm(<?php echo $artiste->getIdArtiste(); ?>)">Modifier l'artiste</button>
+        <!-- Formulaire de modification -->
+        <form id="editForm_<?php echo $artiste->getIdArtiste(); ?>" style="display: none;" action="/?action=modifier_artiste&id_artiste=<?php echo $artiste->getIdArtiste() ?>" method="post">
+            <input type="hidden" name="id_artiste" value="<?php echo $artiste->getIdArtiste() ?>">
+            <label for="nouveau_nom">Nom de l'artiste :</label>
+            <input type="text" id="nouveau_nom" name="nouveau_nom" value="<?php echo $artiste->getNomArtiste(); ?>" required>
+            <button class="view-album-button" type="submit">Modifier</button>
+            <!-- Bouton Annuler -->
+            <button class="view-album-button" type="button" onclick="cancelEdit(<?php echo $artiste->getIdArtiste(); ?>)">Annuler</button>
+        </form>
     </div>
 <?php endforeach; ?>
+
+
 <script>
     function previewImage() {
         var fileInput = document.getElementById('image_artiste');
