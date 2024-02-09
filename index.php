@@ -337,7 +337,7 @@ switch ($action) {
             $id_album_musique = $_POST['album']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id de l'abum
 
             // appel de la méthode pour créer la musique
-            $id_new_musique = $musiquePDO->ajouterMusique($nom_musique, $duree_musique, $nom_musique.".mp3", $id_album_musique);
+            $musiquePDO->ajouterMusique($nom_musique, $duree_musique, $nom_musique.".mp3", $id_album_musique);
 
             // redirection de l'utilisateur vers la même page
             header('Location: ?action=admin_musique');
