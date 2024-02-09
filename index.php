@@ -197,6 +197,41 @@ switch ($action) {
         header('Location: ?action=playlists_utilisateur');
         exit;
 
+    case 'modifier_playlist':
+        // récupération de l'id de la playlist
+        $id_playlist = $_GET['id_playlist'] ?? null;
+
+        // récupération du nouveau nom de la playlist (dans formulaire)
+        $nouveau_nom_playlist = $_POST['nouveau_nom'];
+
+        // récupération de la playlist à modifier
+        $playlist_a_modifier = $playlistPDO->getPlaylistByIdPlaylist($id_playlist);
+
+        // récupère le nom de l'image actuel
+        $image_playlist = $imagePDO->getImageByIdImage($playlist_a_modifier->getIdImage());
+
+        // modification du nom de la playlist
+        $playlistPDO->mettreAJourNomPlaylist($id_playlist, $nouveau_nom_playlist);
+
+        // modification du nom de l'image de la playlist
+        $nom_playlist_transforme = str_replace(' ', '-', $nouveau_nom_playlist);
+
+        // récupération de chaque partie de l'ancien nom de l'image de la playlist
+        $parties_nom_image = explode("-", $image_playlist->getImage());
+        $nom_utilisateur = $parties_nom_image[0]; // Première partie : nom d'utilisateur
+        $nombre_aleatoire = $parties_nom_image[1];// Deuxième partie : nombre aléatoire
+
+        // nom image -> nom_utilisateur-nombre_aleatoire-nom_playlist_transforme
+        $nouveau_nom_image_playlist = $nom_utilisateur . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme;
+        $imagePDO->mettreAJourNomImage($image_playlist->getIdImage(), $nouveau_nom_image_playlist);
+
+        // renomme le nom de l'ancienne image dans le dossier images
+        rename("./images/" . $image_playlist->getImage(), "./images/" . $nouveau_nom_image_playlist);
+
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=playlists_utilisateur');
+        exit;
+
     case 'ajouter_artiste':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // récupération des données du formulaire
@@ -232,11 +267,11 @@ switch ($action) {
 
             $nombre_aleatoire = rand(1, 10000);
             $nom_image_transforme = str_replace(' ', '-', $nom_album);
-            $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $artiste_album); // nom image -> nombre_aleatoire-nom_image_transforme-artiste_album
-            move_uploaded_file($image_temp, "./images/" . $nombre_aleatoire . "-" . $nom_image_transforme . "-" . $artiste_album);
+            $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album); // nom image -> nombre_aleatoire-nom_image_transforme-id_artiste_album
+            move_uploaded_file($image_temp, "./images/" . $nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album);
 
             // appel de la méthode pour créer l'album
-            $id_new_image = ($imagePDO->getImageByNomImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $artiste_album))->getIdImage();
+            $id_new_image = ($imagePDO->getImageByNomImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album))->getIdImage();
             $id_new_album = $albumPDO->ajouterAlbum($nom_album, $annee_sortie_album, $id_new_image);
 
             // création du lien entre album et genre (donc artiste aura ce genre aussi)
