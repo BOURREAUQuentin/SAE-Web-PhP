@@ -29,6 +29,19 @@ if (!$est_admin) {
 // Récupération de la liste des artistes
 $les_artistes = $artistePDO->getArtistes();
 ?>
+<script>
+    function confirmSuppressionArtiste(id_artiste) {
+        // Affiche une boîte de dialogue de confirmation
+        console.log(id_artiste);
+        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer l'artiste ?");
+        // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
+        // Sinon, retourne false (arrête la suppression)
+        if (confirmation) {
+            window.location.href = "?action=supprimer_artiste&id_artiste=" + id_artiste;
+        }
+        return false;
+    }
+</script>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -99,8 +112,14 @@ $les_artistes = $artistePDO->getArtistes();
         <a href="/?action=artiste&id_artiste=<?php echo $artiste->getIdArtiste(); ?>">
             <button class="view-artiste-button">Voir l'artiste</button>
         </a>
+        <!-- Bouton de Suppression -->
+        <a href="#" onclick="return confirmSuppressionArtiste(<?php echo $artiste->getIdArtiste() ?>)">
+            <button class="view-artiste-button">Supprimer l'artiste</button>
+        </a>
     </div>
 <?php endforeach; ?>
+
+
 <script>
     function previewImage() {
         var fileInput = document.getElementById('image_artiste');

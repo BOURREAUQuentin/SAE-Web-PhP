@@ -244,4 +244,44 @@ class ArtistePDO
             return $les_artistes;
         }
     }
+
+    /**
+     * Supprime un artiste de la base de données ainsi que ses musiques, albums et images associées.
+     *
+     * @param int $id_artiste L'identifiant de l'artiste à supprimer.
+     */
+
+    public function supprimerArtisteEtSesDependance(int $id_artiste): void
+    {
+        $suppresion_album_realise=<<<EOF
+        delete from REALISER_PAR where id_artiste = :id_artiste1;
+        EOF;
+        $suppr_genre_artiste=<<<EOF
+        delete from APPARTENIR where id_artiste = :id_artiste2;
+        EOF;
+        $suppr_image_artiste=<<<EOF
+        delete from IMAGE where id_image = (select id_image from ARTISTE where id_artiste = :id_artiste3);
+        EOF;
+        $suppression_artiste = <<<EOF
+        delete from ARTISTE where id_artiste = :id_artiste4;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($suppresion_album_realise);
+            $stmt->bindParam("id_artiste1", $id_artiste, PDO::PARAM_INT);
+            $stmt->execute();
+            $stmt = $this->pdo->prepare($suppr_genre_artiste);
+            $stmt->bindParam("id_artiste2", $id_artiste, PDO::PARAM_INT);
+            $stmt->execute();
+            $stmt = $this->pdo->prepare($suppr_image_artiste);
+            $stmt->bindParam("id_artiste3", $id_artiste, PDO::PARAM_INT);
+            $stmt->execute();
+            $stmt = $this->pdo->prepare($suppression_artiste);
+            $stmt->bindParam("id_artiste4", $id_artiste, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
+
 }

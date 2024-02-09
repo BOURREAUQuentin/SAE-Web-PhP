@@ -253,7 +253,15 @@ switch ($action) {
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_album');
         exit;
-    
+
+    case 'supprimer_artiste':
+        // récupération de l'id de l'artiste
+        $id_artiste = $_GET['id_artiste'] ?? null;
+        print_r($id_artiste);
+        $artistePDO -> supprimerArtisteEtSesDependance($id_artiste);
+        header('Location: ?action=admin_artiste');
+        exit;
+
     case 'modifier_album':
         // récupération de l'id de l'album
         $id_album = $_GET['id_album'] ?? null;
