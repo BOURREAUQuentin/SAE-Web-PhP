@@ -4,6 +4,7 @@ use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\GenrePDO;
 use Modele\modele_bd\ArtistePDO;
+use Modele\modele_bd\RealiserParPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -16,6 +17,7 @@ $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new utilisateurPDO($pdo);
 $genrePDO = new GenrePDO($pdo);
 $artistePDO = new ArtistePDO($pdo);
+$realiserParPDO = new RealiserParPDO($pdo);
 
 // vérification de si l'utilisateur est connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -146,6 +148,7 @@ $les_artistes = $artistePDO->getArtistes();
     <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
         <p>Titre : <?php echo $album->getTitre(); ?></p>
         <p>Année de sortie : <?php echo $album->getAnneeSortie(); ?></p>
+        <p><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
         <a href="/?action=album&id_album=<?php echo $album->getIdAlbum(); ?>">
             <button class="view-album-button">Voir l'album</button>
         </a>
