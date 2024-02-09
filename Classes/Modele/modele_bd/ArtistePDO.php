@@ -284,4 +284,25 @@ class ArtistePDO
         }
     }
 
+    /**
+     * Modifie le nom d'un artiste dans la base de données.
+     *
+     * @param int    $id_artiste   L'identifiant de l'artiste à mettre à jour.
+     * @param string $nouveau_nom  Le nouveau nom de l'artiste.
+     */
+    public function modifierArtiste(int $id_artiste, string $nouveau_nom): void
+    {
+        $maj_artiste = <<<EOF
+        update ARTISTE set nom_artiste = :nouveau_nom where id_artiste = :id_artiste;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($maj_artiste);
+            $stmt->bindParam("nouveau_nom", $nouveau_nom, PDO::PARAM_STR);
+            $stmt->bindParam("id_artiste", $id_artiste, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

@@ -275,6 +275,16 @@ switch ($action) {
         header('Location: ?action=admin_album');
         exit;
 
+    case 'modifier_artiste':
+        // récupération de l'id de l'artiste
+        $id_artiste = $_GET['id_artiste'] ?? null;
+
+        $nouveau_nom_artiste = $_POST["nouveau_nom"];
+        $artistePDO-> modifierArtiste($id_artiste, $nouveau_nom_artiste); // modification du nom de l'artiste
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=admin_artiste');
+        exit;
+
     default:
         include 'templates/main.php';
         break;
