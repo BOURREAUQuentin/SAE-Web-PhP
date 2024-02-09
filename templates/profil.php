@@ -21,6 +21,32 @@ else{
     exit();
 }
 ?>
+<script>
+    function showEditForm() {
+        // Récupérer le formulaire de modification
+        var editForm = document.getElementById("editForm_");
+        // Afficher le formulaire de modification en le rendant visible
+        editForm.style.display = "block";
+        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
+        return false;
+    }
+    function cancelEdit() {
+        // Récupérer le formulaire de modification
+        var editForm = document.getElementById("editForm_");
+        // Masquer le formulaire de modification
+        editForm.style.display = "none";
+
+        // Récupérer les champs de saisie correspondants
+        var nomUtilisateurInput = document.getElementById("nom_utilisateur");
+        var mailUtilisateurInput = document.getElementById("mail_utilisateur");
+        var mdpUtilisateurInput = document.getElementById("mdp_utilisateur");
+
+        // Masquer les champs de saisie correspondants
+        nomUtilisateurInput.style.display = "none";
+        mailUtilisateurInput.style.display = "none";
+        mdpUtilisateurInput.style.display = "none";
+    }
+</script>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -83,10 +109,23 @@ else{
     </style>
 </head>
 <body>
-<div class="genre-container">
-    <p><?php echo $utilisateur_connecte->getNomUtilisateur(); ?></p>
-    <p><?php echo $utilisateur_connecte->getMailUtilisateur(); ?></p>
-    <p><?php echo $utilisateur_connecte->getMdp(); ?></p>
-</div>
+<p><?php echo $utilisateur_connecte->getNomUtilisateur(); ?></p>
+<p><?php echo $utilisateur_connecte->getMailUtilisateur(); ?></p>
+<p><?php echo $utilisateur_connecte->getMdp(); ?></p>
+<!-- Bouton de modification -->
+<button class="view-genre-button" onclick="showEditForm()">Modifier vos informations</button>
+<!-- Formulaire de modification -->
+<form id="editForm_" style="display: none;" action="/?action=modifier_infos_utilisateur&id_utilisateur=<?php echo $utilisateur_connecte->getIdUtilisateur(); ?>" method="post">
+    <input type="hidden" name="id_utilisateur" value="<?php echo $utilisateur_connecte->getIdUtilisateur(); ?>">
+    <label for="nouveau_nom_utilisateur">Nouveau nom d'utilisateur :</label>
+    <input type="text" id="nouveau_nom_utilisateur" name="nouveau_nom_utilisateur" value="<?php echo $utilisateur_connecte->getNomUtilisateur(); ?>" required>
+    <label for="nouveau_mail_utilisateur">Nouveau mail utilisateur :</label>
+    <input type="mail" id="nouveau_mail_utilisateur" name="nouveau_mail_utilisateur" value="<?php echo $utilisateur_connecte->getMailUtilisateur(); ?>" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}" title="Entrez une adresse e-mail valide">
+    <label for="nouveau_mdp">Nouveau mot de passe :</label>
+    <input type="text" id="nouveau_mdp" name="nouveau_mdp" value="<?php echo $utilisateur_connecte->getMdp(); ?>" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,}$" title="Le mot de passe doit comporter au moins 8 caractères, y compris au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.">
+    <button class="view-genre-button" type="submit">Modifier</button>
+    <!-- Bouton Annuler -->
+    <button class="view-genre-button" type="button" onclick="cancelEdit()">Annuler</button>
+</form>
 </body>
 </html>

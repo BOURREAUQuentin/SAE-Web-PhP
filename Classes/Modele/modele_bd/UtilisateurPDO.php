@@ -119,7 +119,7 @@ class UtilisateurPDO
      * @param string $nouveau_mail  Le nouveau mail de l'utilisateur.
      * @param string $nouveau_mdp  Le nouveau mot de passe de l'utilisateur.
      */
-    public function mettreAJourNomUtilisateur(int $id_utilisateur, string $nouveau_nom, string $nouveau_mail, string $nouveau_mdp): void
+    public function mettreAJourInfosUtilisateur(int $id_utilisateur, string $nouveau_nom, string $nouveau_mail, string $nouveau_mdp): void
     {
         $maj_artiste = <<<EOF
         update UTILISATEUR set nom_utilisateur = :nouveau_nom, mail_utilisateur = :nouveau_mail, mdp = :nouveau_mdp where id_utilisateur = :id_utilisateur;
