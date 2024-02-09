@@ -209,4 +209,24 @@ class PlaylistPDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Supprime la playlist associée à l'id playlist dans la table.
+     * 
+     * @param int $id_playlist L'identifiant de la playlist pour lequel supprimer la playlist.
+     */
+    public function supprimerPlaylistByIdPlaylist(int $id_playlist): void
+    {
+        $requete_suppression_playlist = <<<EOF
+        delete from PLAYLIST where id_playlist = :id_playlist;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_playlist);
+            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

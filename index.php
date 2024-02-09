@@ -172,6 +172,27 @@ switch ($action) {
         }
         break;
 
+    case 'supprimer_playlist':
+        // récupération de l'id de la playlist
+        $id_playlist = $_GET['id_playlist'] ?? null;
+
+        // suppression lien playlist et musique
+        $contenirPDO->supprimerMusiquesPlaylistsByIdPlaylist($id_playlist);
+
+        // récupération id_image de la playlist pour supprimer après
+        $playlist = $playlistPDO->getPlaylistByIdPlaylist($id_playlist);
+        $id_image_playlist = $playlist->getIdImage();
+
+        // suppression de la playlist
+        $playlistPDO->supprimerPlaylistByIdPlaylist($id_playlist);
+
+        // suppression de l'image associée à la playlist
+        $imagePDO->supprimerImageByIdImage($id_image_playlist);
+
+        // redirection de l'utilisateur vers la page principale ou autre
+        header('Location: ?action=playlists_utilisateur');
+        exit;
+
     case 'ajouter_artiste':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // récupération des données du formulaire
