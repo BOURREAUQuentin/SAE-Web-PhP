@@ -30,6 +30,14 @@ foreach ($id_artistes as $id_artiste){
     array_push($les_artistes, $artistePDO->getArtisteByIdArtiste($id_artiste));
 }
 $les_musiques = $albumPDO->getMusiquesByIdAlbum($id_album);
+
+$file_attente_sons = array();
+foreach ($les_musiques as $musique){
+    array_push($file_attente_sons, $musique->getSonMusique());
+}
+// Récupérer les musiques et les encoder en JSON
+$musiques_json = json_encode($file_attente_sons);
+
 $nom_utilisateur_connecte = "pas connecté";
 if (isset($_SESSION["username"])) {
     $nom_utilisateur_connecte = $_SESSION["username"];
@@ -136,8 +144,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .player {
         position: relative;
-        
-        .info {
+    }    
+    .player .info {
             position: absolute;
             height: 60px;
             top: 0;
@@ -188,11 +196,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 transition: all .5s ease;
             }
         }
-        .control-panel {
+        .player .control-panel {
             position: relative;
             background-color: #fff;
             border-radius: 15px;
-            width: 300px;
+            width: 380px;
             height: 80px;
             z-index: 5;
             box-shadow: 0px 20px 20px 5px rgba(132, 132, 132, 0.3);
@@ -305,8 +313,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             &.active .controls .play {
                 background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTguMS4xLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDIzMi42NzkgMjMyLjY3OSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMjMyLjY3OSAyMzIuNjc5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4Ij4KPGcgaWQ9IlBhdXNlIj4KCTxwYXRoIHN0eWxlPSJmaWxsLXJ1bGU6ZXZlbm9kZDtjbGlwLXJ1bGU6ZXZlbm9kZDsiIGQ9Ik04MC41NDMsMEgzNS43OTdjLTkuODg1LDAtMTcuODk4LDguMDE0LTE3Ljg5OCwxNy44OTh2MTk2Ljg4MyAgIGMwLDkuODg1LDguMDEzLDE3Ljg5OCwxNy44OTgsMTcuODk4aDQ0Ljc0NmM5Ljg4NSwwLDE3Ljg5OC04LjAxMywxNy44OTgtMTcuODk4VjE3Ljg5OEM5OC40NCw4LjAxNCw5MC40MjcsMCw4MC41NDMsMHogTTE5Ni44ODIsMCAgIGgtNDQuNzQ2Yy05Ljg4NiwwLTE3Ljg5OSw4LjAxNC0xNy44OTksMTcuODk4djE5Ni44ODNjMCw5Ljg4NSw4LjAxMywxNy44OTgsMTcuODk5LDE3Ljg5OGg0NC43NDYgICBjOS44ODUsMCwxNy44OTgtOC4wMTMsMTcuODk4LTE3Ljg5OFYxNy44OThDMjE0Ljc4MSw4LjAxNCwyMDYuNzY3LDAsMTk2Ljg4MiwweiIgZmlsbD0iI2MyYzZjZiIvPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=)
             }
-	}
-}
+        }
+
+        .duration{
+            padding-left: 95px;
+            font-size: x-small;
+            margin-top: 10px;
+            margin-right: 23px;
+        }
     </style>
 </head>
 <body>
@@ -318,12 +332,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div class="player">
         <div id="info" class="info">
-            <span class="artist">Favé</span>
-            <span class="name">Favela</span>
+            <span class="artist"><?php echo ($les_artistes[0])->getNomArtiste(); ?></span>
+            <span class="name"></span>
             <div class="progress-bar">
                 <div class="bar">
                     <audio id="audio" controls style="display: none;">
-                    <source src="../static/sounds/favela.mp3" type="audio/mp3">
+                    <source src="" type="audio/mp3">
                     Your browser does not support the audio element.
                     </audio>
                 </div>
@@ -332,12 +346,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div id="control-panel" class="control-panel">
             <div class="album-art"></div>
             <div class="controls">
-                <div class="prev"></div>
+                <div class="duration">
+                    <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+                </div>
+                <div id="prev" class="prev"></div>
                 <div id="play" class="play"></div>
-                <div class="next"></div>
+                <div id="next" class="next"></div>
             </div>
         </div>
     </div>
+    <ul id="file-attente"></ul>
     <div class="album-container">
         <h2>Liste des musiques de l'album</h2>
         <?php foreach ($les_musiques as $musique):?>
@@ -381,6 +399,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endforeach; ?>
     </div>
 </div>
+<script>
+    // Injecter les données JSON dans une variable JavaScript
+    const musiques = <?php echo $musiques_json; ?>;
+</script>
 <script src="../static/script/son.js"></script>
 <script>
     
