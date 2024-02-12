@@ -34,24 +34,25 @@ class NoterPDO
      * @param int $id_utilisateur L'identifiant de l'utilisateur pour lequel récupérer la note.
      * @return int|null Retourne la note de l'utilisateur sur l'album s'il l'a déjà noté, sinon null
      */
-    public function getNoteByIdAlbumIdUtilisateur(int $id_album, int $id_utilisateur): array
+    public function getNoteByIdAlbumIdUtilisateur(int $id_album, int $id_utilisateur): ?int
     {
         $requete_note = <<<EOF
-        select note from NOTER where id_album = :id_album and id_utilisateur = :id_utilisateur;
+            SELECT note FROM NOTER WHERE id_album = :id_album AND id_utilisateur = :id_utilisateur;
         EOF;
-        try{
+        try {
             $stmt = $this->pdo->prepare($requete_note);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
             $stmt->execute();
-            $note_album_utilisateur = $stmt->fetch();
-            return $note_album_utilisateur;
-        }
-        catch (PDOException $e){
+            $note = $stmt->fetchColumn();
+            return $note !== false ? (int)$note : 0;
+        } catch (PDOException $e) {
             var_dump($e->getMessage());
-            return null;
+            return 0;
         }
     }
+    
+    
 
     /**
      * Ajoute une nouvelle note à la base de données.
