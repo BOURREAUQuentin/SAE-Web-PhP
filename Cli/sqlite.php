@@ -33,7 +33,7 @@ switch ($argv[2]) {
             CREATE TABLE IF NOT EXISTS MUSIQUE (
                 id_musique INT PRIMARY KEY,
                 nom_musique VARCHAR(255) NOT NULL,
-                duree_musique VARCHAR(8) NOT NULL,
+                duree_musique TIME NOT NULL,
                 son_musique VARCHAR(255) NOT NULL,
                 nb_streams INT NOT NULL CHECK (nb_streams >= 0),
                 id_album INT,
@@ -149,8 +149,8 @@ switch ($argv[2]) {
             (5, "rap.jpg"),
             (6, "rock.jpg"),
             (7, "jazz.jpg"),
-            (8, "rap-chill.jpg"),
-            (9, "hard-rap.jpeg"),
+            (8, "quentin-576-Chill-rap.jpg"),
+            (9, "quentin-697-Hard-rap.jpeg"),
             (10, "baiser.jpg"),
             (11, "dire-je-taime.jpg"),
             (12, "sincerement.jpg"),
@@ -653,11 +653,11 @@ switch ($argv[2]) {
                 $stmt->bindParam(':id_image', $id_image_default, PDO::PARAM_INT);
                 $stmt->execute();
 
-                // incrémente pour le nouveau prochain artiste à ajouter
-                $new_id_artiste += 1;
-
                 // pour l'insertion realiser_par
                 $id_artiste_actuel = $new_id_artiste;
+
+                // incrémente pour le nouveau prochain artiste à ajouter
+                $new_id_artiste += 1;
             }
             else{
                 // pour l'insertion realiser_par

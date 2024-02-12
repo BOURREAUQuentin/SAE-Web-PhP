@@ -174,15 +174,27 @@ class AlbumPDO
      */
     public function getDureeTotalByIdAlbum(int $id_album): string
     {
-        $requete_album = <<<EOF
+        $requete_durees_musiques_album = <<<EOF
         select duree_musique from ALBUM natural join MUSIQUE where id_album = :id_album;
         EOF;
         try{
-            $stmt = $this->pdo->prepare($requete_album);
+            $stmt = $this->pdo->prepare($requete_durees_musiques_album);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->execute();
-            $dureeTotale = $stmt->fetchAll();
-            return "00:00";
+            $durees_musiques = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $duree_total_secondes = 0;
+            foreach ($durees_musiques as $duree_musique){
+                list($minutes, $secondes) = explode(":", $duree_musique["duree_musique"]);
+                $duree_secondes_musique = ($minutes * 60) + $secondes; // conversion des minutes en secondes et ajout aux secondes
+                $duree_total_secondes += intval($duree_secondes_musique);
+            }
+            // calcul des minutes et des secondes
+            $duree_total_heures = floor($duree_total_secondes / 3600);
+            $duree_total_secondes %= 3600;
+            $duree_total_minutes = floor($duree_total_secondes / 60);
+            $duree_total_secondes %= 60;
+            $duree_total_lisible = sprintf("%02d:%02d:%02d", $duree_total_heures, $duree_total_minutes, $duree_total_secondes); // formattage du résultat
+            return $duree_total_lisible;
         }
         catch (PDOException $e){
             var_dump($e->getMessage());

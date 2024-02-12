@@ -41,6 +41,20 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
         }
         return false;
     }
+    function showEditForm(id_playlist) {
+        // Récupérer le formulaire de modification correspondant à l'ID de la playlist
+        var editForm = document.getElementById("editForm_" + id_playlist);
+        // Afficher le formulaire de modification en le rendant visible
+        editForm.style.display = "block";
+        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
+        return false;
+    }
+    function cancelEdit(id_playlist) {
+        // Récupérer le formulaire de modification correspondant à l'ID de la playlist
+        var editForm = document.getElementById("editForm_" + id_playlist);
+        // Masquer le formulaire de modification
+        editForm.style.display = "none";
+    }
 </script>
 <!DOCTYPE html>
 <html lang="fr">
@@ -120,6 +134,17 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
             <a href="#" onclick="return confirmSuppressionPlaylist(<?php echo $playlist_utilisateur->getIdPlaylist(); ?>)">
                 <button class="view-genre-button">Supprimer la playlist</button>
             </a>
+            <!-- Bouton de modification -->
+            <button class="view-genre-button" onclick="showEditForm(<?php echo $playlist_utilisateur->getIdPlaylist(); ?>)">Modifier la playlist</button>
+            <!-- Formulaire de modification -->
+            <form id="editForm_<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" style="display: none;" action="/?action=modifier_playlist&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" method="post">
+                <input type="hidden" name="id_playlist" value="<?php echo $playlist_utilisateur->getIdPlaylist(); ?>">
+                <label for="nouveau_nom">Nouveau nom de votre playlist :</label>
+                <input type="text" id="nouveau_nom" name="nouveau_nom" value="<?php echo $playlist_utilisateur->getNomPlaylist(); ?>" required>
+                <button class="view-genre-button" type="submit">Modifier</button>
+                <!-- Bouton Annuler -->
+                <button class="view-genre-button" type="button" onclick="cancelEdit(<?php echo $playlist_utilisateur->getIdPlaylist(); ?>)">Annuler</button>
+            </form>
         </div>
     <?php endforeach; ?>
 <?php endif; ?>
