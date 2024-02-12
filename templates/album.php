@@ -169,13 +169,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 display: block;
             }
 
-            .artist {
+            .name {
                 color: #222;
                 font-size: 16px;
                 margin-bottom: 5px;
             }
 
-            .name {
+            .artist {
                 color: #999;
                 font-size: 12px;
                 margin-bottom: 8px;
@@ -352,8 +352,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div class="player">
         <div id="info" class="info">
-            <span class="artist"><?php echo ($les_artistes[0])->getNomArtiste(); ?></span>
             <span class="name"></span>
+            <span class="artist"><?php echo ($les_artistes[0])->getNomArtiste(); ?></span>
             <div class="progress-bar">
                 <div class="bar">
                     <audio id="audio" controls style="display: none;">
