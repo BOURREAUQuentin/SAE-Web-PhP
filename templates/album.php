@@ -361,6 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div id="restart" class="restart"></div>
             </div>
         </div>
+        <input type="range" id="volume-slider" min="0" max="100" step="1" value="100">
     </div>
     <ul id="file-attente"></ul>
     <div class="album-container">
