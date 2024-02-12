@@ -1,5 +1,6 @@
 class musicPlayer {
     constructor(les_musiques) {
+        console.log(les_musiques);
         // Vérifier si aucune musique n'est présente
         if (les_musiques.length === 0) {
             console.error("Aucune musique n'est disponible dans cet album.");
@@ -95,6 +96,7 @@ class musicPlayer {
             infoBarObj = this.infoBar;
         if (this.audio.paused) {
             this.audio.play();
+            // TODO
         }
         else {
             this.audio.pause();

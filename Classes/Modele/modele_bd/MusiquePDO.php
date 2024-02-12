@@ -283,4 +283,24 @@ class MusiquePDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Ajoute 1 stream à la musique.
+     *
+     * @param int    $id_musique   L'identifiant de la musique écouté.
+     */
+    public function ajouterStreamMusique(string $nom_musique): void
+    {
+        $maj_nb_streams = <<<EOF
+        update MUSIQUE set nb_streams = nb_streams + 1 where id_musique = :id_musique;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($maj_nb_streams);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

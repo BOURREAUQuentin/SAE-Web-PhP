@@ -5,6 +5,7 @@ use Modele\modele_bd\LikerPDO;
 use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\UtilisateurPDO;
+use Modele\modele_bd\PlaylistPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -18,6 +19,7 @@ $realiserParPDO = new RealiserParPDO($pdo);
 $artistePDO = new ArtistePDO($pdo);
 $likePDO = new LikerPDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
+$playlistPDO = new PlaylistPDO($pdo);
 
 // Récupération de l'id de l'album
 $id_album = intval($_GET['id_album']);
@@ -32,17 +34,22 @@ foreach ($id_artistes as $id_artiste){
 $les_musiques = $albumPDO->getMusiquesByIdAlbum($id_album);
 
 $file_attente_sons = array();
+$id_musique_file_attente_sons = array();
 foreach ($les_musiques as $musique){
     array_push($file_attente_sons, $musique->getSonMusique());
+    array_push($id_musique_file_attente_sons, $musique->getIdMusique());
 }
 // Récupérer les musiques et les encoder en JSON
 $musiques_json = json_encode($file_attente_sons);
+// Récupérer les id_musiques et les encoder en JSON
+$id_musiques_json = json_encode($id_musique_file_attente_sons);
 
 $nom_utilisateur_connecte = "pas connecté";
 if (isset($_SESSION["username"])) {
     $nom_utilisateur_connecte = $_SESSION["username"];
 }
 $utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
+$playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 
 // vérifie si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -322,10 +329,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .duration{
-            padding-left: 95px;
+            padding-left: 105px;
             font-size: x-small;
             margin-top: 10px;
-            margin-right: 23px;
+        }
+
+        .volume-label {
+            font-size: x-small;
+        }
+
+        input[type="range"] {
+            width: 100px;
         }
     </style>
 </head>
@@ -353,7 +367,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="album-art"></div>
             <div class="controls">
                 <div class="duration">
-                    <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+                    <div>
+                        <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+                        <div>
+                            <label for="volume-slider" class="volume-label">Volume</label>
+                            <input type="range" id="volume-slider" min="0" max="100" step="1" value="100">
+                        </div>
+                    </div>
                 </div>
                 <div id="prev" class="prev"></div>
                 <div id="play" class="play"></div>
@@ -361,7 +381,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div id="restart" class="restart"></div>
             </div>
         </div>
-        <input type="range" id="volume-slider" min="0" max="100" step="1" value="100">
     </div>
     <ul id="file-attente"></ul>
     <div class="album-container">
@@ -371,6 +390,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>Son : <?php echo $musique->getNomMusique(); ?></p>
             <p>Durée : <?php echo $musique->getDureeMusique(); ?></p>
             <p>Nombre d'écoutes : <?php echo $musique->getNbStreams(); ?></p>
+
+            <!-- formulaire pour choisir la playlist dans laquelle ajouter la musique-->
+            <form method="post" action="?action=ajouter_playlist">
+                <input type="hidden" name="id_musique" value="<?php echo $musique->getIdMusique(); ?>">
+                <select name="id_playlist">
+                    <?php foreach ($playlists_utilisateur as $playlist): ?>
+                        <option value="<?php echo $playlist->getIdPlaylist(); ?>"><?php echo $playlist->getNomPlaylist(); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit">Ajouter à la playlist</button>
+            </form>
             
             <!-- permet de liker une musique-->
             <div id="like" data-id="<?php echo $musique->getIdMusique(); ?>">
@@ -410,6 +440,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script>
     // Injecter les données JSON dans une variable JavaScript
     const musiques = <?php echo $musiques_json; ?>;
+    // Injecter les données JSON dans une variable JavaScript
+    const id_musiques = <?php echo $id_musiques_json; ?>;
 </script>
 <script src="../static/script/son.js"></script>
 <script>
