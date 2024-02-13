@@ -121,11 +121,11 @@ $les_artistes = $artistePDO->getArtistes();
         <input type="text" id="nom_album" name="nom_album" required>
         <label for="annee_sortie">Année de sortie :</label>
         <input type="text" id="annee_sortie" name="annee_sortie" required>
-        <label for="genre">Genre associé :</label>
-        <select name="genre" id="genre">
-        <?php foreach ($les_genres as $genre): ?>
-            <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
-        <?php endforeach; ?>
+        <label for="genre">Genres associés :</label>
+        <select name="genres[]" id="genre" multiple required>
+            <?php foreach ($les_genres as $genre): ?>
+                <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+            <?php endforeach; ?>
         </select>
         <label for="artiste">Artiste associé :</label>
         <select name="artiste" id="artiste">

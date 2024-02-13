@@ -268,7 +268,7 @@ switch ($action) {
             // récupération des données du formulaire
             $nom_album = $_POST['nom_album'];
             $annee_sortie_album = $_POST['annee_sortie'];
-            $id_genre_album = $_POST['genre']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id
+            $id_genres_album = $_POST['genres']; // tableau contenant les ids des genres sélectionnés
             $id_artiste_album = $_POST['artiste']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id
 
             // gestion de l'image de l'album
@@ -283,9 +283,11 @@ switch ($action) {
             $id_new_image = ($imagePDO->getImageByNomImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album))->getIdImage();
             $id_new_album = $albumPDO->ajouterAlbum($nom_album, $annee_sortie_album, $id_new_image);
 
-            // création du lien entre album et genre (donc artiste aura ce genre aussi)
-            $fairePartiePDO->ajouterFairePartie($id_new_album, $id_genre_album);
-            $appartenirPDO->ajouterAppartenir($id_artiste_album, $id_genre_album);
+            // création du lien entre album et genres (donc artiste aura ces genres aussi)
+            foreach ($id_genres_album as $id_genre) {
+                $fairePartiePDO->ajouterFairePartie($id_new_album, $id_genre);
+                $appartenirPDO->ajouterAppartenir($id_artiste_album, $id_genre);
+            }
 
             // création du lien entre album et artiste
             $realiserParPDO->ajouterRealiser($id_new_album, $id_artiste_album);
