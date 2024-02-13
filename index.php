@@ -442,45 +442,6 @@ switch ($action) {
         header('Location: ?action=profil');
         exit;
 
-    case 'supprimer_genre':
-        // récupération de l'id de l'utilisateur
-        $id_genre = $_GET['id_genre'] ?? null;
-
-        // suppression du lien entre genre et artiste
-        $appartenirPDO->supprimerGenresByIdGenre($id_genre);
-
-        // suppression du lien entre genre et album
-        $fairePartiePDO->supprimerGenresByIdGenre($id_genre);
-
-        // récupération id_image du genre pour supprimer après
-        $genre = $genrePDO->getGenreByIdGenre($id_genre);
-        $id_image_genre = $genre->getIdImage();
-
-        // suppression du genre
-        $genrePDO->supprimerGenreByIdGenre($id_genre);
-
-        // suppression de l'image associée au genre
-        $image_genre = ($imagePDO->getImageByIdImage($id_image_genre))->getImage();
-        var_dump($id_genre);
-        if ($image_genre != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
-            $imagePDO->supprimerImageByIdImage($id_image_genre);
-        }
-
-        // redirection de l'utilisateur vers la même page
-        header('Location: ?action=admin_genre');
-        exit;
-
-    case 'modifier_genre':
-        // récupération de l'id du genre
-        $id_genre = $_GET['id_genre'] ?? null;
-
-        $nouveau_nom_genre = $_POST["nouveau_nom"];
-        $genrePDO->mettreAJourNomGenre($id_genre, $nouveau_nom_genre); // modification du nom du genre
-
-        // redirection de l'utilisateur vers la même page
-        header('Location: ?action=admin_genre');
-        exit;
-
     default:
         include 'templates/main.php';
         break;

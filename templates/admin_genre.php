@@ -28,39 +28,25 @@ if (!$est_admin) {
 
 // Récupération de la liste des genres
 $les_genres = $genrePDO->getGenres();
+
+$message_erreur = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    $nom_genre = $_POST['nom_genre']; // On récupère le champ nom_genre
+
+    $genre = $genrePDO->getGenreByNomGenre($nom_genre);
+
+    if ($genre == null) { // si le genre n'existe pas déjà (le nom est pas déjà utilisé)
+        // ajout du genre dans la bd
+        $genrePDO->ajouterGenre($nom_genre);
+        exit(header('Location: ?action=admin_genre'));
+    }
+    else {
+        $message_erreur = "Nom de genre déjà utilisé.";
+    }
+}
 ?>
-<script>
-    function confirmSuppressionGenre(id_genre) {
-        // Affiche une boîte de dialogue de confirmation
-        console.log(id_genre);
-        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer le genre ?");
-        // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
-        // Sinon, retourne false (arrête la suppression)
-        if (confirmation) {
-            window.location.href = "?action=supprimer_genre&id_genre=" + id_genre;
-        }
-        return false;
-    }
-
-    function showEditForm(id_genre) {
-        // Récupérer le formulaire de modification correspondant à l'ID du genre
-        var editForm = document.getElementById("editForm_" + id_genre);
-        // Afficher le formulaire de modification en le rendant visible
-        editForm.style.display = "block";
-        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
-        return false;
-    }
-
-    function cancelEdit(id_genre) {
-        // Récupérer le formulaire de modification correspondant à l'ID du genre
-        var editForm = document.getElementById("editForm_" + id_genre);
-        // Masquer le formulaire de modification
-        editForm.style.display = "none";
-        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
-        return false;
-    }
-</script>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -107,32 +93,25 @@ $les_genres = $genrePDO->getGenres();
     </style>
 </head>
 <body>
+<h1>Ajouter un genre</h1>
+<div class="genre-container">
+    <?php if (!empty($message_erreur)): ?>
+        <p style="color: red;"><?php echo $message_erreur; ?></p>
+    <?php endif; ?>
+    <!-- Formulaire pour ajouter un nouveau genre -->
+    <form action="" method="post">
+        <label for="nom_genre">Nom du genre :</label>
+        <input type="text" id="nom_genre" name="nom_genre" required>
+        <button type="submit" value="ajouter_genre">Ajouter un genre</button>
+    </form>
+</div>
 <h1>Listes des genres</h1>
-<?php foreach ($les_genres as $genre):
-    $image_genre = $imagePDO->getImageByIdImage($genre->getIdImage());
-    $image_path = $image_genre->getImage() ? "../images/" . $image_genre->getImage() : '../images/default.jpg';
-    ?>
+<?php foreach ($les_genres as $genre): ?>
     <div class="genre-container">
-        <img class="genre-image" src="<?php echo $image_path ?>" alt="Image du genre <?php echo $genre->getNomGenre(); ?>"/>
         <p>Nom : <?php echo $genre->getNomGenre(); ?></p>
         <a href="/?action=genre&id_genre=<?php echo $genre->getIdGenre(); ?>">
             <button class="view-genre-button">Voir le genre</button>
         </a>
-        <!-- Bouton de Suppression -->
-        <a href="#" onclick="return confirmSuppressionGenre(<?php echo $genre->getIdGenre() ?>)">
-            <button class="view-genre-button">Supprimer le genre</button>
-        </a>
-        <!-- Bouton de modification -->
-        <button class="view-genre-button" onclick="showEditForm(<?php echo $genre->getIdGenre(); ?>)">Modifier le genre</button>
-        <!-- Formulaire de modification -->
-        <form id="editForm_<?php echo $genre->getIdGenre(); ?>" style="display: none;" action="/?action=modifier_genre&id_genre=<?php echo $genre->getIdGenre() ?>" method="post">
-            <input type="hidden" name="id_genre" value="<?php echo $genre->getIdGenre() ?>">
-            <label for="nouveau_nom">Nom du genre :</label>
-            <input type="text" id="nouveau_nom" name="nouveau_nom" value="<?php echo $genre->getNomGenre(); ?>" required>
-            <button class="view-genre-button" type="submit">Modifier</button>
-            <!-- Bouton Annuler -->
-            <button class="view-genre-button" type="button" onclick="cancelEdit(<?php echo $genre->getIdGenre(); ?>)">Annuler</button>
-        </form>
     </div>
 <?php endforeach; ?>
 </body>

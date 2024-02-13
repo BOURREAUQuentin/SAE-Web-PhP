@@ -40,8 +40,8 @@ class GenrePDO
         try{
             $stmt = $this->pdo->prepare($requete_max_id);
             $stmt->execute();
-            $max_id = $stmt->fetch();
-            return $max_id;
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultat["maxIdGenre"];
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
@@ -59,7 +59,7 @@ class GenrePDO
     public function getGenreByIdGenre(int $id_genre): ?Genre
     {
         $requete_genre = <<<EOF
-        select id_genre, nom_genre, id_image from GENRE where id_genre = :id_genre;
+        select id_genre, nom_genre from GENRE where id_genre = :id_genre;
         EOF;
         try{
             $stmt = $this->pdo->prepare($requete_genre);
@@ -69,7 +69,7 @@ class GenrePDO
             $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($resultat) {
                 // retourne une instance de la classe Genre avec les données récupérées
-                return new Genre($resultat['id_genre'], $resultat['nom_genre'], $resultat['id_image']);
+                return new Genre($resultat['id_genre'], $resultat['nom_genre']);
             } else {
                 // Aucun genre trouvé avec l'identifiant donné
                 return null;
@@ -85,19 +85,17 @@ class GenrePDO
      * Ajoute un nouveau genre à la base de données.
      *
      * @param string $nom_genre Le nom du genre à ajouter.
-     * @param int $id_image L'image du genre associé à ajouter.
      */
-    public function ajouterGenre(string $nom_genre, int $id_image): void
+    public function ajouterGenre(string $nom_genre): void
     {
         $new_id_genre = $this->getMaxIdGenre() + 1;
         $insertion_genre = <<<EOF
-        insert into GENRE (id_genre, nom_genre, id_image) values (:id_genre, :nom_genre, :id_image);
+        insert into GENRE (id_genre, nom_genre) values (:id_genre, :nom_genre);
         EOF;
         try{
             $stmt = $this->pdo->prepare($insertion_genre);
             $stmt->bindParam("id_genre", $new_id_genre, PDO::PARAM_INT);
             $stmt->bindParam("nom_genre", $nom_genre, PDO::PARAM_STR);
-            $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
             $stmt->execute();
         }
         catch (PDOException $e){
@@ -135,7 +133,7 @@ class GenrePDO
     public function getGenres(): array
     {
         $requete_genres = <<<EOF
-        select id_genre, nom_genre, id_image from GENRE;
+        select id_genre, nom_genre from GENRE;
         EOF;
         $les_genres = array();
         try{
@@ -144,7 +142,7 @@ class GenrePDO
             // fetch le résultat sous forme de tableau associatif
             $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($resultat as $genre) {
-                array_push($les_genres, new Genre($genre['id_genre'], $genre['nom_genre'], $genre['id_image']));
+                array_push($les_genres, new Genre($genre['id_genre'], $genre['nom_genre']));
             }
             return $les_genres;
         }
@@ -171,6 +169,38 @@ class GenrePDO
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
+        }
+    }
+
+    /**
+     * Obtient le genre dans la table.
+     *
+     * @param string    $nom_genre   Le nom du genre à rechercher.
+     * 
+     * @return Genre Le genre correspondant au nom du genre donné, ou null si le genre n'est pas trouvé.
+     */
+    public function getGenreByNomGenre(string $nom_genre): ?Genre
+    {
+        $requete_genre = <<<EOF
+        select id_genre, nom_genre from GENRE where nom_genre = :nom_genre;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_genre);
+            $stmt->bindParam("nom_genre", $nom_genre, PDO::PARAM_STR);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Genre avec les données récupérées
+                return new Genre($resultat['id_genre'], $resultat['nom_genre']);
+            } else {
+                // Aucun Genre trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
         }
     }
 }
