@@ -112,14 +112,18 @@ $les_albums = $albumPDO->getAlbums();
     <form action="?action=ajouter_musique" method="post" enctype="multipart/form-data">
         <label for="nom_musique">Nom de la musique :</label>
         <input type="text" id="nom_musique" name="nom_musique" required>
-        <label for="duree_musique">Durée du son :</label>
-        <input type="time" id="duree_musique" name="duree_musique" required>
         <label for="album">Album associé :</label>
         <select name="album" id="album">
         <?php foreach ($les_albums as $album): ?>
             <option value="<?php echo $album->getIdAlbum(); ?>"><?php echo $album->getTitre(); ?></option>
         <?php endforeach; ?>
         </select>
+        <label for="fichier_mp3">Fichier MP3 :</label>
+        <input type="file" id="fichier_mp3" name="fichier_mp3" accept=".mp3" required>
+        <!-- balise pour obtenir les informations sur la durée du fichier audio (pas affiché à l'utilisateur) -->
+        <audio id="audioPreview" style="display:none;" controls></audio>
+        <!-- pour afficher la durée du fichier audio -->
+        <input type="hidden" id="duree_audio" name="duree_audio">
         <button type="submit">Ajouter une musique</button>
     </form>
 </div>
@@ -153,5 +157,44 @@ $les_albums = $albumPDO->getAlbums();
         </form>
     </div>
 <?php endforeach; ?>
+<script>
+    // Fonction pour obtenir la durée formatée du fichier audio
+    function obtenirDureeFormattee(duree) {
+        var minutes = Math.floor(duree / 60);
+        var secondes = Math.floor(duree % 60);
+        // Formatage de la durée au format MM:SS
+        var duree_formattee = (minutes < 10 ? '0' : '') + minutes + ':' + (secondes < 10 ? '0' : '') + secondes;
+        return duree_formattee;
+    }
+
+    // Fonction pour obtenir la durée du fichier audio
+    function obtenirDureeAudio(input) {
+        if (input.files && input.files[0]) {
+            var audio = document.getElementById('audioPreview');
+            var file = input.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                // Charge le fichier audio pour obtenir ses informations
+                audio.src = e.target.result;
+            };
+
+            // Attente que les métadonnées du fichier audio soient chargées
+            audio.onloadedmetadata = function() {
+                // Affiche la durée du fichier audio formatée dans l'élément HTML
+                var duree_formattee = obtenirDureeFormattee(audio.duration);
+                document.getElementById('duree_audio').value = duree_formattee;
+                console.log(duree_formattee);
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Ajout d'un écouteur d'événements au champ de fichier MP3 pour détecter les changements
+    document.getElementById('fichier_mp3').addEventListener('change', function() {
+        obtenirDureeAudio(this);
+    });
+</script>
 </body>
 </html>

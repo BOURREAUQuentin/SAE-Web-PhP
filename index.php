@@ -386,14 +386,30 @@ switch ($action) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // récupération des données du formulaire
             $nom_musique = $_POST['nom_musique'];
-            $duree_musique = $_POST['duree_musique'];
+            $duree_audio = $_POST['duree_audio'] ?? "00:00";
             $id_album_musique = $_POST['album']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id de l'abum
 
+            // chemin du fichier MP3 téléchargé
+            $chemin_fichier_mp3 = $_FILES['fichier_mp3']['tmp_name'];
+
+            var_dump($_FILES["fichier_mp3"]["size"]);
+            var_dump($_FILES["fichier_mp3"]["error"]);
+            var_dump($chemin_fichier_mp3);
+
+            $nombre_aleatoire = rand(1, 10000);
+            $nom_musique_sans_espaces = str_replace(' ', '-', $nom_musique); // remplacer les espaces par des tirets
+            $nom_musique_sans_espaces_minuscules = strtolower($nom_musique_sans_espaces); // enlever les minuscules
+            $nom_musique_transforme = str_replace("'", "-", $nom_musique_sans_espaces_minuscules); // remplacer les apostrophes par des tirets
+
+            $nom_fichier_son_musique = $id_album_musique . "-" . $nombre_aleatoire . "-" . $nom_musique_transforme . ".mp3";
+            // mettre fichier mp3 dans dossier sounds
+            move_uploaded_file($chemin_fichier_mp3, "./static/sounds/" . $nom_fichier_son_musique);
+
             // appel de la méthode pour créer la musique
-            $musiquePDO->ajouterMusique($nom_musique, $duree_musique, $nom_musique.".mp3", $id_album_musique);
+            $musiquePDO->ajouterMusique($nom_musique, $duree_audio, $nom_fichier_son_musique, $id_album_musique);
 
             // redirection de l'utilisateur vers la même page
-            header('Location: ?action=admin_musique');
+            //header('Location: ?action=admin_musique');
             exit;
         }
         break;
