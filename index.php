@@ -27,6 +27,7 @@ use Modele\modele_bd\AppartenirPDO;
 use Modele\modele_bd\MusiquePDO;
 use Modele\modele_bd\LikerPDO;
 use Modele\modele_bd\NoterPDO;
+use Modele\modele_bd\GenrePDO;
 
 // instanciation des classes PDO
 $contenirPDO = new ContenirPDO($pdo);
@@ -41,6 +42,7 @@ $appartenirPDO = new AppartenirPDO($pdo);
 $musiquePDO = new MusiquePDO($pdo);
 $likerPDO = new LikerPDO($pdo);
 $noterPDO = new NoterPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 
 // Manage action / controller
 $action = $_REQUEST['action'] ?? 'main';
@@ -110,6 +112,10 @@ switch ($action) {
     
     case 'admin_utilisateur':
         include 'templates/admin_utilisateur.php';
+        break;
+
+    case 'admin_genre':
+        include 'templates/admin_genre.php';
         break;
 
     case 'ajouter_playlist':
@@ -191,7 +197,10 @@ switch ($action) {
         $playlistPDO->supprimerPlaylistByIdPlaylist($id_playlist);
 
         // suppression de l'image associée à la playlist
-        $imagePDO->supprimerImageByIdImage($id_image_playlist);
+        $image_playlist = ($imagePDO->getImageByIdImage($id_image_playlist))->getImage();
+        if ($image_playlist != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
+            $imagePDO->supprimerImageByIdImage($id_image_playlist);
+        }
 
         // redirection de l'utilisateur vers la page principale ou autre
         header('Location: ?action=playlists_utilisateur');
@@ -313,7 +322,10 @@ switch ($action) {
         $albumPDO->supprimerAlbumByIdAlbum($id_album);
 
         // suppression de l'image associée à l'album
-        $imagePDO->supprimerImageByIdImage($id_image_album);
+        $image_album = ($imagePDO->getImageByIdImage($id_image_album))->getImage();
+        if ($image_album != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
+            $imagePDO->supprimerImageByIdImage($id_image_album);
+        }
         
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_album');
@@ -428,6 +440,34 @@ switch ($action) {
 
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=profil');
+        exit;
+
+    case 'supprimer_genre':
+        // récupération de l'id de l'utilisateur
+        $id_genre = $_GET['id_genre'] ?? null;
+
+        // suppression du lien entre genre et artiste
+        $appartenirPDO->supprimerGenresByIdGenre($id_genre);
+
+        // suppression du lien entre genre et album
+        $fairePartiePDO->supprimerGenresByIdGenre($id_genre);
+
+        // récupération id_image du genre pour supprimer après
+        $genre = $genrePDO->getGenreByIdGenre($id_genre);
+        $id_image_genre = $genre->getIdImage();
+
+        // suppression du genre
+        $genrePDO->supprimerGenreByIdGenre($id_genre);
+
+        // suppression de l'image associée au genre
+        $image_genre = ($imagePDO->getImageByIdImage($id_image_genre))->getImage();
+        var_dump($id_genre);
+        if ($image_genre != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
+            $imagePDO->supprimerImageByIdImage($id_image_genre);
+        }
+
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=admin_genre');
         exit;
 
     default:

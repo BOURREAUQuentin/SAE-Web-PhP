@@ -113,11 +113,11 @@ class GenrePDO
      */
     public function mettreAJourNomGenre(int $id_genre, string $nouveau_nom): void
     {
-        $maj_album = <<<EOF
+        $maj_genre = <<<EOF
         update GENRE set nom_genre = :nouveau_nom where id_genre = :id_genre;
         EOF;
         try{
-            $stmt = $this->pdo->prepare($maj_album);
+            $stmt = $this->pdo->prepare($maj_genre);
             $stmt->bindParam("nouveau_nom", $nouveau_nom, PDO::PARAM_STR);
             $stmt->bindParam("id_genre", $id_genre, PDO::PARAM_INT);
             $stmt->execute();
@@ -151,6 +151,26 @@ class GenrePDO
         catch (PDOException $e){
             var_dump($e->getMessage());
             return $les_genres;
+        }
+    }
+
+    /**
+     * Supprime le genre associé à l'id genre dans la table.
+     * 
+     * @param int $id_genre L'identifiant du genre pour lequel supprimer le genre.
+     */
+    public function supprimerGenreByIdGenre(int $id_genre): void
+    {
+        $requete_suppression_genre = <<<EOF
+        delete from GENRE where id_genre = :id_genre;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_genre);
+            $stmt->bindParam("id_genre", $id_genre, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
         }
     }
 }
