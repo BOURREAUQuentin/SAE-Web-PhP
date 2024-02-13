@@ -41,6 +41,24 @@ $les_genres = $genrePDO->getGenres();
         }
         return false;
     }
+
+    function showEditForm(id_genre) {
+        // Récupérer le formulaire de modification correspondant à l'ID du genre
+        var editForm = document.getElementById("editForm_" + id_genre);
+        // Afficher le formulaire de modification en le rendant visible
+        editForm.style.display = "block";
+        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
+        return false;
+    }
+
+    function cancelEdit(id_genre) {
+        // Récupérer le formulaire de modification correspondant à l'ID du genre
+        var editForm = document.getElementById("editForm_" + id_genre);
+        // Masquer le formulaire de modification
+        editForm.style.display = "none";
+        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
+        return false;
+    }
 </script>
 
 <!DOCTYPE html>
@@ -104,6 +122,17 @@ $les_genres = $genrePDO->getGenres();
         <a href="#" onclick="return confirmSuppressionGenre(<?php echo $genre->getIdGenre() ?>)">
             <button class="view-genre-button">Supprimer le genre</button>
         </a>
+        <!-- Bouton de modification -->
+        <button class="view-genre-button" onclick="showEditForm(<?php echo $genre->getIdGenre(); ?>)">Modifier le genre</button>
+        <!-- Formulaire de modification -->
+        <form id="editForm_<?php echo $genre->getIdGenre(); ?>" style="display: none;" action="/?action=modifier_genre&id_genre=<?php echo $genre->getIdGenre() ?>" method="post">
+            <input type="hidden" name="id_genre" value="<?php echo $genre->getIdGenre() ?>">
+            <label for="nouveau_nom">Nom du genre :</label>
+            <input type="text" id="nouveau_nom" name="nouveau_nom" value="<?php echo $genre->getNomGenre(); ?>" required>
+            <button class="view-genre-button" type="submit">Modifier</button>
+            <!-- Bouton Annuler -->
+            <button class="view-genre-button" type="button" onclick="cancelEdit(<?php echo $genre->getIdGenre(); ?>)">Annuler</button>
+        </form>
     </div>
 <?php endforeach; ?>
 </body>

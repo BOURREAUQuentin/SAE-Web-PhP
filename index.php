@@ -470,6 +470,17 @@ switch ($action) {
         header('Location: ?action=admin_genre');
         exit;
 
+    case 'modifier_genre':
+        // récupération de l'id du genre
+        $id_genre = $_GET['id_genre'] ?? null;
+
+        $nouveau_nom_genre = $_POST["nouveau_nom"];
+        $genrePDO->mettreAJourNomGenre($id_genre, $nouveau_nom_genre); // modification du nom du genre
+
+        // redirection de l'utilisateur vers la même page
+        header('Location: ?action=admin_genre');
+        exit;
+
     default:
         include 'templates/main.php';
         break;
