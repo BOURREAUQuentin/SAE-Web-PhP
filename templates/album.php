@@ -35,10 +35,13 @@ $les_musiques = $albumPDO->getMusiquesByIdAlbum($id_album);
 $nom_utilisateur_connecte = "pas connecté";
 if (isset($_SESSION["username"])) {
     $nom_utilisateur_connecte = $_SESSION["username"];
-}
-$utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 
-$utilisteur_a_noteer=$noterPDO->getNoteByIdAlbumIdUtilisateur($id_album,$utilisateur->getIdUtilisateur());
+    $utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
+
+    $utilisteur_a_noteer=$noterPDO->getNoteByIdAlbumIdUtilisateur($id_album,$utilisateur->getIdUtilisateur());
+
+    $note_album=$noterPDO->getMoyenneNoteByIdAlbum($id_album);
+}
 
 
 // vérifie si la requête est une requête POST
@@ -49,9 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $albumNote = intval($_POST['albumNote']);
         $isChecked = $_POST['isChecked'] === 'true';
         
-        // Appel de la méthode pour insérer la note de l'album dans la base de données
-        $noterPDO->ajouterNoter($id_album, $utilisateur->getIdUtilisateur(), $albumNote);
-
+        if ($utilisteur_a_noteer>0){
+            $noterPDO->mettreAJourNote($id_album, $utilisateur->getIdUtilisateur(), $albumNote);
+        }
+        else {
+            $noterPDO->ajouterNoter($id_album, $utilisateur->getIdUtilisateur(), $albumNote);
+        }
         // envoie une réponse JSON
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);
@@ -154,11 +160,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Durée de l'album : <?php echo $albumPDO->getDureeTotalByIdAlbum($id_album); ?></p>
         <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
     </div>
-    
+    <div>
+        <?php if ($note_album>0): ?>
+            <p>Note moyenne de l'album : <?php echo $note_album; ?></p>
+        <?php else: ?>
+            <p>Pas de note</p>
+        <?php endif; ?>
+    </div>
     <button class="feedback-btn">
         Avis
       </button>
-    <?php if (isset($utilisateur)): ?>
       <div class="modal">
         <button class="close">
           
@@ -191,7 +202,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <button class="submit" type="submit" data-album-id="<?php echo $id_album; ?>">Confirmer</button>
         </div>
       </div>
-    <?php endif; ?>
     <div class="album-container">
         <h2>Liste des musiques de l'album</h2>
         <?php foreach ($les_musiques as $musique):?>
@@ -276,6 +286,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </script>
 
 <script>
+
 document.addEventListener('DOMContentLoaded', function () {
     const scoreInputs = document.querySelectorAll('.feedback input[name="score"]');
     const submitBtn = document.querySelector('.submit');
@@ -287,9 +298,19 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Aucune note sélectionnée');
             return;
         }
+        if (!<?php echo isset($utilisateur) ? 'true' : 'false' ?>) {
+                // Redirige l'utilisateur vers la page de connexion
+                window.location.href = '/?action=connexion_inscription';
+                return;
+            }
 
         const albumNote = parseInt(selectedScore.value); // Récupérez la note sélectionnée
         const isChecked = true; // Mettez à jour en fonction de votre logique
+
+        // enlever le css des autres boutons et garder celui du bouton cliqué
+        scoreInputs.forEach(input => {
+            input.nextElementSibling.classList.remove('active');
+        });
 
         const response = await fetch(window.location.href, {
             method: 'POST',
@@ -305,7 +326,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (response.ok) {
             console.log('Note de l album ajoutée avec succès');
-            // Ajoutez ici la logique pour mettre à jour l'affichage de la note sur la page si nécessaire
+            // close la pop-up
+            document.querySelector('.modal').style.display = 'none';
         } else {
             console.error('Erreur lors de la requête');
         }
@@ -313,7 +335,27 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const scoreInputs = document.querySelectorAll('.feedback input[name="score"]');
 
+    // Ajoute un écouteur d'événements à chaque input de note
+    scoreInputs.forEach(input => {
+        input.addEventListener('change', function () {
+            // enlever le css des autres boutons
+            scoreInputs.forEach(otherInput => {
+                otherInput.nextElementSibling.classList.remove('active');
+            });
+
+            // mettre en surbrillance le bouton sélectionné
+            if (this.checked) {
+                this.nextElementSibling.classList.add('active');
+            }
+        });
+    });
+});
+
+</script>
 <script src="../static/script/testavis.js"></script>
 </body>
 </html>
