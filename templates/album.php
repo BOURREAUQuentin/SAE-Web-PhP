@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         // envoie une réponse JSON
         header('Content-Type: application/json');
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'nvMoyenne' => $noterPDO->getMoyenneNoteByIdAlbum($id_album)]);
         exit;
     }
 
@@ -161,11 +161,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
     </div>
     <div>
-        <?php if ($note_album>0): ?>
-            <p>Note moyenne de l'album : <?php echo $note_album; ?></p>
-        <?php else: ?>
-            <p>Pas de note</p>
-        <?php endif; ?>
+    <?php if ($note_album > 0): ?>
+        <p class="moyenne-album">Note moyenne de l'album : <span id="moyenne-note"><?php echo $note_album; ?></span></p>
+    <?php else: ?>
+        <p class="moyenne-album">Pas de note</p>
+    <?php endif; ?>
+
     </div>
     <button class="feedback-btn">
         Avis
@@ -320,17 +321,26 @@ document.addEventListener('DOMContentLoaded', function () {
             body: new URLSearchParams({
                 albumNote,
                 isChecked,
-                albumId, // Ajoutez l'ID de l'album à la requête POST
+                albumId,
             }),
         });
+        
 
         if (response.ok) {
-            console.log('Note de l album ajoutée avec succès');
-            // close la pop-up
+            // Fermez la pop-up
             document.querySelector('.modal').style.display = 'none';
+            // Mettre à jour la note moyenne
+            const moyenneNote = document.querySelector('#moyenne-note');
+            console.log(response);
+            const jsonResponse = await response.json();
+            const nvMoyenne = jsonResponse.nvMoyenne;
+            console.log(nvMoyenne);
+            moyenneNote.textContent = nvMoyenne;
+
+
         } else {
             console.error('Erreur lors de la requête');
-        }
+        }    
     });
 });
 
@@ -356,6 +366,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 </script>
+
+
 <script src="../static/script/testavis.js"></script>
 </body>
 </html>
