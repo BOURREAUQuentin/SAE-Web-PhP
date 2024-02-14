@@ -53,6 +53,7 @@ body {
   border-radius: 20px;
   opacity: 0;
   transition: 0.2s;
+  z-index: 100;
 }
 .modal.show {
   opacity: 1;
@@ -100,7 +101,6 @@ body {
   place-items: center;
   width: 40px;
   height: 40px;
-  background-color: #1A2036;
   color: #B1B9D8;
   border: 1px solid #2E3650;
   border-radius: 5px;
@@ -113,6 +113,9 @@ body {
   background-color: var(--light-purple);
 }
 .modal .score > input:not(:checked) + label:hover {
+  background-color: var(--light-purple);
+}
+.active{
   background-color: var(--light-purple);
 }
 .modal .options {

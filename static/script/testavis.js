@@ -31,3 +31,4 @@ modal.addEventListener('transitionend', function(e) {
 function hideModal() {
   modal.classList.remove('show')
 }
+

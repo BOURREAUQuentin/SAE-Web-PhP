@@ -2,6 +2,7 @@
 use Modele\modele_bd\AlbumPDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\LikerPDO;
+use Modele\modele_bd\NoterPDO;
 use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\UtilisateurPDO;
@@ -19,6 +20,7 @@ $realiserParPDO = new RealiserParPDO($pdo);
 $artistePDO = new ArtistePDO($pdo);
 $likePDO = new LikerPDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
+$noterPDO = new NoterPDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
 
 // Récupération de l'id de l'album
@@ -47,27 +49,56 @@ $id_musiques_json = json_encode($id_musique_file_attente_sons);
 $nom_utilisateur_connecte = "pas connecté";
 if (isset($_SESSION["username"])) {
     $nom_utilisateur_connecte = $_SESSION["username"];
+
+    $utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
+
+    $utilisteur_a_noteer=$noterPDO->getNoteByIdAlbumIdUtilisateur($id_album,$utilisateur->getIdUtilisateur());
+
+    $note_album=$noterPDO->getMoyenneNoteByIdAlbum($id_album);
 }
 $utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 
 // vérifie si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupère les données de la requête
-    $musiqueId = intval($_POST['musiqueId']);
-    $isChecked = $_POST['isChecked'] === 'true';
-
-    // ajoute ou supprime le like
-    if ($isChecked) {
-        $likePDO->ajouterLiker($musiqueId, $utilisateur->getIdUtilisateur());
-    } else {
-        $likePDO->supprimerLiker($musiqueId, $utilisateur->getIdUtilisateur());
+    // Si la clé 'albumNote' existe dans $_POST, cela signifie que la note de l'album est envoyée
+    if (isset($_POST['albumNote'])) {
+        // Récupère les données de la requête
+        $albumNote = intval($_POST['albumNote']);
+        $isChecked = $_POST['isChecked'] === 'true';
+        
+        if ($utilisteur_a_noteer>0){
+            $noterPDO->mettreAJourNote($id_album, $utilisateur->getIdUtilisateur(), $albumNote);
+        }
+        else {
+            $noterPDO->ajouterNoter($id_album, $utilisateur->getIdUtilisateur(), $albumNote);
+        }
+        // envoie une réponse JSON
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'nvMoyenne' => $noterPDO->getMoyenneNoteByIdAlbum($id_album)]);
+        exit;
     }
-    // envoie une réponse JSON
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true]);
-    exit;
+
+    // Si la clé 'musiqueId' existe dans $_POST, cela signifie que le like pour une musique est envoyé
+    if (isset($_POST['musiqueId'])) {
+        // Récupère les données de la requête
+        $musiqueId = intval($_POST['musiqueId']);
+        $isChecked = $_POST['isChecked'] === 'true';
+
+        // ajoute ou supprime le like
+        if ($isChecked) {
+            $likePDO->ajouterLiker($musiqueId, $utilisateur->getIdUtilisateur());
+        } else {
+            $likePDO->supprimerLiker($musiqueId, $utilisateur->getIdUtilisateur());
+        }
+
+        // envoie une réponse JSON
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit;
+    }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -76,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music'O</title>
+    <link rel="stylesheet" href="../static/style/testavis.css">
     <style>
         body{
             background-color: #424242;
@@ -350,6 +382,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Durée de l'album : <?php echo $albumPDO->getDureeTotalByIdAlbum($id_album); ?></p>
         <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
     </div>
+    <div>
+    <?php if ($note_album > 0): ?>
+        <p class="moyenne-album">Note moyenne de l'album : <span id="moyenne-note"><?php echo $note_album; ?></span></p>
+    <?php else: ?>
+        <p class="moyenne-album">Pas de note</p>
+    <?php endif; ?>
+
+    </div>
+    <button class="feedback-btn">
+        Avis
+      </button>
+      <div class="modal">
+        <button class="close">
+          
+        </button>
+        
+        <h3 class="title">
+          Avez-vous aimé cet album ?
+        </h3>
+        
+        <form action="" class="feedback">
+        <?php for ($i = 1; $i <= 5; $i++): ?>
+            <div class="score">
+                <?php if ($utilisteur_a_noteer==$i): ?>
+                    <input  id="score<?php echo $i ?>" type="radio" value="<?php echo $i ?>" name="score">
+                    <label class="active" for="score<?php echo $i ?>"><?php echo $i ?></label>
+                
+                <?php else: ?>
+                    <input id="score<?php echo $i ?>" type="radio" value="<?php echo $i ?>" name="score">
+                    <label for="score<?php echo $i ?>"><?php echo $i ?></label>
+                <?php endif; ?>
+                
+            </div>
+        <?php endfor; ?>
+        </form>
+
+        
+        
+        <div class="options">
+          <button class="cancel" type="button">Annuler</button>
+          <button class="submit" type="submit" data-album-id="<?php echo $id_album; ?>">Confirmer</button>
+        </div>
+      </div>
     <div class="player">
         <div id="info" class="info">
             <span class="name"></span>
@@ -405,22 +480,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- permet de liker une musique-->
             <div id="like" data-id="<?php echo $musique->getIdMusique(); ?>">
             <?php if (isset($utilisateur)): ?>
-                <?php if ($likePDO->verifieMusiqueLiker($musique->getIdMusique(),$utilisateur->getIdUtilisateur())): ?>   
-                        <label class="container">
-                            <input type="checkbox" checked>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </label>
+                    <?php if ($likePDO->verifieMusiqueLiker($musique->getIdMusique(),$utilisateur->getIdUtilisateur())): ?>   
+                            <label class="container">
+                                <input type="checkbox" checked>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </label>
+                    <?php else: ?>
+                            <label class="container">
+                                <input type="checkbox">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </label>
+                    <?php endif; ?>
                 <?php else: ?>
-                        <label class="container">
-                            <input type="checkbox">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </label>
-                <?php endif; ?>
-            <?php else: ?>
-                <label class="container">
-                    <input type="checkbox">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                </label>
+                    <label class="container">
+                        <input type="checkbox">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </label>
             <?php endif; ?>
             </div>
         </div>
@@ -483,5 +558,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     });
 </script>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    const scoreInputs = document.querySelectorAll('.feedback input[name="score"]');
+    const submitBtn = document.querySelector('.submit');
+    const albumId = document.querySelector('.feedback-btn').getAttribute('data-album-id');
+
+    submitBtn.addEventListener('click', async function () {
+        const selectedScore = document.querySelector('.feedback input[name="score"]:checked');
+        if (!selectedScore) {
+            console.log('Aucune note sélectionnée');
+            return;
+        }
+        if (!<?php echo isset($utilisateur) ? 'true' : 'false' ?>) {
+                // Redirige l'utilisateur vers la page de connexion
+                window.location.href = '/?action=connexion_inscription';
+                return;
+            }
+
+        const albumNote = parseInt(selectedScore.value); // Récupérez la note sélectionnée
+        const isChecked = true; // Mettez à jour en fonction de votre logique
+
+        // enlever le css des autres boutons et garder celui du bouton cliqué
+        scoreInputs.forEach(input => {
+            input.nextElementSibling.classList.remove('active');
+        });
+
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                albumNote,
+                isChecked,
+                albumId,
+            }),
+        });
+        
+
+        if (response.ok) {
+            // Fermez la pop-up
+            document.querySelector('.modal').style.display = 'none';
+            // Mettre à jour la note moyenne
+            const moyenneNote = document.querySelector('#moyenne-note');
+            console.log(response);
+            const jsonResponse = await response.json();
+            const nvMoyenne = jsonResponse.nvMoyenne;
+            console.log(nvMoyenne);
+            moyenneNote.textContent = nvMoyenne;
+
+
+        } else {
+            console.error('Erreur lors de la requête');
+        }    
+    });
+});
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const scoreInputs = document.querySelectorAll('.feedback input[name="score"]');
+
+    // Ajoute un écouteur d'événements à chaque input de note
+    scoreInputs.forEach(input => {
+        input.addEventListener('change', function () {
+            // enlever le css des autres boutons
+            scoreInputs.forEach(otherInput => {
+                otherInput.nextElementSibling.classList.remove('active');
+            });
+
+            // mettre en surbrillance le bouton sélectionné
+            if (this.checked) {
+                this.nextElementSibling.classList.add('active');
+            }
+        });
+    });
+});
+
+</script>
+
+
+<script src="../static/script/testavis.js"></script>
 </body>
 </html>

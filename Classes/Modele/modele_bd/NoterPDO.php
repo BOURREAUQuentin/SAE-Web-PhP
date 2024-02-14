@@ -34,24 +34,25 @@ class NoterPDO
      * @param int $id_utilisateur L'identifiant de l'utilisateur pour lequel récupérer la note.
      * @return int|null Retourne la note de l'utilisateur sur l'album s'il l'a déjà noté, sinon null
      */
-    public function getNoteByIdAlbumIdUtilisateur(int $id_album, int $id_utilisateur): array
+    public function getNoteByIdAlbumIdUtilisateur(int $id_album, int $id_utilisateur): ?int
     {
         $requete_note = <<<EOF
-        select note from NOTER where id_album = :id_album and id_utilisateur = :id_utilisateur;
+            SELECT note FROM NOTER WHERE id_album = :id_album AND id_utilisateur = :id_utilisateur;
         EOF;
-        try{
+        try {
             $stmt = $this->pdo->prepare($requete_note);
             $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
             $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
             $stmt->execute();
-            $note_album_utilisateur = $stmt->fetch();
-            return $note_album_utilisateur;
-        }
-        catch (PDOException $e){
+            $note = $stmt->fetchColumn();
+            return $note !== false ? (int)$note : 0;
+        } catch (PDOException $e) {
             var_dump($e->getMessage());
-            return null;
+            return 0;
         }
     }
+    
+    
 
     /**
      * Ajoute une nouvelle note à la base de données.
@@ -87,33 +88,39 @@ class NoterPDO
     public function getMoyenneNoteByIdAlbum(int $id_album): float
     {
         $requete_moyenne_notes_album = <<<EOF
-        select sum(note) sommeNotes from NOTER where id_album = :id_album;
-        EOF;
+        SELECT SUM(note) as sommeNotes FROM NOTER WHERE id_album = :id_album;
+    EOF;
         $requete_nb_notes_album = <<<EOF
-        select count(note) nbNotes from NOTER where id_album = :id_album;
-        EOF;
-        try{
+        SELECT COUNT(note) as nbNotes FROM NOTER WHERE id_album = :id_album;
+    EOF;
+        try {
+            // Calcul de la somme des notes
             $stmt = $this->pdo->prepare($requete_moyenne_notes_album);
-            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->bindParam(":id_album", $id_album, PDO::PARAM_INT);
             $stmt->execute();
-            $moyenne_notes_album = $stmt->fetch();
+            $resultat_somme_notes = $stmt->fetch();
+    
+            // Calcul du nombre de notes
             $stmt2 = $this->pdo->prepare($requete_nb_notes_album);
-            $stmt2->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt2->bindParam(":id_album", $id_album, PDO::PARAM_INT);
             $stmt2->execute();
-            $nb_notes = $stmt2->fetch();
-            // vérifie si des notes existent avant de calculer la moyenne
+            $resultat_nb_notes = $stmt2->fetch();
+    
+            // Vérifie si des notes existent avant de calculer la moyenne
+            $somme_notes = $resultat_somme_notes['sommeNotes'];
+            $nb_notes = $resultat_nb_notes['nbNotes'];
+    
             if ($nb_notes > 0) {
-                return $moyenne_notes_album / $nb_notes;
-            }
-            else {
+                return $somme_notes / $nb_notes;
+            } else {
                 return 0;
             }
-        }
-        catch (PDOException $e){
+        } catch (PDOException $e) {
             var_dump($e->getMessage());
             return 0;
         }
     }
+    
 
     /**
      * Supprime les notes d'un album dans la table.
@@ -148,6 +155,30 @@ class NoterPDO
         try{
             $stmt = $this->pdo->prepare($requete_suppression_notes);
             $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
+
+    /**
+     * Met à jour la note d'un utilisateur pour un album.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel mettre à jour la note.
+     * @param int $id_utilisateur L'identifiant de l'utilisateur pour lequel mettre à jour la note.
+     * @param int $note La note à mettre à jour.
+     */
+    public function mettreAJourNote(int $id_album, int $id_utilisateur, int $note): void
+    {
+        $requete_mise_a_jour_note = <<<EOF
+        update NOTER set note = :note where id_album = :id_album and id_utilisateur = :id_utilisateur;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_mise_a_jour_note);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->bindParam("note", $note, PDO::PARAM_INT);
             $stmt->execute();
         }
         catch (PDOException $e){
