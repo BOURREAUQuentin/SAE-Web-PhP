@@ -57,7 +57,7 @@ $les_albums_filtre_annee = $albumPDO->getAlbumsByFiltreAnnee($filtre_annee);
 <div class="album_filtre_annee-list">
     <?php foreach ($les_albums_filtre_annee as $album_filtre_annee):
         $image_album_filtre_annee = $imagePDO->getImageByIdImage($album_filtre_annee->getIdImage());
-        $image_path = $image_album_filtre_annee->getImage() ? "../images/" . urlencode($image_album_filtre_annee->getImage()) : '../images/default.jpg';
+        $image_path = $image_album_filtre_annee->getImage() ? "../static/images/" . urlencode($image_album_filtre_annee->getImage()) : '../static/images/default.jpg';
         ?>
         <div class="album_filtre_annee-container">
             <p>Nom : <?php echo $album_filtre_annee->getTitre(); ?></p>

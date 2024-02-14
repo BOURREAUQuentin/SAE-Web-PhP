@@ -16,7 +16,7 @@ $id_artiste = intval($_GET['id_artiste']);
 
 $artiste = $artistePDO->getArtisteByIdArtiste($id_artiste);
 $image = $imagePDO->getImageByIdImage($artiste->getIdImage());
-$image_path = $image->getImage() ? "../images/" . $image->getImage() : '../images/default.jpg';
+$image_path = $image->getImage() ? "../static/images/" . $image->getImage() : '../static/images/default.jpg';
 ?>
 
 <!DOCTYPE html>

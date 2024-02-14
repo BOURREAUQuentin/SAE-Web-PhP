@@ -25,7 +25,7 @@ $playlistPDO = new PlaylistPDO($pdo);
 $id_album = intval($_GET['id_album']);
 $album = $albumPDO->getAlbumByIdAlbum($id_album);
 $image_album = $imagePDO->getImageByIdImage($album->getIdImage());
-$image_path = $image_album->getImage() ? "../images/" . urlencode($image_album->getImage()) : '../images/default.jpg';
+$image_path = $image_album->getImage() ? "../static/images/" . urlencode($image_album->getImage()) : '../static/images/default.jpg';
 $id_artistes = $realiserParPDO->getIdArtistesByIdAlbum($id_album);
 $les_artistes = array();
 foreach ($id_artistes as $id_artiste){
@@ -430,7 +430,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="album-container">
         <?php foreach ($les_artistes as $artiste):
         $image_artiste = $imagePDO->getImageByIdImage($artiste->getIdImage());
-        $image_path_artiste = $image_artiste->getImage() ? "../images/" . $image_artiste->getImage() : '../images/default.jpg';
+        $image_path_artiste = $image_artiste->getImage() ? "../static/images/" . $image_artiste->getImage() : '../static/images/default.jpg';
         ?>
         <p>Nom artiste : <?php echo $artiste->getNomArtiste(); ?></p>
         <img class="album-image" src="<?php echo $image_path_artiste ?>" alt="Image de l'artiste <?php echo $artiste->getNomArtiste(); ?>"/>

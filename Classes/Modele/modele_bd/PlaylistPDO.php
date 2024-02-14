@@ -88,8 +88,10 @@ class PlaylistPDO
      * @param string $nom_playlist Le nom de la playlist à ajouter.
      * @param int    $id_image    L'identifiant de l'image associée à la playlist.
      * @param int    $id_utilisateur    L'identifiant de l'utilisateur associée à la playlist.
+     * 
+     * @return int   L'identifiant de la nouvelle playlist
      */
-    public function creerPlaylist(string $nom_playlist, int $id_image, int $id_utilisateur): void
+    public function creerPlaylist(string $nom_playlist, int $id_image, int $id_utilisateur): int
     {
         $new_id_playlist = $this->getMaxIdPlaylist() + 1;
         $insertion_artiste = <<<EOF
@@ -102,9 +104,11 @@ class PlaylistPDO
             $stmt->bindParam("id_image", $id_image, PDO::PARAM_INT);
             $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
             $stmt->execute();
+            return $new_id_playlist;
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
+            return 0;
         }
     }
 
