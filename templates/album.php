@@ -6,6 +6,7 @@ use Modele\modele_bd\NoterPDO;
 use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\UtilisateurPDO;
+use Modele\modele_bd\PlaylistPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -20,6 +21,7 @@ $artistePDO = new ArtistePDO($pdo);
 $likePDO = new LikerPDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
 $noterPDO = new NoterPDO($pdo);
+$playlistPDO = new PlaylistPDO($pdo);
 
 // Récupération de l'id de l'album
 $id_album = intval($_GET['id_album']);
@@ -32,6 +34,18 @@ foreach ($id_artistes as $id_artiste){
     array_push($les_artistes, $artistePDO->getArtisteByIdArtiste($id_artiste));
 }
 $les_musiques = $albumPDO->getMusiquesByIdAlbum($id_album);
+
+$file_attente_sons = array();
+$id_musique_file_attente_sons = array();
+foreach ($les_musiques as $musique){
+    array_push($file_attente_sons, $musique->getSonMusique());
+    array_push($id_musique_file_attente_sons, $musique->getIdMusique());
+}
+// Récupérer les musiques et les encoder en JSON
+$musiques_json = json_encode($file_attente_sons);
+// Récupérer les id_musiques et les encoder en JSON
+$id_musiques_json = json_encode($id_musique_file_attente_sons);
+
 $nom_utilisateur_connecte = "pas connecté";
 if (isset($_SESSION["username"])) {
     $nom_utilisateur_connecte = $_SESSION["username"];
@@ -42,7 +56,8 @@ if (isset($_SESSION["username"])) {
 
     $note_album=$noterPDO->getMoyenneNoteByIdAlbum($id_album);
 }
-
+$utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
+$playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 
 // vérifie si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -119,38 +134,245 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
 
-.container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-  }
-  
-  .container {
-    display: block;
-    position: relative;
-    cursor: pointer;
-    user-select: none;
-  }
-  
-  .container svg {
-    position: relative;
-    top: 0;
-    left: 0;
-    height: 50px;
-    width: 50px;
-    transition: all 0.3s;
-    fill: #666;
-  }
-  
-  .container svg:hover {
-    transform: scale(1.1);
-  }
-  
-  .container input:checked ~ svg { 
-    fill: #E3474F;
-  }
+    .container input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+    
+    .container {
+        display: block;
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .container svg {
+        position: relative;
+        top: 0;
+        left: 0;
+        height: 50px;
+        width: 50px;
+        transition: all 0.3s;
+        fill: #666;
+    }
+    
+    .container svg:hover {
+        transform: scale(1.1);
+    }
+    
+    .container input:checked ~ svg { 
+        fill: #E3474F;
+    }
+
+    @import url("https://fonts.googleapis.com/css?family=Fira+Sans");
+
+    html,body {
+        position: relative;
+        min-height: 100vh;
+        background-color: #FFF0F5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Fira Sans", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    }
+
+    .player {
+        position: relative;
+    }    
+    .player .info {
+            position: absolute;
+            height: 60px;
+            top: 0;
+            opacity: 0;
+            left: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 5px 15px 5px 110px;
+            border-radius: 15px;
+            transition: all .5s ease;
+
+            .artist,
+            .name {
+                display: block;
+            }
+
+            .name {
+                color: #222;
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+
+            .artist {
+                color: #999;
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+
+            .progress-bar {
+                background-color: #ddd;
+                height: 2px;
+                width: 100%;
+                position: relative;
+
+                .bar {
+                    position:absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    background-color: red;
+                    width: 10%;
+                    transition: all .2s ease;
+                }
+            }
+            &.active {
+                top: -60px;
+                opacity: 1;
+                transition: all .5s ease;
+            }
+        }
+        .player .control-panel {
+            position: relative;
+            background-color: #fff;
+            border-radius: 15px;
+            width: 435px;
+            height: 80px;
+            z-index: 5;
+            box-shadow: 0px 20px 20px 5px rgba(132, 132, 132, 0.3);
+            
+            .album-art {
+                position: absolute;
+                left: 20px;
+                top: -15px;
+                height: 80px;
+                width: 80px;
+                border-radius: 50%;
+                box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0);
+                transform: scale(1);
+                transition: all .5s ease;
+        
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 15px;
+                    height: 15px;
+                    background-color: #fff;
+                    border-radius: 50%;
+                    z-index: 5;
+                    transform: translate(-50%, -50%);
+                    -webkit-transform: translate(-50%, -50%);
+                }
+                
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    border-radius: 50%;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    background-size: 80px;
+                    background-image: 	url('<?php echo $image_path; ?>');
+                }
+            }
+            
+            &.active .album-art {
+                box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.2);
+                transform: scale(1.2);
+                transition: all .5s ease;
+            }
+            
+            &.active .album-art::before {
+                animation: rotation 3s infinite linear;
+                -webkit-animation: rotation 3s infinite linear;
+                animation-fill-mode: forwards;
+            }
+            
+            @keyframes rotation {
+                0% {
+                    transform: rotate(0deg);
+                }
+                
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            
+            .controls {
+                display: flex;
+                justify-content: flex-end;
+                height: 80px;
+                padding: 0 15px;
+                
+                .prev, 
+                .play, 
+                .next,
+                .restart {
+                    width: 55px;
+                    height: auto;
+                    border-radius: 10px;
+                    background-position: center center;
+                    background-repeat: no-repeat;
+                    background-size: 20px;
+                    margin: 5px 0;
+                    background-color: #fff;
+                    cursor: pointer;
+                    transition: background-color .3s ease;
+                    -webkit-transition: background-color .3s ease;
+                }
+                
+                .prev:hover, 
+                .play:hover, 
+                .next:hover,
+                .restart:hover {
+                    background-color: #eee;
+                    transition: background-color .3s ease;
+                    -webkit-transition: background-color .3s ease;
+                }
+                
+                .prev {
+                    background-image: url("../static/images/previous.png");
+                }
+                
+                .play {
+                    background-image: url("../static/images/play.png");
+                }
+                
+                .next {
+                    background-image: url("../static/images/next.png")
+                }
+
+                .restart {
+                    background-image: url("../static/images/restart.png");
+                }
+            }
+            
+            &.active .controls .play {
+                background-image: url("../static/images/pause.png")
+            }
+        }
+
+        .duration{
+            padding-left: 105px;
+            font-size: x-small;
+            margin-top: 10px;
+        }
+
+        .volume-label {
+            font-size: x-small;
+        }
+
+        input[type="range"] {
+            width: 100px;
+        }
     </style>
 </head>
 <body>
@@ -203,6 +425,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <button class="submit" type="submit" data-album-id="<?php echo $id_album; ?>">Confirmer</button>
         </div>
       </div>
+    <div class="player">
+        <div id="info" class="info">
+            <span class="name"></span>
+            <span class="artist"><?php echo ($les_artistes[0])->getNomArtiste(); ?></span>
+            <div class="progress-bar">
+                <div class="bar">
+                    <audio id="audio" controls style="display: none;">
+                    <source src="" type="audio/mp3">
+                    Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+        </div>
+        <div id="control-panel" class="control-panel">
+            <div class="album-art"></div>
+            <div class="controls">
+                <div class="duration">
+                    <div>
+                        <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+                        <div>
+                            <label for="volume-slider" class="volume-label">Volume</label>
+                            <input type="range" id="volume-slider" min="0" max="100" step="1" value="100">
+                        </div>
+                    </div>
+                </div>
+                <div id="prev" class="prev"></div>
+                <div id="play" class="play"></div>
+                <div id="next" class="next"></div>
+                <div id="restart" class="restart"></div>
+            </div>
+        </div>
+    </div>
+    <ul id="file-attente"></ul>
     <div class="album-container">
         <h2>Liste des musiques de l'album</h2>
         <?php foreach ($les_musiques as $musique):?>
@@ -210,6 +465,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>Son : <?php echo $musique->getNomMusique(); ?></p>
             <p>Durée : <?php echo $musique->getDureeMusique(); ?></p>
             <p>Nombre d'écoutes : <?php echo $musique->getNbStreams(); ?></p>
+
+            <!-- formulaire pour choisir la playlist dans laquelle ajouter la musique-->
+            <form method="post" action="?action=ajouter_playlist">
+                <input type="hidden" name="id_musique" value="<?php echo $musique->getIdMusique(); ?>">
+                <select name="id_playlist">
+                    <?php foreach ($playlists_utilisateur as $playlist): ?>
+                        <option value="<?php echo $playlist->getIdPlaylist(); ?>"><?php echo $playlist->getNomPlaylist(); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit">Ajouter à la playlist</button>
+            </form>
             
             <!-- permet de liker une musique-->
             <div id="like" data-id="<?php echo $musique->getIdMusique(); ?>">
@@ -246,6 +512,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endforeach; ?>
     </div>
 </div>
+<script>
+    // Injecter les données JSON dans une variable JavaScript
+    const musiques = <?php echo $musiques_json; ?>;
+    // Injecter les données JSON dans une variable JavaScript
+    const id_musiques = <?php echo $id_musiques_json; ?>;
+</script>
+<script src="../static/script/son.js"></script>
 <script>
     
     // Récupère tous les éléments avec l'ID "like"
