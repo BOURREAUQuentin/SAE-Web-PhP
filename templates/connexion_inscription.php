@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
 <body ng-app="app">
 	<section class='global-wrapper' ng-controller="ctrl">
 		<aside>
-			<h1>logo</h1>
+            <img src="../static/images/logo.png" alt="" width="80px" height="80px">
 			<!--top nav -->
 			<ul>
 				<li class="active">
@@ -108,12 +108,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
 			<!--bottom nav -->
 			<ul>
 				<li>
-          <a href="#">
-              <div class="nav-item">
+              <button class="nav-item open-modal-btn">
                   <img src="../static/images/setting.png" alt="">
                   <span>Paramètres</span>
-              </div>
-          </a>
+              </button>
+              <div class="modal-overlay">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>Paramètres</h2>
+                        <button class="close-modal-btn">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <a href="?action=connexion_inscription" class="para">Connexion</a>
+                    </div>
+                </div>
+            </div>
 				</li>
 			</ul>
 		</aside>
@@ -121,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
 		<main id="main">
 			<div id="blackout-on-hover"></div>
         <header>
-            <h2>Music'O</h2>
+            <h2>Lavound</h2>
           <div id="search-bar" class="div-top">
           <div class="search-box">
             <form method="GET" action="">
@@ -132,13 +141,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
         </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
         </div>
-          <a href="?action=connexion_inscription">login</a>
+        <div></div>
         </header>
-                
         <div class="container">
             <div class="forms-container">
                 <div class="signin-signup">
-                    <form action="" method="post" class="sign-in-form">
+                    <form  action="" method="post" class="sign-in-form form">
                         <h2 class="title">Sign in</h2>
                         <?php if (!empty($message_erreur) && $_POST['submit'] === 'login'): ?>
                             <p style="color: red;"><?php echo $message_erreur; ?></p>
@@ -153,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
                         </div>
                         <input type="submit" name="submit" value="login" class="btn solid" />
                     </form>
-                    <form action="" method="post" class="sign-up-form">
+                    <form action="" method="post" class="sign-up-form form">
                         <h2 class="title">Sign up</h2>
                         <?php if (!empty($message_erreur) && $_POST['submit'] === 'register'): ?>
                             <p style="color: red;"><?php echo $message_erreur; ?></p>

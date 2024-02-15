@@ -109,6 +109,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
         </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
         </div>
+        <div></div>
         </header>
         <!-- genres -->
         <div class="genres">
