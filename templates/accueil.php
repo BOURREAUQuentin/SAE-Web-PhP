@@ -83,11 +83,11 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                             <a href="/?action=admin" class="para">Admin</a>
                         <?php endif; ?>
                         <?php if (isset($_SESSION["username"])) : ?>
+                            <a href="/?action=profil" class="para"><p>Mon profil</p></a>
                             <a href="/?action=logout" class="para">Déconnexion</a>
                         <?php else: ?>
                             <a href="?action=connexion_inscription" class="para">Connexion</a>
                         <?php endif; ?>
-                        <a href="" class="para"><p>Mon profil</p></a>
                     </div>
                 </div>
             </div>

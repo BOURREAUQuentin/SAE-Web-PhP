@@ -45,7 +45,7 @@ $noterPDO = new NoterPDO($pdo);
 $genrePDO = new GenrePDO($pdo);
 
 // Manage action / controller
-$action = $_REQUEST['action'] ?? 'main';
+$action = $_REQUEST['action'] ?? 'accueil';
 ob_start();
 switch ($action) {
     case 'playlist':
@@ -55,7 +55,7 @@ switch ($action) {
     case 'logout':
         // supprime la clé "username" de la session
         unset($_SESSION["username"]);
-        include 'templates/main.php';
+        include 'templates/accueil.php';
         break;
 
     case 'genre':
@@ -461,7 +461,7 @@ switch ($action) {
         exit;
 
     default:
-        include 'templates/main.php';
+        include 'templates/accueil.php';
         break;
 }
 $content = ob_get_clean();
@@ -470,7 +470,7 @@ $content = ob_get_clean();
 $template = new Template('templates');
 
 if ($action == "logout"){
-    $action = "main";
+    $action = "accueil";
 }
 $template->setLayout($action);
 $template->setContent($content);

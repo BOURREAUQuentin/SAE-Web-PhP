@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
             else{ // si l'utilisateur s'est connecté avec son mail, dans la session on stocke son nom d'utilisateur et pas son mail
                 $_SESSION["username"] = ($utilisateurPDO->getUtilisateurByMailUtilisateur($username))->getNomUtilisateur();
             }
-            exit(header('Location: ?action=main'));
+            exit(header('Location: ?action=accueil'));
         }
         else {
             $message_erreur = "Nom d'utilisateur ou mot de passe invalide.";
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
             $user = $utilisateurPDO->getUtilisateurByUsername($username, $password);
             // stockage du nom d'utilisateur dans la session
             $_SESSION["username"] = $username;
-            exit(header('Location: ?action=main'));
+            exit(header('Location: ?action=accueil'));
         }
     } else {
         $message_erreur = "Veuillez saisir votre nom d'utilisateur et votre mot de passe.";
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
           </a>
       </li>
 				<li>
-            <a href="/?action=main">
+            <a href="/?action=accueil">
                 <div class="nav-item">
 						    <img src="../static/images/home.png" alt="">
 						    <span>Accueil</span>
