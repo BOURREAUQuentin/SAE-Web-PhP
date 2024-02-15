@@ -121,6 +121,7 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
         </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
       </div>
+      <div></div>
         </header>
             <h2 class="titre-genre"><?php echo $genre->getNomGenre(); ?></h2>
                 <!-- genres -->

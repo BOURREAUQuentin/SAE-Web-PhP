@@ -111,6 +111,7 @@ $les_albums_filtre_annee = $albumPDO->getAlbumsByFiltreAnnee($filtre_annee);
         </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
       </div>
+      <div></div>
         </header>
             <h2 class="titre-genre"><?php echo $filtre_annee; ?></h2>
                 <!-- genres -->
@@ -148,7 +149,6 @@ $les_albums_filtre_annee = $albumPDO->getAlbumsByFiltreAnnee($filtre_annee);
 	</main>
 	</section>
     <script src="../static/script/fav.js"></script>
-    <script src="../static/script/genre2.js"></script>
     <script src="../static/script/genre.js"></script>
 	<script src="../static/script/search.js"></script>
 </body>
