@@ -36,6 +36,7 @@ $est_admin = false;
 if (isset($_SESSION["username"])) {
     $nom_utilisateur_connecte = $_SESSION["username"];
     $est_admin = ($utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte))->isAdmin();
+    $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 }
 $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 ?>
@@ -188,9 +189,21 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                                     <button class="close-modal-btn2">&times;</button>
                                 </div>
                                 <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
+                                    <?php if (!isset($_SESSION["username"])): ?>
+                                        <a href="/?action=connexion_inscription" class="para2"><p>Connectez vous pour choisir une playlist</p></a>
+                                    <?php else:
+                                        $playlists_utilisateur_sans_musique_genre = $playlistPDO->getPlaylistsUtilisateurSansMusiqueByIdMusique($utilisateur_connecte->getIdUtilisateur(), $musique_genre->getIdMusique());
+                                        ?>
+                                        <?php if (count($playlists_utilisateur) == 0): ?>
+                                            <a href="/?action=playlists_utilisateur" class="para2"><p>Aucune playlist. Créez une nouvelle playlist</p></a>
+                                        <?php elseif (count($playlists_utilisateur_sans_musique_genre) == 0): ?>
+                                            <a href="" class="para2"><p>Déjà dans vos playlists</p></a>
+                                        <?php else: ?>
+                                            <?php foreach($playlists_utilisateur_sans_musique_genre as $playlist_utilisateur): ?>
+                                                <a href="/?action=ajouter_playlist&id_musique=<?php echo $musique_genre->getIdMusique(); ?>&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" class="para2"><p><img src="../images/<?php echo ($imagePDO->getImageByIdImage($playlist_utilisateur->getIdImage()))->getImage(); ?>" alt="" width="30" height="30"><?php echo $playlist_utilisateur->getNomPlaylist(); ?></p></a>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

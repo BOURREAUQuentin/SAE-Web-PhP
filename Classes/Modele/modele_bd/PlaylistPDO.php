@@ -233,4 +233,36 @@ class PlaylistPDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Obtient la liste des playlists de l'utilisateur ne contenant pas la musique dans la table.
+     * 
+     * @param int $id_utilisateur L'identifiant de l'utilisateur pour lequel les playlists ne contenant la musique.
+     * @param int $id_musique L'identifiant d'une musique pour lequel récupérer la liste des playlists de l'utilisateur où elle n'est pas encore dedans.
+     * 
+     * @return array La liste des playlists de l'utilisateur où une musique n'est pas encore dedans.
+     */
+    public function getPlaylistsUtilisateurSansMusiqueByIdMusique(int $id_utilisateur, int $id_musique): array
+    {
+        $requete_playlists_sans_musique = <<<EOF
+        select p.id_playlist, p.nom_playlist, p.id_image, p.id_utilisateur from PLAYLIST p where p.id_utilisateur = :id_utilisateur and p.id_playlist not in (select c.id_playlist from CONTENIR c where c.id_musique = :id_musique);
+        EOF;
+        $les_playlists_sans_musique = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_playlists_sans_musique);
+            $stmt->bindParam("id_utilisateur", $id_utilisateur, PDO::PARAM_INT);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $playlist) {
+                array_push($les_playlists_sans_musique, new Playlist($playlist['id_playlist'], $playlist['nom_playlist'], $playlist['id_image'], $playlist['id_utilisateur']));
+            }
+            return $les_playlists_sans_musique;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_playlists_sans_musique;
+        }
+    }
 }
