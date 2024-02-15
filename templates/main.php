@@ -36,7 +36,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 <body ng-app="app">
 	<section class='global-wrapper' ng-controller="ctrl">
 		<aside>
-			<h1>logo</h1>
+            <img src="../static/images/logo.png" alt="" width="80px" height="80px">
 			<!--top nav -->
 			<ul>
 				<li>
@@ -68,12 +68,29 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 			<!--bottom nav -->
 			<ul>
 				<li>
-          <a href="/?action=profil">
-              <div class="nav-item">
+              <button class="nav-item open-modal-btn">
                   <img src="../static/images/setting.png" alt="">
                   <span>Paramètres</span>
-              </div>
-          </a>
+              </button>
+              <div class="modal-overlay">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>Paramètres</h2>
+                        <button class="close-modal-btn">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <?php if ($est_admin) : ?>
+                            <a href="/?action=admin" class="para">Admin</a>
+                        <?php endif; ?>
+                        <?php if (isset($_SESSION["username"])) : ?>
+                            <a href="/?action=logout" class="para">Déconnexion</a>
+                        <?php else: ?>
+                            <a href="?action=connexion_inscription" class="para">Connexion</a>
+                        <?php endif; ?>
+                        <a href="" class="para"><p>Mon profil</p></a>
+                    </div>
+                </div>
+            </div>
 				</li>
 			</ul>
 		</aside>
@@ -81,7 +98,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 		<main id="main">
 			<div id="blackout-on-hover"></div>
         <header>
-            <h2>Music'O</h2>
+            <h2>Lavound</h2>
           <div id="search-bar" class="div-top">
           <div class="search-box">
             <form method="GET" action="">
@@ -92,14 +109,6 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
         </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
         </div>
-            <?php if ($est_admin) : ?>
-                <a href="/?action=admin">Admin</a>
-            <?php endif; ?>
-            <?php if (isset($_SESSION["username"])) : ?>
-                <a href="/?action=logout">Logout</a>
-            <?php else: ?>
-                <a href="?action=connexion_inscription">Login</a>
-            <?php endif; ?>
         </header>
         <!-- genres -->
         <div class="genres">
