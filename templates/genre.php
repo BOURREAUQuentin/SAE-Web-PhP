@@ -195,7 +195,7 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                     </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p>Aucune musique disponible.</p>
+                    <p>Aucune musique disponible</p>
                 <?php endif; ?>
             </div>
             <?php if (!empty($les_musiques_genre)): ?>
@@ -207,237 +207,56 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
             <?php endif; ?>
             <h3 class="T-part">Les Artistes</h3>
             <div class="album">
-                <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
+                <?php if (!empty($les_artistes_genre)): ?>
+                    <?php foreach ($les_artistes_genre as $artiste_genre):
+                    $image_artiste = $imagePDO->getImageByIdImage($artiste_genre->getIdImage());
+                    $image_path_artiste = $image_artiste->getImage() ? "../images/" . $image_artiste->getImage() : '../images/default.jpg';
+                    ?>
+                    <div class="card disc-container3">
+                        <div class="profile-pic">
+                            <img src="../images/<?php echo $image_path_artiste; ?>" alt="">
+                        </div>
+                        <div class="bottom">
+                            <div class="content">
+                                <?php $les_musiques_artiste = $artistePDO->getMusiquesPlusStreamesByIdArtiste($artiste_genre->getIdArtiste());
+                                $texte_artiste_musique = "";
+                                for ($i = 0; $i < count($les_musiques_artiste); $i++){
+                                    if ($i < count($les_musiques_artiste) - 1) {
+                                        $texte_artiste_musique = $texte_artiste_musique . ($les_musiques_artiste[$i])->getNomMusique() . ", ";
+                                    }
+                                    else {
+                                        $texte_artiste_musique = $texte_artiste_musique . " ou encore " . ($les_musiques_artiste[$i])->getNomMusique() . ".";
+                                    }
+                                }
+                                ?>
+                                <?php if($texte_artiste_musique != ""): ?>
+                                    <span class="about-me"><?php echo $artiste_genre->getNomArtiste() . " est un artiste de " . $genre->getNomGenre() . " connu pour des sons comme " . $texte_artiste_musique; ?></span>
+                                <?php else: ?>
+                                    <span class="about-me"><?php echo $artiste_genre->getNomArtiste() . " est un artiste de " . $genre->getNomGenre() . " avec aucun son."; ?></span>
+                                <?php endif; ?>
+                                </div>
+                            <div class="bottom-bottom">
+                                <div class="social-links-container">
+                                    <span class="name"><?php echo $artiste_genre->getNomArtiste(); ?></span>
+                                </div>
+                                <button class="button">Plus d'infos</button>
+                            </div>
+                        </div>
                     </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
-            <div class="card disc-container3">
-                <div class="profile-pic">
-                    
-                    <img src="../static/images/fave.jpg" alt="">
-                </div>
-                <div class="bottom">
-                    <div class="content">
-                        <span class="about-me">Lorem ipsum dolor sit amet consectetur adipisicinFcls </span>
-                    </div>
-                   <div class="bottom-bottom">
-                    <div class="social-links-container">
-                        <span class="name">Fave</span>
-                    </div>
-                    <button class="button">Plus d'infos</button>
-                   </div>
-                </div>
-            </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>Aucun artiste disponible</p>
+                <?php endif; ?>
         </div>
-        <button class="btn" id="buttonVoirPlus3">
-            <span class="icon" id="icon3">+</span>
-            </span>
-            <span class="text" id="voir3">Voir plus</span>
-        </button>
-    </div>
-            
-		</main>
-
+        <?php if (!empty($les_artistes_genre)): ?>
+            <button class="btn" id="buttonVoirPlus3">
+                <span class="icon" id="icon3">+</span>
+                </span>
+                <span class="text" id="voir3">Voir plus</span>
+            </button>
+        <?php endif; ?>
+    </div>   
+	</main>
 	</section>
     <script src="../static/script/fav.js"></script>
     <script src="../static/script/genre3.js"></script>
