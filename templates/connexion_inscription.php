@@ -69,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music'O</title>
-    <link rel="stylesheet" href="../static/style/login-register.css">
+    <title>Lavound</title>
+    <link rel="stylesheet" href="../static/style/connexion_inscription.css">
     <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
 </head>
 <body ng-app="app">
@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && $_POST['
             </div>
         </div>
     
-        <script src="../static/script/login-register.js"></script>
+        <script src="../static/script/connexion_inscription.js"></script>
 
 
 		</main>

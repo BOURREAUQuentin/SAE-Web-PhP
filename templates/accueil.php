@@ -29,7 +29,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music'O</title>
+    <title>Lavound</title>
     <link rel="stylesheet" href="../static/style/accueil.css">
 </head>
 <body>
