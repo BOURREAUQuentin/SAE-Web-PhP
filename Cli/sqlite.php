@@ -6,12 +6,12 @@ $pdo = new PDO('sqlite:' . SQLITE_DB);
 
 switch ($argv[2]) {
     case 'db':
-        echo '→ create database "sae_php.db"' . PHP_EOL;
+        echo '-> create database "sae_php.db"' . PHP_EOL;
         shell_exec('sqlite3 ' . SQLITE_DB);
         break;
 
     case 'create':
-        echo '→ create tables' . PHP_EOL;
+        echo '-> create tables' . PHP_EOL;
         $query =<<<EOF
             CREATE TABLE IF NOT EXISTS IMAGE (
                 id_image INT PRIMARY KEY,
@@ -111,7 +111,7 @@ switch ($argv[2]) {
         break;
 
     case 'delete':
-        echo '→ delete table tables' . PHP_EOL;
+        echo '-> delete table tables' . PHP_EOL;
         $query =<<<EOF
             DROP TABLE IF EXISTS LIKER;
             DROP TABLE IF EXISTS CONTENIR;
@@ -136,7 +136,7 @@ switch ($argv[2]) {
         break;
 
     case 'load':
-        echo '→ load data tables' . PHP_EOL;
+        echo '-> load data tables' . PHP_EOL;
 
         $query =<<<EOF
             insert into IMAGE (id_image, image) VALUES
@@ -189,11 +189,11 @@ switch ($argv[2]) {
             (1, "Il le fallait", 2023, 1),
             (2, "L'attaque des clones", 2023, 2),
             (3, "Baiser", 2023, 10),
-            (4, "Dire je t’aime", 2024, 11),
+            (4, "Dire je t'aime", 2024, 11),
             (5, "Sincèrement", 2023, 12),
             (6, "F4", 2023, 13),
             (7, "Paradise", 2019, 14),
-            (8, "Aujourd’hui", 2023, 15),
+            (8, "Aujourd'hui", 2023, 15),
             (9, "Eternal youth", 2022, 16),
             (10, "Hiver à Paris", 2022, 17),
             (11, "Ipséité", 2017, 18),
@@ -202,7 +202,7 @@ switch ($argv[2]) {
             (14, "Novae", 2023, 21),
             (15, "Stamina Memento", 2020, 22),
             (16, "Elle and Louis", 1956, 23),
-            (17, "What’d I say", 1959, 24),
+            (17, "What'd I say", 1959, 24),
             (18, "FORGOTTEN", 2022, 25),
             (19, "PSYCHX", 2022, 26),
             (20, "Bad", 1987, 27),
@@ -283,7 +283,7 @@ switch ($argv[2]) {
             (14, "Xtrois", "2:44", "xtrois.mp3", 3, 3),
             (15, "Murcielago", "2:56", "murcielago.mp3", 3, 3),
             (16, "Merci pour la douleur", "2:19", "merci-pour-la-douleur.mp3", 3, 3),
-            (17, "Est-ce que l’aime ?", "2:49", "est-ce-que-l-aime.mp3", 3, 3),
+            (17, "Est-ce que l'aime ?", "2:49", "est-ce-que-l-aime.mp3", 3, 3),
             (18, "Le coeur à papa", "4:03", "le-coeur-a-papa.mp3", 3, 3),
             (19, "Pleurer pour nous", "3:38", "pleurer-pour-nous.mp3", 3, 3),
             (20, "Content", "2:55", "content.mp3", 3, 3),
@@ -352,7 +352,7 @@ switch ($argv[2]) {
             (83, "You Be My Baby", "2:32", "you-be-my-baby.mp3", 3, 17),
             (84, "Rockhouse", "3:54", "rockhouse.mp3", 3, 17),
             (85, "My Bonnie", "2:49", "my-bonnie.mp3", 3, 17),
-            (86, "That’s Enough", "2:47", "that-s-enough.mp3", 3, 17),
+            (86, "That's Enough", "2:47", "that-s-enough.mp3", 3, 17),
             (87, "CATHARSIS", "2:39", "catharsis.mp3", 3, 18),
             (88, "GRIM", "2:56", "grim.mp3", 3, 18),
             (89, "VHS", "2:00", "vhs.mp3", 3, 18),
@@ -364,7 +364,7 @@ switch ($argv[2]) {
             (95, "The Way You Make Feel", "4:58", "the-way-you-make-feel.mp3", 3, 20),
             (96, "Smooth Criminal", "4:18", "smooth-criminal.mp3", 3, 20),
             (97, "Leave Me Alone", "4:40", "leave-me-alone.mp3", 3, 20),
-            (98, "Don’t Start Now", "3:01", "don-t-start-now.mp3", 3, 21),
+            (98, "Don't Start Now", "3:01", "don-t-start-now.mp3", 3, 21),
             (99, "Physical", "4:03", "physical.mp3", 3, 21),
             (100, "Levitating", "3:23", "levitating.mp3", 3, 21),
             (101, "Love Again", "4:22", "love-again.mp3", 3, 21),
@@ -374,7 +374,7 @@ switch ($argv[2]) {
             (105, "Billie Jean", "4:54", "billie-jean.mp3", 3, 22),
             (106, "The Lady In My Life", "4:58", "the-lady-in-my-life.mp3", 3, 22),
             (107, "Sing", "3:56", "sing.mp3", 3, 23),
-            (108, "Don’t", "3:40", "don-t.mp3", 3, 23),
+            (108, "Don't", "3:40", "don-t.mp3", 3, 23),
             (109, "Photograph", "4:19", "photograph.mp3", 3, 23),
             (110, "Thinking Out Loud", "4:42", "thinking-out-loud.mp3", 3, 23),
             (111, "Hells Bells", "5:13", "hells-bells.mp3", 3, 24),
@@ -591,6 +591,32 @@ switch ($argv[2]) {
             }
             $stmt->execute();
 
+            $contient_deja_artiste = <<<EOF
+                SELECT id_artiste FROM ARTISTE WHERE nom_artiste = :nom_artiste;
+            EOF;
+            $stmt = $pdo->prepare($contient_deja_artiste);
+            $stmt->bindParam(':nom_artiste', $album["by"], PDO::PARAM_STR);
+            $stmt->execute();
+            $resultat_deja_artiste = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$resultat_deja_artiste) {
+                // L'artiste n'existe pas dans la base de données
+                $insertion_artiste = <<<EOF
+                    insert into ARTISTE (id_artiste, nom_artiste, id_image) values (:id_artiste, :nom_artiste, :id_image);
+                EOF;
+                $stmt = $pdo->prepare($insertion_artiste);
+                $stmt->bindParam(':id_artiste', $new_id_artiste, PDO::PARAM_INT);
+                $stmt->bindParam(':nom_artiste', $album["by"], PDO::PARAM_STR);
+                $stmt->bindParam(':id_image', $id_image_default, PDO::PARAM_INT);
+                $stmt->execute();
+
+                // pour l'insertion realiser_par
+                $id_artiste_actuel = $new_id_artiste;
+            }
+            else{
+                // pour l'insertion realiser_par
+                $id_artiste_actuel = $resultat_deja_artiste["id_artiste"];
+            }
+
             foreach ($album["genre"] as $genre_album){
 
                 $contient_deja_genre = <<<EOF
@@ -621,37 +647,32 @@ switch ($argv[2]) {
                 $stmt->bindParam(':id_genre', $id_genre_album, PDO::PARAM_INT);
                 $stmt->execute();
 
+                // insertion lien artiste et genre (appartenir)
+                $contient_deja_appartenir = <<<EOF
+                    SELECT id_genre FROM APPARTENIR WHERE id_artiste = :id_artiste and id_genre = :id_genre;
+                EOF;
+                $stmt = $pdo->prepare($contient_deja_appartenir);
+                $stmt->bindParam(':id_artiste', $id_artiste_actuel, PDO::PARAM_INT);
+                $stmt->bindParam(':id_genre', $id_genre_album, PDO::PARAM_INT);
+                $stmt->execute();
+                $resultat_appartenir = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$resultat_appartenir){
+                    $insertion_appartenir = <<<EOF
+                        INSERT INTO APPARTENIR (id_artiste, id_genre) VALUES (:id_artiste, :id_genre);
+                    EOF;
+                    $stmt = $pdo->prepare($insertion_appartenir);
+                    $stmt->bindParam(':id_artiste', $id_artiste_actuel, PDO::PARAM_INT);
+                    $stmt->bindParam(':id_genre', $id_genre_album, PDO::PARAM_INT);
+                    $stmt->execute();
+                }
+
                 // incrémentation nouvel id pour le prochain genre de l'album
                 $new_id_genre += 1;
             }
 
-            $contient_deja_artiste = <<<EOF
-                SELECT id_artiste FROM ARTISTE WHERE nom_artiste = :nom_artiste;
-            EOF;
-            $stmt = $pdo->prepare($contient_deja_artiste);
-            $stmt->bindParam(':nom_artiste', $album["by"], PDO::PARAM_STR);
-            $stmt->execute();
-            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$resultat) {
-                // L'artiste n'existe pas dans la base de données
-                $insertion_artiste = <<<EOF
-                    insert into ARTISTE (id_artiste, nom_artiste, id_image) values (:id_artiste, :nom_artiste, :id_image);
-                EOF;
-                $stmt = $pdo->prepare($insertion_artiste);
-                $stmt->bindParam(':id_artiste', $new_id_artiste, PDO::PARAM_INT);
-                $stmt->bindParam(':nom_artiste', $album["by"], PDO::PARAM_STR);
-                $stmt->bindParam(':id_image', $id_image_default, PDO::PARAM_INT);
-                $stmt->execute();
-
-                // pour l'insertion realiser_par
-                $id_artiste_actuel = $new_id_artiste;
-
+            if (!$resultat_deja_artiste){
                 // incrémente pour le nouveau prochain artiste à ajouter
                 $new_id_artiste += 1;
-            }
-            else{
-                // pour l'insertion realiser_par
-                $id_artiste_actuel = $resultat["id_artiste"];
             }
 
             // insertion lien album et artiste

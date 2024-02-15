@@ -232,7 +232,7 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                                 <?php if($texte_artiste_musique != ""): ?>
                                     <span class="about-me"><?php echo $artiste_genre->getNomArtiste() . " est un artiste de " . $genre->getNomGenre() . " connu pour des sons comme " . $texte_artiste_musique; ?></span>
                                 <?php else: ?>
-                                    <span class="about-me"><?php echo $artiste_genre->getNomArtiste() . " est un artiste de " . $genre->getNomGenre() . " avec aucun son."; ?></span>
+                                    <span class="about-me"><?php echo $artiste_genre->getNomArtiste() . " est un artiste de " . $genre->getNomGenre() . " avec aucun sons."; ?></span>
                                 <?php endif; ?>
                                 </div>
                             <div class="bottom-bottom">
