@@ -299,7 +299,7 @@ header{
   color: white;
 }
 
-.song{
+.song2{
   display: flex;
   justify-content: center;
   padding-top: 120px;
@@ -553,6 +553,12 @@ header{
   object-position: center;
   transition: all 0.5s ease-in-out 0.5s;
 }
+.titre-genre{
+  font-size: 38px;
+  margin-top: 10px;
+  padding-left: 50px;
+  text-shadow: 0 0 10px #bc85fa, 0 0 40px var(--lavender);
+}
 .T-part{
   width: 9vw;
   margin-top: 40px;
@@ -791,6 +797,7 @@ header{
   align-items: center;
   justify-content: center;
   margin-bottom: 0;
+  margin: 50px auto;
 
 }
 .buttons{

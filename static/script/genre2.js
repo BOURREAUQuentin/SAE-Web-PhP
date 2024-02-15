@@ -10,7 +10,7 @@ document.getElementById('buttonVoirPlus2').addEventListener('click', function() 
         button.textContent = 'Voir moins';
         icon.textContent = '-';
     } else {
-        for (var i = 18; i < song.length; i++) {
+        for (var i = 5; i < song.length; i++) {
             song[i].style.display = 'none';
         }
         button.textContent = 'Voir plus';
