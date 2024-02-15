@@ -96,4 +96,24 @@ class AppartenirPDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Supprime la liaison d'un genre associé à des artistes dans la table.
+     * 
+     * @param int $id_genre L'identifiant du genre pour lequel supprimer ses artistes.
+     */
+    public function supprimerGenresByIdGenre(int $id_genre): void
+    {
+        $requete_suppression_artistes = <<<EOF
+        delete from APPARTENIR where id_genre = :id_genre;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_suppression_artistes);
+            $stmt->bindParam("id_genre", $id_genre, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+        }
+    }
 }

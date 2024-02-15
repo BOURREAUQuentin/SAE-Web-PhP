@@ -27,6 +27,7 @@ use Modele\modele_bd\AppartenirPDO;
 use Modele\modele_bd\MusiquePDO;
 use Modele\modele_bd\LikerPDO;
 use Modele\modele_bd\NoterPDO;
+use Modele\modele_bd\GenrePDO;
 
 // instanciation des classes PDO
 $contenirPDO = new ContenirPDO($pdo);
@@ -41,6 +42,7 @@ $appartenirPDO = new AppartenirPDO($pdo);
 $musiquePDO = new MusiquePDO($pdo);
 $likerPDO = new LikerPDO($pdo);
 $noterPDO = new NoterPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 
 // Manage action / controller
 $action = $_REQUEST['action'] ?? 'main';
@@ -112,6 +114,10 @@ switch ($action) {
         include 'templates/admin_utilisateur.php';
         break;
 
+    case 'admin_genre':
+        include 'templates/admin_genre.php';
+        break;
+
     case 'ajouter_playlist':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_SESSION["username"])){
@@ -161,17 +167,17 @@ switch ($action) {
             $nom_playlist_transforme = str_replace(' ', '-', $nom_playlist);
             $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme); // nom image -> nom_utilisateur-nombre_aleatoire-nom_playlist_transforme
             if ($_FILES["image_playlist"]["error"] > 0){
-                $image_temp = "./images/default.jpg";
+                $image_temp = "./static/images/default.jpg";
             }
-            move_uploaded_file($image_temp, "./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme);
+            move_uploaded_file($image_temp, "./static/images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme);
 
             // appel de la méthode pour créer la playlist
             $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme))->getIdImage();
             $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($_SESSION["username"]);
-            $playlistPDO->creerPlaylist($nom_playlist, $id_new_image, $utilisateur_connecte->getIdUtilisateur());
+            $id_new_playlist = $playlistPDO->creerPlaylist($nom_playlist, $id_new_image, $utilisateur_connecte->getIdUtilisateur());
 
             // redirection de l'utilisateur vers la page principale ou autre
-            header('Location: ?action=main');
+            header('Location: ?action=playlist&id_playlist=' . $id_new_playlist);
             exit;
         }
         break;
@@ -191,7 +197,10 @@ switch ($action) {
         $playlistPDO->supprimerPlaylistByIdPlaylist($id_playlist);
 
         // suppression de l'image associée à la playlist
-        $imagePDO->supprimerImageByIdImage($id_image_playlist);
+        $image_playlist = ($imagePDO->getImageByIdImage($id_image_playlist))->getImage();
+        if ($image_playlist != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
+            $imagePDO->supprimerImageByIdImage($id_image_playlist);
+        }
 
         // redirection de l'utilisateur vers la page principale ou autre
         header('Location: ?action=playlists_utilisateur');
@@ -226,7 +235,7 @@ switch ($action) {
         $imagePDO->mettreAJourNomImage($image_playlist->getIdImage(), $nouveau_nom_image_playlist);
 
         // renomme le nom de l'ancienne image dans le dossier images
-        rename("./images/" . $image_playlist->getImage(), "./images/" . $nouveau_nom_image_playlist);
+        rename("./static/images/" . $image_playlist->getImage(), "./static/images/" . $nouveau_nom_image_playlist);
 
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=playlists_utilisateur');
@@ -243,7 +252,7 @@ switch ($action) {
 
             $nombre_aleatoire = rand(1, 10000);
             $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_artiste); // nom image -> nombre_aleatoire-nom_artiste
-            move_uploaded_file($image_temp, "./images/" . $nombre_aleatoire . "-" . $nom_artiste);
+            move_uploaded_file($image_temp, "./static/images/" . $nombre_aleatoire . "-" . $nom_artiste);
 
             // appel de la méthode pour créer l'artiste
             $id_new_image = ($imagePDO->getImageByNomImage($nombre_aleatoire . "-" . $nom_artiste))->getIdImage();
@@ -259,7 +268,7 @@ switch ($action) {
             // récupération des données du formulaire
             $nom_album = $_POST['nom_album'];
             $annee_sortie_album = $_POST['annee_sortie'];
-            $id_genre_album = $_POST['genre']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id
+            $id_genres_album = $_POST['genres']; // tableau contenant les ids des genres sélectionnés
             $id_artiste_album = $_POST['artiste']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id
 
             // gestion de l'image de l'album
@@ -268,15 +277,17 @@ switch ($action) {
             $nombre_aleatoire = rand(1, 10000);
             $nom_image_transforme = str_replace(' ', '-', $nom_album);
             $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album); // nom image -> nombre_aleatoire-nom_image_transforme-id_artiste_album
-            move_uploaded_file($image_temp, "./images/" . $nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album);
+            move_uploaded_file($image_temp, "./static/images/" . $nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album);
 
             // appel de la méthode pour créer l'album
             $id_new_image = ($imagePDO->getImageByNomImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album))->getIdImage();
             $id_new_album = $albumPDO->ajouterAlbum($nom_album, $annee_sortie_album, $id_new_image);
 
-            // création du lien entre album et genre (donc artiste aura ce genre aussi)
-            $fairePartiePDO->ajouterFairePartie($id_new_album, $id_genre_album);
-            $appartenirPDO->ajouterAppartenir($id_artiste_album, $id_genre_album);
+            // création du lien entre album et genres (donc artiste aura ces genres aussi)
+            foreach ($id_genres_album as $id_genre) {
+                $fairePartiePDO->ajouterFairePartie($id_new_album, $id_genre);
+                $appartenirPDO->ajouterAppartenir($id_artiste_album, $id_genre);
+            }
 
             // création du lien entre album et artiste
             $realiserParPDO->ajouterRealiser($id_new_album, $id_artiste_album);
@@ -313,7 +324,10 @@ switch ($action) {
         $albumPDO->supprimerAlbumByIdAlbum($id_album);
 
         // suppression de l'image associée à l'album
-        $imagePDO->supprimerImageByIdImage($id_image_album);
+        $image_album = ($imagePDO->getImageByIdImage($id_image_album))->getImage();
+        if ($image_album != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
+            $imagePDO->supprimerImageByIdImage($id_image_album);
+        }
         
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_album');
@@ -372,14 +386,30 @@ switch ($action) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // récupération des données du formulaire
             $nom_musique = $_POST['nom_musique'];
-            $duree_musique = $_POST['duree_musique'];
+            $duree_audio = $_POST['duree_audio'] ?? "00:00";
             $id_album_musique = $_POST['album']; // la valeur affiché à l'utilisateur est le nom mais on récupère l'id de l'abum
 
+            // chemin du fichier MP3 téléchargé
+            $chemin_fichier_mp3 = $_FILES['fichier_mp3']['tmp_name'];
+
+            var_dump($_FILES["fichier_mp3"]["size"]);
+            var_dump($_FILES["fichier_mp3"]["error"]);
+            var_dump($chemin_fichier_mp3);
+
+            $nombre_aleatoire = rand(1, 10000);
+            $nom_musique_sans_espaces = str_replace(' ', '-', $nom_musique); // remplacer les espaces par des tirets
+            $nom_musique_sans_espaces_minuscules = strtolower($nom_musique_sans_espaces); // enlever les minuscules
+            $nom_musique_transforme = str_replace("'", "-", $nom_musique_sans_espaces_minuscules); // remplacer les apostrophes par des tirets
+
+            $nom_fichier_son_musique = $id_album_musique . "-" . $nombre_aleatoire . "-" . $nom_musique_transforme . ".mp3";
+            // mettre fichier mp3 dans dossier sounds
+            move_uploaded_file($chemin_fichier_mp3, "./static/sounds/" . $nom_fichier_son_musique);
+
             // appel de la méthode pour créer la musique
-            $musiquePDO->ajouterMusique($nom_musique, $duree_musique, $nom_musique.".mp3", $id_album_musique);
+            $musiquePDO->ajouterMusique($nom_musique, $duree_audio, $nom_fichier_son_musique, $id_album_musique);
 
             // redirection de l'utilisateur vers la même page
-            header('Location: ?action=admin_musique');
+            //header('Location: ?action=admin_musique');
             exit;
         }
         break;

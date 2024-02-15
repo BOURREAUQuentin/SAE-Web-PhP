@@ -61,5 +61,8 @@ $les_artistes = $artistePDO->getArtistes();
 <a href="/?action=admin_utilisateur">
     <button class="login-button">Gérer les utilisateurs</button>
 </a>
+<a href="/?action=admin_genre">
+    <button class="login-button">Gérer les genres</button>
+</a>
 </body>
 </html>

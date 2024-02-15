@@ -78,7 +78,7 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
             <div class="genre-container">
                 <?php foreach ($les_albums_genre as $album_genre):
                     $image_album = $imagePDO->getImageByIdImage($album_genre->getIdImage());
-                    $image_path_album = $image_album->getImage() ? "../images/" . urlencode($image_album->getImage()) : '../images/default.jpg';
+                    $image_path_album = $image_album->getImage() ? "../static/images/" . urlencode($image_album->getImage()) : '../static/images/default.jpg';
                     ?>
                     <p>Titre : <?php echo $album_genre->getTitre(); ?></p>
                     <img class="genre-image" src="<?php echo $image_path_album ?>" alt="Image de l'album <?php echo $album_genre->getTitre(); ?>"/>
@@ -98,7 +98,7 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                 <?php foreach ($les_musiques_genre as $musique_genre):
                 $id_image_musique = $musiquePDO->getIdImageByIdMusique($musique_genre->getIdMusique());
                 $image_musique = $imagePDO->getImageByIdImage($id_image_musique);
-                $image_path_musique = $image_musique->getImage() ? "../images/" . $image_musique->getImage() : '../images/default.jpg';
+                $image_path_musique = $image_musique->getImage() ? "../static/images/" . $image_musique->getImage() : '../static/images/default.jpg';
                 ?>
                 <p>Nom : <?php echo $musique_genre->getNomMusique(); ?></p>
                 <img class="genre-image" src="<?php echo $image_path_musique ?>" alt="Image de la musique <?php echo $musique_genre->getNomMusique(); ?>"/>
@@ -107,15 +107,19 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                 </a>
 
                 <!-- formulaire pour choisir la playlist dans laquelle ajouter la musique-->
-                <form method="post" action="?action=ajouter_playlist">
-                    <input type="hidden" name="id_musique" value="<?php echo $musique_genre->getIdMusique(); ?>">
-                    <select name="id_playlist">
-                        <?php foreach ($playlists_utilisateur as $playlist): ?>
-                            <option value="<?php echo $playlist->getIdPlaylist(); ?>"><?php echo $playlist->getNomPlaylist(); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="submit">Ajouter à la playlist</button>
+                <?php if (count($playlists_utilisateur) > 0): ?>
+                    <form method="post" action="?action=ajouter_playlist">
+                        <input type="hidden" name="id_musique" value="<?php echo $musique_genre->getIdMusique(); ?>">
+                        <select name="id_playlist">
+                            <?php foreach ($playlists_utilisateur as $playlist): ?>
+                                <option value="<?php echo $playlist->getIdPlaylist(); ?>"><?php echo $playlist->getNomPlaylist(); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                            <button type="submit">Ajouter à la playlist</button>
                 </form>
+                <?php else: ?>
+                    <p>Vous n'avez pas de playlists.</p>
+                <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
@@ -128,7 +132,7 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
             <div class="genre-container">
                 <?php foreach ($les_artistes_genre as $artiste_genre):
                 $image_artiste = $imagePDO->getImageByIdImage($artiste_genre->getIdImage());
-                $image_path_artiste = $image_artiste->getImage() ? "../images/" . $image_artiste->getImage() : '../images/default.jpg';
+                $image_path_artiste = $image_artiste->getImage() ? "../static/images/" . $image_artiste->getImage() : '../static/images/default.jpg';
                 ?>
                 <p>Nom : <?php echo $artiste_genre->getNomArtiste(); ?></p>
                 <img class="genre-image" src="<?php echo $image_path_artiste ?>" alt="Image de l'artiste <?php echo $artiste_genre->getNomArtiste(); ?>"/>

@@ -48,9 +48,7 @@ switch ($argv[2]) {
             );
             CREATE TABLE IF NOT EXISTS GENRE (
                 id_genre INT PRIMARY KEY,
-                nom_genre VARCHAR(255) NOT NULL,
-                id_image INT,
-                FOREIGN KEY (id_image) REFERENCES IMAGE(id_image)
+                nom_genre VARCHAR(255) NOT NULL
             );
             CREATE TABLE IF NOT EXISTS FAIRE_PARTIE (
                 id_album INT,
@@ -146,9 +144,6 @@ switch ($argv[2]) {
             (2, "adc.jpg"),
             (3, "fave.jpg"),
             (4, "freeze-corleone.jpg"),
-            (5, "rap.jpg"),
-            (6, "rock.jpg"),
-            (7, "jazz.jpg"),
             (8, "quentin-576-Chill-rap.jpg"),
             (9, "quentin-697-Hard-rap.jpeg"),
             (10, "baiser.jpg"),
@@ -188,11 +183,7 @@ switch ($argv[2]) {
             (44, "michael-jackson.jpg"),
             (45, "dua-lipa.jpg"),
             (46, "ed-sheeran.jpg"),
-            (47, "ac-dc.jpg"),
-            (48, "phonk.jpg"),
-            (49, "pop.jpg"),
-            (50, "country.jpg"),
-            (51, "classique.jpg");
+            (47, "ac-dc.jpg");
 
             insert into ALBUM (id_album, titre, annee_sortie, id_image) VALUES
             (1, "Il le fallait", 2023, 1),
@@ -266,22 +257,22 @@ switch ($argv[2]) {
             (23, 17),
             (24, 18);
 
-            insert into GENRE (id_genre, nom_genre, id_image) VALUES
-            (1, "Rap", 5),
-            (2, "Rock", 6),
-            (3, "Jazz", 7),
-            (4, "Phonk", 48),
-            (5, "Pop", 49),
-            (6, "Country", 50),
-            (7, "Classique", 51);
+            insert into GENRE (id_genre, nom_genre) VALUES
+            (1, "Rap"),
+            (2, "Rock"),
+            (3, "Jazz"),
+            (4, "Phonk"),
+            (5, "Pop"),
+            (6, "Country"),
+            (7, "Classique");
 
             insert into MUSIQUE (id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album) VALUES
             (1, "En vrai", "3:18", "en-vrai.mp3", 1, 1),
-            (2, "Gmail", "3:14", "gmail.mp3", 4, 1),
-            (3, "Vibes", "2:15", "vibes.mp3", 5, 1),
-            (4, "Flashback", "3:03", "flashback.mp3", 8, 1),
+            (2, "Gmail", "3:23", "gmail.mp3", 4, 1),
+            (3, "Vibes", "2:14", "vibes.mp3", 5, 1),
+            (4, "Flashback", "3:02", "flashback.mp3", 8, 1),
             (5, "Favela", "2:51", "favela.mp3", 3, 1),
-            (6, "Nuages", "3:13", "nuages.mp3", 2, 1),
+            (6, "Nuages", "3:12", "nuages.mp3", 2, 1),
             (7, "Ancelotti", "3:42", "ancelotti.mp3", 3, 2),
             (8, "Shavkat", "3:40", "shavkat.mp3", 5, 2),
             (9, "Jour de plus", "3:30", "jour-de-plus.mp3", 3, 2),
@@ -373,11 +364,11 @@ switch ($argv[2]) {
             (95, "The Way You Make Feel", "4:58", "the-way-you-make-feel.mp3", 3, 20),
             (96, "Smooth Criminal", "4:18", "smooth-criminal.mp3", 3, 20),
             (97, "Leave Me Alone", "4:40", "leave-me-alone.mp3", 3, 20),
-            (98, "Don’t Start Now", "3:03", "don-t-start-now.mp3", 3, 21),
-            (99, "Physical", "3:14", "physical.mp3", 3, 21),
-            (100, "Levitating", "3:24", "levitating.mp3", 3, 21),
-            (101, "Love Again", "4:18", "love-again.mp3", 3, 21),
-            (102, "Fever", "2:37", "fever.mp3", 3, 21),
+            (98, "Don’t Start Now", "3:01", "don-t-start-now.mp3", 3, 21),
+            (99, "Physical", "4:03", "physical.mp3", 3, 21),
+            (100, "Levitating", "3:23", "levitating.mp3", 3, 21),
+            (101, "Love Again", "4:22", "love-again.mp3", 3, 21),
+            (102, "Fever", "4:04", "fever.mp3", 3, 21),
             (103, "Thriller", "5:58", "thriller.mp3", 3, 22),
             (104, "Beat It", "4:18", "beat-it.mp3", 3, 22),
             (105, "Billie Jean", "4:54", "billie-jean.mp3", 3, 22),
@@ -612,12 +603,11 @@ switch ($argv[2]) {
                 if (!$resultat) {
                     // Le genre n'existe pas dans la base de données
                     $insertion_genre = <<<EOF
-                        INSERT INTO GENRE (id_genre, nom_genre, id_image) VALUES (:id_genre, :nom_genre, :id_image);
+                        INSERT INTO GENRE (id_genre, nom_genre) VALUES (:id_genre, :nom_genre);
                     EOF;
                     $stmt = $pdo->prepare($insertion_genre);
                     $stmt->bindParam(':id_genre', $new_id_genre, PDO::PARAM_INT);
                     $stmt->bindParam(':nom_genre', $genre_album, PDO::PARAM_STR);
-                    $stmt->bindParam(':id_image', $id_image_default, PDO::PARAM_INT);
                     $stmt->execute();
                 }
                 $id_genre_album = isset($resultat['id_genre']) ? $resultat['id_genre'] : $new_id_genre;

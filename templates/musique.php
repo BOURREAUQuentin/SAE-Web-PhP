@@ -16,7 +16,7 @@ $id_musique = intval($_GET['id_musique']);
 $musique = $musiquePDO->getMusiqueByIdMusique($id_musique);
 $id_image = $musiquePDO->getIdImageByIdMusique($musique->getIdMusique());
 $image = $imagePDO->getImageByIdImage($id_image);
-$image_path = $image->getImage() ? "../images/" . $image->getImage() : '../images/default.jpg';
+$image_path = $image->getImage() ? "../static/images/" . $image->getImage() : '../static/images/default.jpg';
 ?>
 
 <!DOCTYPE html>

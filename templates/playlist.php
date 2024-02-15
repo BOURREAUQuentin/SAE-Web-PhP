@@ -18,7 +18,7 @@ $id_playlist = intval($_GET['id_playlist']);
 $playlist = $playlistPDO->getPlaylistByIdPlaylist($id_playlist);
 $musiques_playlist = $playlistPDO->getMusiquesByIdPlaylist($id_playlist);
 $image_playlist = $imagePDO->getImageByIdImage($playlist->getIdImage());
-$image_path = $image_playlist->getImage() ? "../images/" . $image_playlist->getImage() : '../images/default.jpg';
+$image_path = $image_playlist->getImage() ? "../static/images/" . $image_playlist->getImage() : '../static/images/default.jpg';
 ?>
 
 <!DOCTYPE html>
@@ -56,7 +56,7 @@ $image_path = $image_playlist->getImage() ? "../images/" . $image_playlist->getI
             <?php foreach ($musiques_playlist as $musique_playlist):
                 $id_image_musique = $musiquePDO->getIdImageByIdMusique($musique_playlist->getIdMusique());
                 $image_musique = $imagePDO->getImageByIdImage($id_image_musique);
-                $image_path_musique = $image_musique->getImage() ? "../images/" . $image_musique->getImage() : '../images/default.jpg';
+                $image_path_musique = $image_musique->getImage() ? "../static/images/" . $image_musique->getImage() : '../static/images/default.jpg';
                 ?>
                 <p>Son : <?php echo $musique_playlist->getNomMusique(); ?></p>
                 <p>Durée : <?php echo $musique_playlist->getDureeMusique(); ?></p>
