@@ -167,9 +167,9 @@ switch ($action) {
             $nom_playlist_transforme = str_replace(' ', '-', $nom_playlist);
             $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme); // nom image -> nom_utilisateur-nombre_aleatoire-nom_playlist_transforme
             if ($_FILES["image_playlist"]["error"] > 0){
-                $image_temp = "./static/images/default.jpg";
+                $image_temp = "./images/default.jpg";
             }
-            move_uploaded_file($image_temp, "./static/images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme);
+            move_uploaded_file($image_temp, "./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme);
 
             // appel de la méthode pour créer la playlist
             $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme))->getIdImage();
@@ -235,7 +235,7 @@ switch ($action) {
         $imagePDO->mettreAJourNomImage($image_playlist->getIdImage(), $nouveau_nom_image_playlist);
 
         // renomme le nom de l'ancienne image dans le dossier images
-        rename("./static/images/" . $image_playlist->getImage(), "./static/images/" . $nouveau_nom_image_playlist);
+        rename("./images/" . $image_playlist->getImage(), "./images/" . $nouveau_nom_image_playlist);
 
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=playlists_utilisateur');
@@ -252,7 +252,7 @@ switch ($action) {
 
             $nombre_aleatoire = rand(1, 10000);
             $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_artiste); // nom image -> nombre_aleatoire-nom_artiste
-            move_uploaded_file($image_temp, "./static/images/" . $nombre_aleatoire . "-" . $nom_artiste);
+            move_uploaded_file($image_temp, "./images/" . $nombre_aleatoire . "-" . $nom_artiste);
 
             // appel de la méthode pour créer l'artiste
             $id_new_image = ($imagePDO->getImageByNomImage($nombre_aleatoire . "-" . $nom_artiste))->getIdImage();
@@ -277,7 +277,7 @@ switch ($action) {
             $nombre_aleatoire = rand(1, 10000);
             $nom_image_transforme = str_replace(' ', '-', $nom_album);
             $imagePDO->ajouterImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album); // nom image -> nombre_aleatoire-nom_image_transforme-id_artiste_album
-            move_uploaded_file($image_temp, "./static/images/" . $nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album);
+            move_uploaded_file($image_temp, "./images/" . $nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album);
 
             // appel de la méthode pour créer l'album
             $id_new_image = ($imagePDO->getImageByNomImage($nombre_aleatoire . "-" . $nom_image_transforme . "-" . $id_artiste_album))->getIdImage();

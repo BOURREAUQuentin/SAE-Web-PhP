@@ -123,7 +123,7 @@ $les_artistes = $artistePDO->getArtistes();
 <h1>Listes des artistes</h1>
 <?php foreach ($les_artistes as $artiste):
     $image_artiste = $imagePDO->getImageByIdImage($artiste->getIdImage());
-    $image_path = $image_artiste->getImage() ? "../static/images/" . $image_artiste->getImage() : '../static/images/default.jpg';
+    $image_path = $image_artiste->getImage() ? "../images/" . $image_artiste->getImage() : '../images/default.jpg';
     ?>
     <div class="artiste-container">
         <img class="artiste-image" src="<?php echo $image_path ?>" alt="Image de l'artiste <?php echo $artiste->getNomArtiste(); ?>"/>

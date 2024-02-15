@@ -131,7 +131,7 @@ $les_albums = $albumPDO->getAlbums();
 <?php foreach ($les_musiques as $musique):
     $id_image_musique = $musiquePDO->getIdImageByIdMusique($musique->getIdMusique());
     $image_musique = $imagePDO->getImageByIdImage($id_image_musique);
-    $image_path = $image_musique->getImage() ? "../static/images/" . $image_musique->getImage() : '../static/images/default.jpg';
+    $image_path = $image_musique->getImage() ? "../images/" . $image_musique->getImage() : '../images/default.jpg';
     ?>
     <div class="musique-container">
         <img class="musique-image" src="<?php echo $image_path ?>" alt="Image de la musique <?php echo $musique->getNomMusique(); ?>"/>
