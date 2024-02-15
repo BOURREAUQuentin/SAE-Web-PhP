@@ -10,7 +10,7 @@ class musicPlayer {
         this.les_musiques = les_musiques;
         this.index_current_musique = 0;
         this.audio = document.getElementById("audio");
-        this.audio.src = "../static/sounds/" + this.les_musiques[this.index_current_musique];
+        this.audio.src = "../sounds/" + this.les_musiques[this.index_current_musique];
         this.playBtn = document.getElementById('play');
         this.playBtn.addEventListener('click', this.play.bind(this));
         this.nextBtn = document.getElementById('next');
@@ -147,7 +147,7 @@ class musicPlayer {
             nouvelle_track_a_relancer = true;
         }
         // Charger la nouvelle piste
-        this.audio.src = "../static/sounds/" + this.les_musiques[this.index_current_musique];
+        this.audio.src = "../sounds/" + this.les_musiques[this.index_current_musique];
         // Réinitialiser le lecteur audio
         this.audio.currentTime = 0;
         if (nouvelle_track_a_relancer){

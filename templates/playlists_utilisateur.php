@@ -123,7 +123,7 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
 <?php else : ?>
     <?php foreach ($les_playlists_utilisateur as $playlist_utilisateur):
         $image_playlist = $imagePDO->getImageByIdImage($playlist_utilisateur->getIdImage());
-        $image_path_playlist = $image_playlist->getImage() ? "../static/images/" . $image_playlist->getImage() : '../static/images/default.jpg';
+        $image_path_playlist = $image_playlist->getImage() ? "../images/" . $image_playlist->getImage() : '../images/default.jpg';
         ?>
         <div class="genre-container">
             <p><?php echo $playlist_utilisateur->getNomPlaylist(); ?></p>

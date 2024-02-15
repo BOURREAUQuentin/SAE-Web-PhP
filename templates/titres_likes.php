@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php foreach ($les_musiques_likes as $musique):
             $id_image_musique = $musiquePDO->getIdImageByIdMusique($musique->getIdMusique());
             $image_musique = $imagePDO->getImageByIdImage($id_image_musique);
-            $image_path_musique = $image_musique->getImage() ? "../static/images/" . $image_musique->getImage() : '../static/images/default.jpg';
+            $image_path_musique = $image_musique->getImage() ? "../images/" . $image_musique->getImage() : '../images/default.jpg';
             
             ?>
             <div class="musique-container">

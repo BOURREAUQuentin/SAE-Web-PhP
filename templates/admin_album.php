@@ -142,7 +142,7 @@ $les_artistes = $artistePDO->getArtistes();
 <h1>Listes des albums</h1>
 <?php foreach ($les_albums as $album):
     $image_album = $imagePDO->getImageByIdImage($album->getIdImage());
-    $image_path = $image_album->getImage() ? "../static/images/" . $image_album->getImage() : '../static/images/default.jpg';
+    $image_path = $image_album->getImage() ? "../images/" . $image_album->getImage() : '../images/default.jpg';
     ?>
     <div class="album-container">
     <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
