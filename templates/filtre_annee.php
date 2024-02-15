@@ -124,13 +124,15 @@ $les_albums_filtre_annee = $albumPDO->getAlbumsByFiltreAnnee($filtre_annee);
                             $image_path_album = $image_album->getImage() ? "../images/" . urlencode($image_album->getImage()) : '../images/default.jpg';
                             ?>
                             <div class="disc-container">
-                                <div class="cover">
-                                    <img src="../images/<?php echo $image_path_album; ?>" alt="Image de l'album <?php echo $album_filtre_annee->getTitre(); ?>" width="220" height="220">
-                                </div>
-                                <div class="cd">
-                                    <p class="art-name"><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album_filtre_annee->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
-                                    <p class="song2"><?php echo $album_filtre_annee->getTitre(); ?></p>
-                                </div>
+                                <a href="/?action=album&id_album=<?php echo $album_filtre_annee->getIdAlbum(); ?>">
+                                    <div class="cover">
+                                        <img src="../images/<?php echo $image_path_album; ?>" alt="Image de l'album <?php echo $album_filtre_annee->getTitre(); ?>" width="220" height="220">
+                                    </div>
+                                    <div class="cd">
+                                        <p class="art-name"><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album_filtre_annee->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
+                                        <p class="song2"><?php echo $album_filtre_annee->getTitre(); ?></p>
+                                    </div>
+                                </a>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>

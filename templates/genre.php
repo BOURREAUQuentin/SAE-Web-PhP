@@ -134,13 +134,15 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                         $image_path_album = $image_album->getImage() ? "../images/" . urlencode($image_album->getImage()) : '../images/default.jpg';
                         ?>
                         <div class="disc-container">
-                            <div class="cover">
-                                <img src="../images/<?php echo $image_path_album; ?>" alt="Image de l'album <?php echo $album_genre->getTitre(); ?>" width="220" height="220">
-                            </div>
-                            <div class="cd">
-                                <p class="art-name"><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album_genre->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
-                                <p class="song2"><?php echo $album_genre->getTitre(); ?></p>
-                            </div>
+                            <a href="/?action=album&id_album=<?php echo $album_genre->getIdAlbum(); ?>">
+                                <div class="cover">
+                                    <img src="../images/<?php echo $image_path_album; ?>" alt="Image de l'album <?php echo $album_genre->getTitre(); ?>" width="220" height="220">
+                                </div>
+                                <div class="cd">
+                                    <p class="art-name"><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album_genre->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
+                                    <p class="song2"><?php echo $album_genre->getTitre(); ?></p>
+                                </div>
+                            </a>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -240,7 +242,9 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                                 <div class="social-links-container">
                                     <span class="name"><?php echo $artiste_genre->getNomArtiste(); ?></span>
                                 </div>
-                                <button class="button">Plus d'infos</button>
+                                <a href="/?action=artiste&id_artiste=<?php echo $artiste_genre->getIdArtiste(); ?>">
+                                    <button class="button">Plus d'infos</button>
+                                </a>
                             </div>
                         </div>
                     </div>
