@@ -86,11 +86,11 @@ body {
   font-size: 0.7rem;
 }
 .feedback::before {
-  content: 'Pu sa mère';
+  content: 'Très mauvais';
   inset-inline-start: 0;
 }
 .feedback::after {
-  content: 'Masterclass';
+  content: 'Très bon';
   inset-inline-end: 0;
 }
 .modal .score > input {
