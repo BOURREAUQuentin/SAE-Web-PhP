@@ -205,17 +205,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <p class="song2"><?php echo $musique_filtre_annee->getNomMusique(); ?></p>
                                 </div>
                             </div>
-                            <?php // Vérifie si la musique est likée par l'utilisateur connecté
-                            $isLiked = $likerPDO->verifieMusiqueLiker($musique_filtre_annee->getIdMusique(), $utilisateur_connecte->getIdUtilisateur()); ?>
                             <div class="buttons">
-                            <?php if (isset($utilisateur_connecte)): ?>
+                            <?php if (!isset($utilisateur_connecte)): ?>
+                                <button id="buttonfav" onclick="toggleBackgroundColor()" value="<?php echo $musique_filtre_annee->getIdMusique(); ?>">
+                                    <img class="fav" src="../static/images/fav_noir.png" alt="">
+                                </button>
+                            <?php else:
+                                // Vérifie si la musique est likée par l'utilisateur connecté
+                                $isLiked = $likerPDO->verifieMusiqueLiker($musique_filtre_annee->getIdMusique(), $utilisateur_connecte->getIdUtilisateur()); ?>
                                 <!-- Ajoutez la classe "background" si la musique est déjà likée -->
                                 <button id="buttonfav" <?php echo $isLiked ? 'class="background"' : ''; ?> onclick="toggleBackgroundColor()" value="<?php echo $musique_filtre_annee->getIdMusique(); ?>">
                                     <img class="fav" src="../static/images/<?php echo $isLiked ? "fav_rouge.png" : "fav_noir.png"; ?>" alt="">
-                                </button>
-                            <?php else: ?>
-                                <button id="buttonfav" onclick="toggleBackgroundColor()" value="<?php echo $musique_filtre_annee->getIdMusique(); ?>">
-                                    <img class="fav" src="../static/images/fav_noir.png" alt="">
                                 </button>
                             <?php endif; ?>
                             <button class="buttonadd open-modal-btn2">
