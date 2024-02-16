@@ -256,7 +256,7 @@ header{
     top: 0;
     left: 0;
     transform: rotate(90deg);
-    background-image: url(vinyle_noir.png);
+    background-image: url(../images/vinyle_noir.png);
     background-size: cover;
     transition: all 0.3s linear;
 }

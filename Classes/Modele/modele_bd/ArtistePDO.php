@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Modele\modele_bd;
 use Modele\modele_php\Artiste;
 use Modele\modele_php\Musique;
+use Modele\modele_php\Album;
 use PDO;
 use PDOException;
 
@@ -161,9 +162,9 @@ class ArtistePDO
     /**
      * Obtient la liste des musiques les plus streamés (limite de 4)  d'un artiste dans la table.
      * 
-     * @param int $id_artiste L'identifiant de l'artiste pour lequel récupérer la liste des musiques les plus streamés (limite de 5).
+     * @param int $id_artiste L'identifiant de l'artiste pour lequel récupérer la liste des musiques les plus streamés (limite de 4).
      * 
-     * @return array La liste des musiques les plus streamés (limite de 5) d'un artiste.
+     * @return array La liste des musiques les plus streamés (limite de 4) d'un artiste.
      */
     public function getMusiquesPlusStreamesByIdArtiste(int $id_artiste): array
     {
@@ -304,6 +305,66 @@ class ArtistePDO
         }
         catch (PDOException $e){
             var_dump($e->getMessage());
+        }
+    }
+
+    /**
+     * Obtient la liste des albums d'un artiste dans la table.
+     * 
+     * @param int $id_artiste L'identifiant de l'artiste pour lequel récupérer la liste des albums.
+     * 
+     * @return array La liste des albums d'un artiste.
+     */
+    public function getAlbumsByIdArtiste(int $id_artiste): array
+    {
+        $requete_albums = <<<EOF
+        select id_album, titre, annee_sortie, id_image from ALBUM natural join REALISER_PAR where id_artiste = :id_artiste;
+        EOF;
+        $les_albums = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_albums);
+            $stmt->bindParam("id_artiste", $id_artiste, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $album) {
+                array_push($les_albums, new Album($album['id_album'], $album['titre'], $album['annee_sortie'], $album['id_image']));
+            }
+            return $les_albums;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_albums;
+        }
+    }
+
+    /**
+     * Obtient la liste des musiques d'un artiste dans la table.
+     * 
+     * @param int $id_artiste L'identifiant de l'artiste pour lequel récupérer la liste des musiques.
+     * 
+     * @return array La liste des musiques d'un artiste.
+     */
+    public function getMusiquesByIdArtiste(int $id_artiste): array
+    {
+        $requete_musiques = <<<EOF
+        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE natural join REALISER_PAR where id_artiste = :id_artiste;
+        EOF;
+        $les_musiques = array();
+        try{
+            $stmt = $this->pdo->prepare($requete_musiques);
+            $stmt->bindParam("id_artiste", $id_artiste, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($resultat as $musique) {
+                array_push($les_musiques, new Musique($musique['id_musique'], $musique['nom_musique'], $musique['duree_musique'], $musique['son_musique'], $musique['nb_streams'], $musique['id_album']));
+            }
+            return $les_musiques;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return $les_musiques;
         }
     }
 }
