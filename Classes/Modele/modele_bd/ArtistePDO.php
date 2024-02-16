@@ -159,7 +159,7 @@ class ArtistePDO
     }
 
     /**
-     * Obtient la liste des musiques les plus streamés (limite de 5)  d'un artiste dans la table.
+     * Obtient la liste des musiques les plus streamés (limite de 4)  d'un artiste dans la table.
      * 
      * @param int $id_artiste L'identifiant de l'artiste pour lequel récupérer la liste des musiques les plus streamés (limite de 5).
      * 
@@ -168,11 +168,12 @@ class ArtistePDO
     public function getMusiquesPlusStreamesByIdArtiste(int $id_artiste): array
     {
         $requete_musiques_plus_streames = <<<EOF
-        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE natural join REALISER_PAR where id_artiste = :id_artiste ORDER BY nb_streams DESC LIMIT 5;
+        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE natural join REALISER_PAR where id_artiste = :id_artiste ORDER BY nb_streams DESC LIMIT 4;
         EOF;
         $les_musiques_plus_streames = array();
         try{
             $stmt = $this->pdo->prepare($requete_musiques_plus_streames);
+            $stmt->bindParam("id_artiste", $id_artiste, PDO::PARAM_INT);
             $stmt->execute();
             // fetch le résultat sous forme de tableau associatif
             $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
