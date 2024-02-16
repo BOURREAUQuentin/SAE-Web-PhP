@@ -18,7 +18,7 @@ $albumPDO = new AlbumPDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $realiserParPDO = new RealiserParPDO($pdo);
 $artistePDO = new ArtistePDO($pdo);
-$likePDO = new LikerPDO($pdo);
+$likerPDO = new LikerPDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
 $noterPDO = new NoterPDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
@@ -54,10 +54,9 @@ if (isset($_SESSION["username"])) {
 
     $utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 
-    $utilisteur_a_noteer=$noterPDO->getNoteByIdAlbumIdUtilisateur($id_album,$utilisateur->getIdUtilisateur());
-
-    $note_album=$noterPDO->getMoyenneNoteByIdAlbum($id_album);
+    $utilisteur_a_noteer = $noterPDO->getNoteByIdAlbumIdUtilisateur($id_album,$utilisateur->getIdUtilisateur());
 }
+$note_album = $noterPDO->getMoyenneNoteByIdAlbum($id_album);
 $utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 $nbNote = $noterPDO->getNbPersonneAyantNote($id_album);
@@ -86,18 +85,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['musiqueId'])) {
         // Récupère les données de la requête
         $musiqueId = intval($_POST['musiqueId']);
-        $isChecked = $_POST['isChecked'] === 'true';
+        $isChecked = $_POST['isChecked'] === 'false';
 
         // ajoute ou supprime le like
         if ($isChecked) {
-            $likePDO->ajouterLiker($musiqueId, $utilisateur->getIdUtilisateur());
-        } else {
-            $likePDO->supprimerLiker($musiqueId, $utilisateur->getIdUtilisateur());
+            $likerPDO->ajouterLiker($musiqueId, $utilisateur->getIdUtilisateur());
+        } 
+        else {
+            $likerPDO->supprimerLiker($musiqueId, $utilisateur->getIdUtilisateur());
         }
 
-        // envoie une réponse JSON
-        header('Content-Type: application/json');
-        echo json_encode(['success' => true]);
         exit;
     }
 }
@@ -112,7 +109,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Lavound</title>
     <link rel="stylesheet" href="../static/style/album.css">
 </head>
-<body>
+<!-- Obligé de mettre ce style en dur (pas dans un fichier css car on veut récupérer l'image de l'album actuel) -->
+<style>
+    .sticky {
+        position: sticky;
+        top: 0;
+        z-index: 1000; 
+        background-image: url(<?php echo $image_path; ?>);
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: 10%;
+    }
+</style>
 <body ng-app="app">
 	<section class='global-wrapper' ng-controller="ctrl">
 		<aside>
@@ -211,14 +220,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 }
                             }
                         ?>
-                        <h2 class="nomart"><?php echo $nom_artistes_album; ?></h2>
-                        <p class="desc"><?php echo $album->getTitre(); ?></p>
+                        <h2 class="nomart"><?php echo $album->getTitre(); ?></h2>
+                        <p class="desc"><?php echo $nom_artistes_album; ?></p>
                     </div>
-                    <?php if ($note_album > 0): ?>
-                        <p class="moyenne-album note"><span id="moyenne-note"><?php echo $note_album; ?></span>/5</p>
-                    <?php else: ?>
-                        <p class="moyenne-album note">Aucune note</p>
-                    <?php endif; ?>
+                    <div class="infos">
+                        <?php if ($note_album > 0): ?>
+                            <p class="moyenne-album note"><span id="moyenne-note"><?php echo $note_album; ?></span>/5</p>
+                        <?php else: ?>
+                            <p class="moyenne-album note">Aucune note</p>
+                        <?php endif; ?>
+                        <p id="nbPersonnesNotes">Nombre de notes : <?php echo $nbNote ?></p>
+                        <button class="feedback-btn">Noter cet album</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -226,13 +239,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <table>
                 <tbody>
+                    <tr>
+                        <th>Play</th>
+                        <th>Nom</th>
+                        <th>Artiste</th>
+                        <th>Durée</th>
+                        <th>Nombre de streams</th>
+                        <th>Favoris</th>
+                    </tr>
                     <?php foreach($les_musiques as $musique): ?>
                         <tr>
                             <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
                             <td><?php echo $musique->getNomMusique(); ?></td>
                             <td><?php echo $nom_artistes_album; ?></td>
                             <td><?php echo $musique->getDureeMusique(); ?></td>
-                            <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/fav_noir.png" alt="" width="15" height="15"></button></div></td>
+                            <td><?php echo $musique->getNbStreams(); ?></td>
+                            <?php if (!isset($utilisateur)): ?>
+                                <td class="first"><div class='icon-text'><button id="buttonfav" class="play background" value="<?php echo $musique->getIdMusique(); ?>"><img class="fav" src="../static/images/fav_noir.png" alt="" width="15" height="15"></button></div></td>
+                            <?php else:
+                                // Vérifie si la musique est likée par l'utilisateur connecté
+                                $isLiked = $likerPDO->verifieMusiqueLiker($musique->getIdMusique(), $utilisateur->getIdUtilisateur()); ?>
+                                <!-- Ajoutez la classe "background" si la musique est déjà likée -->
+                                <td class="first"><div class='icon-text'><button id="buttonfav" class="play <?php echo $isLiked ? 'background' : ''; ?>" value="<?php echo $musique->getIdMusique(); ?>"><img class="fav" src="../static/images/<?php echo $isLiked ? "fav_rouge.png" : "fav_noir.png"; ?>" alt="" width="15" height="15"></button></div></td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -242,5 +271,134 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	</main>
 	</section>
 	<script src="../static/script/search.js"></script>
+    <script>
+        // Récupère tous les éléments avec l'ID "like"
+        const likeElements = document.querySelectorAll('#buttonfav');
+
+        // Ajoute un écouteur d'événements à chaque élément
+        likeElements.forEach(likeElement => {
+            likeElement.addEventListener('click', async (event) => {
+                // Vérifie si l'utilisateur est connecté
+                if (!<?php echo isset($utilisateur) ? 'true' : 'false' ?>) {
+                    // Redirige l'utilisateur vers la page de connexion
+                    window.location.href = '/?action=connexion_inscription';
+                    return;
+                }
+
+                const musiqueId = likeElement.value;
+                const isChecked = likeElement.classList.contains('background');
+
+                // Envoie une requête POST à la page actuelle
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        musiqueId,
+                        isChecked,
+                    }),
+                });
+
+                // Appeler la fonction pour mettre à jour l'image
+                updateImageSource(!isChecked, likeElement);
+
+                // Vérifie si la requête a réussi
+                if (response.ok) {
+                    console.log('Like ajouté ou supprimé');
+                    // Ajoute ou supprime la classe "background" selon l'état précédent
+                    likeElement.classList.toggle('background');
+                } else {
+                    console.error('Erreur lors de la requête');
+                }
+            });
+        });
+
+        function updateImageSource(isLiked, buttonElement) {
+            const imgElement = buttonElement.querySelector('.fav');
+            if (isLiked) {
+                imgElement.src = '../static/images/fav_rouge.png';
+            } else {
+                imgElement.src = '../static/images/fav_noir.png';
+            }
+        }
+    </script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const scoreInputs = document.querySelectorAll('.feedback input[name="score"]');
+            const submitBtn = document.querySelector('.submit');
+            const albumId = document.querySelector('.feedback-btn').getAttribute('data-album-id');
+
+            submitBtn.addEventListener('click', async function () {
+                const selectedScore = document.querySelector('.feedback input[name="score"]:checked');
+                if (!selectedScore) {
+                    console.log('Aucune note sélectionnée');
+                    return;
+                }
+                if (!<?php echo isset($utilisateur) ? 'true' : 'false' ?>) {
+                        // Redirige l'utilisateur vers la page de connexion
+                        window.location.href = '/?action=connexion_inscription';
+                        return;
+                    }
+
+                const albumNote = parseInt(selectedScore.value); // Récupération de la note sélectionnée
+                const isChecked = true;
+
+                // Enleve le css des autres boutons et garder celui du bouton cliqué
+                scoreInputs.forEach(input => {
+                    input.nextElementSibling.classList.remove('active-note');
+                });
+
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        albumNote,
+                        isChecked,
+                        albumId,
+                    }),
+                });   
+
+                if (response.ok) {
+                    // Fermez la pop-up
+                    document.querySelector('.modal-note').style.display = 'none';
+                    // Mettre à jour la note moyenne
+                    const moyenneNote = document.querySelector('#moyenne-note');
+                    const nbPersonnesNotes = document.querySelector('#nbPersonnesNotes');
+                    const jsonResponse = await response.json();
+                    const nvMoyenne = jsonResponse.nvMoyenne;
+                    const nbNotes = jsonResponse.nbNotes;
+                    moyenneNote.textContent = nvMoyenne;
+                    nbPersonnesNotes.textContent = "Nombre de personne ayant noter : " + nbNotes;
+                }
+                else {
+                    console.error('Erreur lors de la requête');
+                }    
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+        const scoreInputs = document.querySelectorAll('.feedback input[name="score"]');
+
+        // Ajoute un écouteur d'événements à chaque input de note
+        scoreInputs.forEach(input => {
+            input.addEventListener('change', function () {
+                // enlever le css des autres boutons
+                scoreInputs.forEach(otherInput => {
+                    otherInput.nextElementSibling.classList.remove('active-note');
+                });
+
+                // mettre en surbrillance le bouton sélectionné
+                if (this.checked) {
+                    this.nextElementSibling.classList.add('active-note');
+                }
+            });
+        });
+    });
+    </script>
+    <script src="../static/script/note.js"></script>
 </body>
 </html>

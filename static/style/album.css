@@ -376,16 +376,6 @@ header{
 
 /* top */
 
-.sticky {
-    position: sticky;
-    top: 0;
-    z-index: 1000; 
-    background-image: url(../../images/il-le-fallait.jpg);
-    background-size: cover;
-    background-position: center;
-    width: 100%;
-    height: 10%;
-}
 .top{
     padding: 20px;
     display: flex;
@@ -454,6 +444,9 @@ body{
     padding:1rem;
     border:none;
   }
+  th {
+    font-size: 12px;
+  }
   
   td{
     text-align:center;
@@ -468,6 +461,11 @@ body{
     border-radius: 0rem 1.5rem 1.5rem 0rem;
   
   
+  }
+
+  .title-table > *{
+    font-weight: bold;
+    font-size:medium;
   }
   
   .icon-text{
