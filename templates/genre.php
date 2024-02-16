@@ -117,8 +117,11 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
             <h2>Lavound</h2>
           <div id="search-bar" class="div-top">
           <div class="search-box">
-						<input id="search-input" class="search-input" type="text" placeholder="Rechercher...">
-            <button class="search-button">Go</button>
+            <form method="GET" action="">
+                <input type="hidden" name="action" value="rechercher_requete">
+                <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                <button class="search-button">Go</button>
+            </form>
         </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
       </div>
@@ -190,17 +193,19 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                                 </div>
                                 <div class="modal-content2">
                                     <?php if (!isset($_SESSION["username"])): ?>
-                                        <a href="/?action=connexion_inscription" class="para2"><p>Connectez vous pour choisir une playlist</p></a>
+                                        <a href="/?action=connexion_inscription" class="para2">Connectez vous pour choisir une playlist</a>
                                     <?php else:
                                         $playlists_utilisateur_sans_musique_genre = $playlistPDO->getPlaylistsUtilisateurSansMusiqueByIdMusique($utilisateur_connecte->getIdUtilisateur(), $musique_genre->getIdMusique());
                                         ?>
                                         <?php if (count($playlists_utilisateur) == 0): ?>
-                                            <a href="/?action=playlists_utilisateur" class="para2"><p>Aucune playlist. Créez une nouvelle playlist</p></a>
+                                            <a href="/?action=playlists_utilisateur" class="para2">Aucune playlist. Créez une nouvelle playlist</a>
                                         <?php elseif (count($playlists_utilisateur_sans_musique_genre) == 0): ?>
-                                            <a href="" class="para2"><p>Déjà dans vos playlists</p></a>
+                                            <p class="para2">Déjà dans vos playlists</p>
                                         <?php else: ?>
                                             <?php foreach($playlists_utilisateur_sans_musique_genre as $playlist_utilisateur): ?>
-                                                <a href="/?action=ajouter_playlist&id_musique=<?php echo $musique_genre->getIdMusique(); ?>&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" class="para2"><p><img src="../images/<?php echo ($imagePDO->getImageByIdImage($playlist_utilisateur->getIdImage()))->getImage(); ?>" alt="" width="30" height="30"><?php echo $playlist_utilisateur->getNomPlaylist(); ?></p></a>
+                                                <a href="/?action=ajouter_playlist&id_musique=<?php echo $musique_genre->getIdMusique(); ?>&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" class="para2">
+                                                    <?php echo $playlist_utilisateur->getNomPlaylist(); ?>
+                                                </a>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     <?php endif; ?>
