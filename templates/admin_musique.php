@@ -33,7 +33,7 @@ $les_musiques = $musiquePDO->getMusiques();
 $les_albums = $albumPDO->getAlbums();
 ?>
 <script>
-    function confirmSuppressionArtiste(id_musique) {
+    function confirmSuppressionMusique(id_musique) {
         // Affiche une boîte de dialogue de confirmation
         var confirmation = confirm("Êtes-vous sûr de vouloir supprimer cette musique ?");
         // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
@@ -156,7 +156,6 @@ $les_albums = $albumPDO->getAlbums();
         <div id="container_infos_musique">
             <div>
                 <p>Nom : <?php echo $musique->getNomMusique(); ?></p>
-                
             </div>
             <div>
                 <p>Durée : <?php echo $musique->getDureeMusique(); ?></p>
@@ -166,10 +165,8 @@ $les_albums = $albumPDO->getAlbums();
             </div>
         </div>
         
-        <a href="/?action=musique&id_musique=<?php echo $musique->getIdMusique(); ?>">
-            <button class="view-musique-button">Voir la musique</button>
-        </a>
-        <a href="#" onclick="return confirmSuppressionArtiste(<?php echo $musique->getIdMusique(); ?>)">
+
+        <a href="#" onclick="return confirmSuppressionMusique(<?php echo $musique->getIdMusique(); ?>)">
             <button class="view-musique-button">Supprimer la musique</button>
         </a>
         <!-- Bouton de modification -->
