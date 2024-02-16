@@ -7,6 +7,7 @@ use Modele\modele_bd\GenrePDO;
 use Modele\modele_bd\PlaylistPDO;
 use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\UtilisateurPDO;
+use Modele\modele_bd\LikerPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -22,6 +23,7 @@ $genrePDO = new GenrePDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
 $realiserParPDO = new RealiserParPDO($pdo);
 $utilisateurPDO = new utilisateurPDO($pdo);
+$likerPDO = new LikerPDO($pdo);
 
 // Récupération de l'id de l'album
 $id_genre = intval($_GET['id_genre']);
@@ -39,6 +41,26 @@ if (isset($_SESSION["username"])) {
     $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 }
 $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
+
+// vérifie si la requête est une requête POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Si la clé 'musiqueId' existe dans $_POST, cela signifie que le like pour une musique est envoyé
+    if (isset($_POST['musiqueId'])) {
+        // Récupère les données de la requête
+        $musiqueId = intval($_POST['musiqueId']);
+        $isChecked = $_POST['isChecked'] === 'false';
+
+        // ajoute ou supprime le like
+        if ($isChecked) {
+            $likerPDO->ajouterLiker($musiqueId, $utilisateur_connecte->getIdUtilisateur());
+        } 
+        else {
+            $likerPDO->supprimerLiker($musiqueId, $utilisateur_connecte->getIdUtilisateur());
+        }
+
+        exit;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -178,10 +200,19 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
                                 <p class="song2"><?php echo $musique_genre->getNomMusique(); ?></p>
                             </div>
                         </div>
+                        <?php // Vérifie si la musique est likée par l'utilisateur connecté
+                        $isLiked = $likerPDO->verifieMusiqueLiker($musique_genre->getIdMusique(), $utilisateur_connecte->getIdUtilisateur()); ?>
                         <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
+                        <?php if (isset($utilisateur_connecte)): ?>
+                            <!-- Ajoutez la classe "background" si la musique est déjà likée -->
+                            <button id="buttonfav" <?php echo $isLiked ? 'class="background"' : ''; ?> onclick="toggleBackgroundColor()" value="<?php echo $musique_genre->getIdMusique(); ?>">
+                                <img class="fav" src="../static/images/<?php echo $isLiked ? "fav_rouge.png" : "fav_noir.png"; ?>" alt="">
+                            </button>
+                        <?php else: ?>
+                            <button id="buttonfav" onclick="toggleBackgroundColor()" value="<?php echo $musique_genre->getIdMusique(); ?>">
+                                <img class="fav" src="../static/images/fav_noir.png" alt="">
+                            </button>
+                        <?php endif; ?>
                         <button class="buttonadd open-modal-btn2">
                             <img class="add" src="../static/images/add.png" alt="">
                         </button>
@@ -281,10 +312,61 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
     </div>   
 	</main>
 	</section>
-    <script src="../static/script/fav.js"></script>
     <script src="../static/script/genre3.js"></script>
     <script src="../static/script/genre2.js"></script>
     <script src="../static/script/genre.js"></script>
 	<script src="../static/script/search.js"></script>
+    <script>
+        // Récupère tous les éléments avec l'ID "like"
+        const likeElements = document.querySelectorAll('#buttonfav');
+
+        // Ajoute un écouteur d'événements à chaque élément
+        likeElements.forEach(likeElement => {
+            likeElement.addEventListener('click', async (event) => {
+                // Vérifie si l'utilisateur est connecté
+                if (!<?php echo isset($utilisateur_connecte) ? 'true' : 'false' ?>) {
+                    // Redirige l'utilisateur vers la page de connexion
+                    window.location.href = '/?action=connexion_inscription';
+                    return;
+                }
+
+                const musiqueId = likeElement.value;
+                const isChecked = likeElement.classList.contains('background');
+
+                // Envoie une requête POST à la page actuelle
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        musiqueId,
+                        isChecked,
+                    }),
+                });
+
+                // Appeler la fonction pour mettre à jour l'image
+                updateImageSource(!isChecked, likeElement);
+
+                // Vérifie si la requête a réussi
+                if (response.ok) {
+                    console.log('Like ajouté ou supprimé');
+                    // Ajoute ou supprime la classe "background" selon l'état précédent
+                    likeElement.classList.toggle('background');
+                } else {
+                    console.error('Erreur lors de la requête');
+                }
+            });
+        });
+
+        function updateImageSource(isLiked, buttonElement) {
+            const imgElement = buttonElement.querySelector('.fav');
+            if (isLiked) {
+                imgElement.src = '../static/images/fav_rouge.png';
+            } else {
+                imgElement.src = '../static/images/fav_noir.png';
+            }
+        }
+    </script>
 </body>
 </html>
