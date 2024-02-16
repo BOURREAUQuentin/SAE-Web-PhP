@@ -6,26 +6,12 @@
   --dark-purple: #1A1832;
   --light-purple: #7A58F4;
 }
-img {
-  display: block;
-  max-width: 100%;
-}
 button {
   background: transparent;
   border: none;
   font-family: inherit;
   color: inherit;
   cursor: pointer;
-}
-body {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  margin: 0;
-  color: #333;
-  font-family: 'Inter', sans-serif;
 }
 .feedback-btn {
   background-color: var(--dark-purple);
@@ -39,7 +25,7 @@ body {
 .feedback-btn:hover {
   opacity: 0.9;
 }
-.modal {
+.modal-note {
   display: none;
   position: fixed;
   top: 50%;
@@ -55,18 +41,18 @@ body {
   transition: 0.2s;
   z-index: 100;
 }
-.modal.show {
+.modal-note.show {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
-.modal .close {
+.modal-note .close-note {
   margin-inline-start: auto;
   width: 20px;
   height: 20px;
   display: block;
   cursor: pointer;
 }
-.modal .title {
+.modal-note .title-note {
   text-align: center;
   font-size: 1.3rem;
   font-weight: 700;
@@ -93,10 +79,10 @@ body {
   content: 'Très bon';
   inset-inline-end: 0;
 }
-.modal .score > input {
+.modal-note .score > input {
   display: none;
 }
-.modal .score label {
+.modal-note .score label {
   display: grid;
   place-items: center;
   width: 40px;
@@ -109,41 +95,41 @@ body {
   box-shadow: 0 10px 25px -15px #111628;
   cursor: pointer;
 }
-.modal .score > input:checked + label {
+.modal-note .score > input:checked + label {
   background-color: var(--light-purple);
 }
-.modal .score > input:not(:checked) + label:hover {
+.modal-note .score > input:not(:checked) + label:hover {
   background-color: var(--light-purple);
 }
-.active{
+.active-note{
   background-color: var(--light-purple);
 }
-.modal .options {
+.modal-note .options {
   display: flex;
   justify-content: space-between;
   margin: 30px 0 0;
 }
-.modal .options > button {
+.modal-note .options > button {
   width: 120px;
   padding: 10px 0;
   border-radius: 5px;
   font-weight: 500;
   font-size: 0.875rem;
 }
-.modal .cancel {
+.modal-note .cancel {
   background-color: var(--dark-purple);
   border: 1px solid var(--light-purple);
   transition: background-color 0.2s;
 }
-.modal .cancel:hover {
+.modal-note .cancel:hover {
   background-color: var(--light-purple);
   opacity: 0.9;
 }
-.modal .submit {
+.modal-note .submit {
   background-color: var(--light-purple);
   border: 1px solid var(--dark-purple);
   transition: opacity 0.2s;
 }
-.modal .submit:hover {
+.modal-note .submit:hover {
   opacity: 0.9
 }
