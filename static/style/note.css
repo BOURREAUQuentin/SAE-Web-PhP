@@ -6,10 +6,6 @@
   --dark-purple: #1A1832;
   --light-purple: #7A58F4;
 }
-img {
-  display: block;
-  max-width: 100%;
-}
 button {
   background: transparent;
   border: none;

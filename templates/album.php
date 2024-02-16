@@ -107,7 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lavound</title>
+    <link rel="stylesheet" href="../static/style/son.css">
     <link rel="stylesheet" href="../static/style/album.css">
+    <link rel="stylesheet" href="../static/style/note.css">
 </head>
 <!-- Obligé de mettre ce style en dur (pas dans un fichier css car on veut récupérer l'image de l'album actuel) -->
 <style>
@@ -120,6 +122,131 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-position: center;
         width: 100%;
         height: 10%;
+    }
+
+    .player .control-panel {
+        position: relative;
+        background-color: #fff;
+        border-radius: 15px;
+        width: 435px;
+        height: 80px;
+        z-index: 5;
+        box-shadow: 0px 20px 20px 5px rgba(132, 132, 132, 0.3);
+        
+        .album-art {
+            position: absolute;
+            left: 20px;
+            top: -15px;
+            height: 80px;
+            width: 80px;
+            border-radius: 50%;
+            box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0);
+            transform: scale(1);
+            transition: all .5s ease;
+    
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 15px;
+                height: 15px;
+                background-color: #fff;
+                border-radius: 50%;
+                z-index: 5;
+                transform: translate(-50%, -50%);
+                -webkit-transform: translate(-50%, -50%);
+            }
+            
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 50%;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: 80px;
+                background-image: 	url('<?php echo $image_path; ?>');
+            }
+        }
+        
+        &.active .album-art {
+            box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.2);
+            transform: scale(1.2);
+            transition: all .5s ease;
+        }
+        
+        &.active .album-art::before {
+            animation: rotation 3s infinite linear;
+            -webkit-animation: rotation 3s infinite linear;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            height: 80px;
+            padding: 0 15px;
+            
+            .prev, 
+            .play, 
+            .next,
+            .restart {
+                width: 55px;
+                height: auto;
+                border-radius: 10px;
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-size: 20px;
+                margin: 5px 0;
+                background-color: #fff;
+                cursor: pointer;
+                transition: background-color .3s ease;
+                -webkit-transition: background-color .3s ease;
+            }
+            
+            .prev:hover, 
+            .play:hover, 
+            .next:hover,
+            .restart:hover {
+                background-color: #eee;
+                transition: background-color .3s ease;
+                -webkit-transition: background-color .3s ease;
+            }
+            
+            .prev {
+                background-image: url("../static/images/previous.png");
+            }
+            
+            .play {
+                background-image: url("../static/images/play.png");
+            }
+            
+            .next {
+                background-image: url("../static/images/next.png")
+            }
+
+            .restart {
+                background-image: url("../static/images/restart.png");
+            }
+        }
+        
+        &.active .controls .play {
+            background-image: url("../static/images/pause.png")
+        }
     }
 </style>
 <body ng-app="app">
@@ -232,6 +359,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p id="nbPersonnesNotes">Nombre de notes : <?php echo $nbNote ?></p>
                         <button class="feedback-btn">Noter cet album</button>
                     </div>
+                    <div class="modal-note" style="display:none;">
+                        <button class="close-note"></button>
+                        <h3 class="title-note">Avez-vous aimé cet album ?</h3>
+                        <form action="" class="feedback">
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <div class="score">
+                                <?php if (!isset($utilisateur) || $utilisteur_a_noteer==$i): ?>
+                                    <input  id="score<?php echo $i ?>" type="radio" value="<?php echo $i ?>" name="score">
+                                    <label class="active-note" for="score<?php echo $i ?>"><?php echo $i ?></label>
+                                <?php else: ?>
+                                    <input id="score<?php echo $i ?>" type="radio" value="<?php echo $i ?>" name="score">
+                                    <label for="score<?php echo $i ?>"><?php echo $i ?></label>
+                                <?php endif; ?>
+                            </div>
+                        <?php endfor; ?>
+                        </form>
+                        <div class="options">
+                            <button class="cancel" type="button">Annuler</button>
+                            <button class="submit" type="submit" data-album-id="<?php echo $id_album; ?>">Confirmer</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -267,6 +415,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </tbody>
                 </table>
             </div>
+        </div>
+        <div class="lecteur">
+            <div class="player">
+                <div id="info" class="info">
+                    <span class="name"></span>
+                    <span class="artist"><?php echo ($les_artistes[0])->getNomArtiste(); ?></span>
+                    <div class="progress-bar">
+                        <div class="bar">
+                            <audio id="audio" controls style="display: none;">
+                            <source src="" type="audio/mp3">
+                            Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                </div>
+                <div id="control-panel" class="control-panel">
+                    <div class="album-art"></div>
+                    <div class="controls">
+                        <div class="duration">
+                            <div>
+                                <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+                                <div>
+                                    <label for="volume-slider" class="volume-label">Volume</label>
+                                    <input type="range" id="volume-slider" min="0" max="100" step="1" value="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="prev" class="prev"></div>
+                        <div id="play" class="play"></div>
+                        <div id="next" class="next"></div>
+                        <div id="restart" class="restart"></div>
+                    </div>
+                </div>
+            </div>
+            <ul id="file-attente"></ul>
         </div>
 	</main>
 	</section>
@@ -372,7 +555,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const nvMoyenne = jsonResponse.nvMoyenne;
                     const nbNotes = jsonResponse.nbNotes;
                     moyenneNote.textContent = nvMoyenne;
-                    nbPersonnesNotes.textContent = "Nombre de personne ayant noter : " + nbNotes;
+                    nbPersonnesNotes.textContent = "Nombre de notes : " + nbNotes;
                 }
                 else {
                     console.error('Erreur lors de la requête');
@@ -400,5 +583,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     });
     </script>
     <script src="../static/script/note.js"></script>
+    <script>
+        // Injecter les données JSON dans une variable JavaScript
+        const musiques = <?php echo $musiques_json; ?>;
+        // Injecter les données JSON dans une variable JavaScript
+        const id_musiques = <?php echo $id_musiques_json; ?>;
+    </script>
+    <script src="../static/script/son.js"></script>
 </body>
 </html>
