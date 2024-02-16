@@ -105,6 +105,23 @@ $les_artistes = $artistePDO->getArtistes();
         h1{
             color: #ffffff;
         }
+        #container_infos_artiste {
+            width: 70%; /* Set a fixed width for the container (adjust as needed) */
+            margin: 0 auto; /* Center the container */
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        #container_infos_artiste > div {
+            flex: 1; /* Equal width for each block */
+            padding: 10px;
+            text-align: left;
+        }
+
+        #container_infos_artiste p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -127,7 +144,11 @@ $les_artistes = $artistePDO->getArtistes();
     ?>
     <div class="artiste-container">
         <img class="artiste-image" src="<?php echo $image_path ?>" alt="Image de l'artiste <?php echo $artiste->getNomArtiste(); ?>"/>
-        <p>Nom : <?php echo $artiste->getNomArtiste(); ?></p>
+        <div id="container_infos_artiste">
+            <div>
+                <p>Nom : <?php echo $artiste->getNomArtiste(); ?></p>
+            </div>
+        </div>
         <a href="/?action=artiste&id_artiste=<?php echo $artiste->getIdArtiste(); ?>">
             <button class="view-artiste-button">Voir l'artiste</button>
         </a>
@@ -136,7 +157,7 @@ $les_artistes = $artistePDO->getArtistes();
             <button class="view-artiste-button">Supprimer l'artiste</button>
         </a>
         <!-- Bouton de modification -->
-        <button class="view-album-button" onclick="showEditForm(<?php echo $artiste->getIdArtiste(); ?>)">Modifier l'artiste</button>
+        <button class="view-artiste-button" onclick="showEditForm(<?php echo $artiste->getIdArtiste(); ?>)">Modifier l'artiste</button>
         <!-- Formulaire de modification -->
         <form id="editForm_<?php echo $artiste->getIdArtiste(); ?>" style="display: none;" action="/?action=modifier_artiste&id_artiste=<?php echo $artiste->getIdArtiste() ?>" method="post">
             <input type="hidden" name="id_artiste" value="<?php echo $artiste->getIdArtiste() ?>">

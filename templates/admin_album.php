@@ -98,7 +98,7 @@ $les_artistes = $artistePDO->getArtistes();
 
         .album-image {
             width: 10%;
-            height: auto;
+            height: 187px;
         }
 
         .view-album-button {
@@ -109,6 +109,24 @@ $les_artistes = $artistePDO->getArtistes();
             border: none;
             border-radius: 5px;
             cursor: pointer;
+        }
+
+        #container_infos_album {
+            width: 70%; /* Set a fixed width for the container (adjust as needed) */
+            margin: 0 auto; /* Center the container */
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        #container_infos_album > div {
+            flex: 1; /* Equal width for each block */
+            padding: 10px;
+            text-align: left;
+        }
+
+        #container_infos_album p {
+            margin: 0;
         }
     </style>
 </head>
@@ -146,9 +164,17 @@ $les_artistes = $artistePDO->getArtistes();
     ?>
     <div class="album-container">
     <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
-        <p>Titre : <?php echo $album->getTitre(); ?></p>
-        <p>Année de sortie : <?php echo $album->getAnneeSortie(); ?></p>
-        <p><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
+        <div id="container_infos_album">
+            <div>
+                <p>Titre : <?php echo $album->getTitre(); ?></p>
+            </div>
+            <div>
+                <p>Année de sortie : <?php echo $album->getAnneeSortie(); ?></p>
+            </div>
+            <div>
+                <p><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
+            </div>
+        </div>
         <a href="/?action=album&id_album=<?php echo $album->getIdAlbum(); ?>">
             <button class="view-album-button">Voir l'album</button>
         </a>
