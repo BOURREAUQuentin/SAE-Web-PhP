@@ -58,6 +58,7 @@ if (isset($_SESSION["username"])) {
 }
 $utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
+$nbNote = $noterPDO->getNbPersonneAyantNote($id_album);
 
 // vérifie si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -75,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         // envoie une réponse JSON
         header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'nvMoyenne' => $noterPDO->getMoyenneNoteByIdAlbum($id_album)]);
+        echo json_encode(['success' => true, 'nvMoyenne' => $noterPDO->getMoyenneNoteByIdAlbum($id_album),'nbNotes' => $noterPDO->getNbPersonneAyantNote($id_album)]);
         exit;
     }
 
@@ -386,8 +387,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($note_album > 0): ?>
         <p class="moyenne-album">Note moyenne de l'album : <span id="moyenne-note"><?php echo $note_album; ?></span></p>
     <?php else: ?>
-        <p class="moyenne-album">Pas de note</p>
+        <p class="moyenne-album">Note moyenne de l'album : <span id="moyenne-note">Pas de note</span></p>
     <?php endif; ?>
+    <p id="nbPersonnesNotes">Nombre de personne ayant noter : <?php echo $nbNote ?></p>
 
     </div>
     <button class="feedback-btn">
@@ -604,11 +606,12 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelector('.modal').style.display = 'none';
             // Mettre à jour la note moyenne
             const moyenneNote = document.querySelector('#moyenne-note');
-            console.log(response);
+            const nbPersonnesNotes = document.querySelector('#nbPersonnesNotes');
             const jsonResponse = await response.json();
             const nvMoyenne = jsonResponse.nvMoyenne;
-            console.log(nvMoyenne);
+            const nbNotes = jsonResponse.nbNotes;
             moyenneNote.textContent = nvMoyenne;
+            nbPersonnesNotes.textContent = "Nombre de personne ayant noter : " + nbNotes;
 
 
         } else {

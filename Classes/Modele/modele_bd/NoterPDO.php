@@ -185,4 +185,27 @@ class NoterPDO
             var_dump($e->getMessage());
         }
     }
+
+    /**
+     * Nombre de personne ayant noté un album.
+     * 
+     * @param int $id_album L'identifiant de l'album pour lequel supprimer la note.
+     */
+    public function getNbPersonneAyantNote(int $id_album): int
+    {
+        $requete_nb_personne_ayant_note = <<<EOF
+        select count(id_utilisateur) as nbPersonne from NOTER where id_album = :id_album;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_nb_personne_ayant_note);
+            $stmt->bindParam("id_album", $id_album, PDO::PARAM_INT);
+            $stmt->execute();
+            $resultat = $stmt->fetch();
+            return $resultat['nbPersonne'];
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return 0;
+        }
+    }
 }
