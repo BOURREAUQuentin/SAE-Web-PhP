@@ -90,6 +90,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         h1{
             color: #ffffff;
         }
+
+        #container_infos_genre {
+            width: 70%; /* Set a fixed width for the container (adjust as needed) */
+            margin: 0 auto; /* Center the container */
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        #container_infos_genre > div {
+            flex: 1; /* Equal width for each block */
+            padding: 10px;
+            text-align: left;
+        }
+
+        #container_infos_genre p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -108,7 +126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <h1>Listes des genres</h1>
 <?php foreach ($les_genres as $genre): ?>
     <div class="genre-container">
-        <p>Nom : <?php echo $genre->getNomGenre(); ?></p>
+        <div id="container_infos_genre">
+            <div>
+                <p>Nom : <?php echo $genre->getNomGenre(); ?></p>
+            </div>
+        </div>
+        
         <a href="/?action=genre&id_genre=<?php echo $genre->getIdGenre(); ?>">
             <button class="view-genre-button">Voir le genre</button>
         </a>

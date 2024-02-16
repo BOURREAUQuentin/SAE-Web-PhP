@@ -103,6 +103,24 @@ $les_albums = $albumPDO->getAlbums();
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #container_infos_musique {
+            width: 70%; /* Set a fixed width for the container (adjust as needed) */
+            margin: 0 auto; /* Center the container */
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        #container_infos_musique > div {
+            flex: 1; /* Equal width for each block */
+            padding: 10px;
+            text-align: left;
+        }
+
+        #container_infos_musique p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -135,9 +153,19 @@ $les_albums = $albumPDO->getAlbums();
     ?>
     <div class="musique-container">
         <img class="musique-image" src="<?php echo $image_path ?>" alt="Image de la musique <?php echo $musique->getNomMusique(); ?>"/>
-        <p>Nom : <?php echo $musique->getNomMusique(); ?></p>
-        <p>Durée : <?php echo $musique->getDureeMusique(); ?></p>
-        <p>Nom album : <?php echo ($albumPDO->getAlbumByIdAlbum($musique->getIdAlbum()))->getTitre(); ?></p>
+        <div id="container_infos_musique">
+            <div>
+                <p>Nom : <?php echo $musique->getNomMusique(); ?></p>
+                
+            </div>
+            <div>
+                <p>Durée : <?php echo $musique->getDureeMusique(); ?></p>
+            </div>
+            <div>
+                <p>Nom album : <?php echo ($albumPDO->getAlbumByIdAlbum($musique->getIdAlbum()))->getTitre(); ?></p>
+            </div>
+        </div>
+        
         <a href="/?action=musique&id_musique=<?php echo $musique->getIdMusique(); ?>">
             <button class="view-musique-button">Voir la musique</button>
         </a>

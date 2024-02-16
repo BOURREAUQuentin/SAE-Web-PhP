@@ -97,6 +97,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #container_infos_utilisateur {
+            width: 70%; /* Set a fixed width for the container (adjust as needed) */
+            margin: 0 auto; /* Center the container */
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        #container_infos_utilisateur > div {
+            flex: 1; /* Equal width for each block */
+            padding: 10px;
+            text-align: left;
+        }
+
+        #container_infos_utilisateur p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -116,9 +134,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <h1>Listes des utilisateurs</h1>
 <?php foreach ($les_utilisateurs_non_admin as $utilisateur_non_admin): ?>
     <div class="utilisateur-container">
-        <p>Nom d'utilisateur : <?php echo $utilisateur_non_admin->getNomUtilisateur(); ?></p>
-        <p>Mail utilisateur : <?php echo $utilisateur_non_admin->getMailUtilisateur(); ?></p>
-        <p>Mot de passe : <?php echo $utilisateur_non_admin->getMdp(); ?></p>
+    <div id="container_infos_utilisateur">
+            <div>
+            <p>Nom d'utilisateur : <?php echo $utilisateur_non_admin->getNomUtilisateur(); ?></p>
+
+            </div>
+            <div>
+            <p>Mail utilisateur : <?php echo $utilisateur_non_admin->getMailUtilisateur(); ?></p>
+
+            </div>
+            <div>
+            <p>Mot de passe : <?php echo $utilisateur_non_admin->getMdp(); ?></p>
+            </div>
+        </div>
+        
         <a href="#" onclick="return confirmSuppressionUtilisateur(<?php echo $utilisateur_non_admin->getIdUtilisateur(); ?>)">
             <button class="view-utilisateur-button">Supprimer l'utilisateur</button>
         </a>
