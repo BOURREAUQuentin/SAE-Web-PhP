@@ -5,6 +5,7 @@ use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\MusiquePDO;
 use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\RealiserParPDO;
+use Modele\modele_bd\PlaylistPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -18,6 +19,7 @@ $artistePDO = new ArtistePDO($pdo);
 $musiquePDO = new MusiquePDO($pdo);
 $utilisateurPDO = new utilisateurPDO($pdo);
 $realiserParPDO = new RealiserParPDO($pdo);
+$playlistPDO = new PlaylistPDO($pdo);
 
 // récupération de l'utilisateur connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -25,7 +27,9 @@ $est_admin = false;
 if (isset($_SESSION["username"])) {
     $nom_utilisateur_connecte = $_SESSION["username"];
     $est_admin = ($utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte))->isAdmin();
+    $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 }
+$playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 
 // Récupération de la recherche
 $intitule_recherche = $_GET['intitule_recherche'];
@@ -110,14 +114,17 @@ $les_artistes_recherche = $artistePDO->getArtistesByRecherche($intitule_recherch
             <h2>Lavound</h2>
           <div id="search-bar" class="div-top">
           <div class="search-box">
-						<input id="search-input" class="search-input" type="text" placeholder="Rechercher...">
-            <button class="search-button">Go</button>
+            <form method="GET" action="">
+                <input type="hidden" name="action" value="rechercher_requete">
+                <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                <button class="search-button">Go</button>
+            </form>
         </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
       </div>
       <div></div>
         </header>
-            <h2 class="titre-genre"><?php echo $intitule_recherche; ?></h2>
+            <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?></h2>
                 <!-- genres -->
             <div class="center-part">
             <h3 class="T-part">Les Albums</h3>
@@ -182,9 +189,23 @@ $les_artistes_recherche = $artistePDO->getArtistesByRecherche($intitule_recherch
                                     <button class="close-modal-btn2">&times;</button>
                                 </div>
                                 <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
+                                    <?php if (!isset($_SESSION["username"])): ?>
+                                        <a href="/?action=connexion_inscription" class="para2">Connectez vous pour choisir une playlist</a>
+                                    <?php else:
+                                        $playlists_utilisateur_sans_musique_recherche = $playlistPDO->getPlaylistsUtilisateurSansMusiqueByIdMusique($utilisateur_connecte->getIdUtilisateur(), $musique_recherche->getIdMusique());
+                                        ?>
+                                        <?php if (count($playlists_utilisateur) == 0): ?>
+                                            <a href="/?action=playlists_utilisateur" class="para2">Aucune playlist. Créez une nouvelle playlist</a>
+                                        <?php elseif (count($playlists_utilisateur_sans_musique_recherche) == 0): ?>
+                                            <p class="para2">Déjà dans vos playlists</p>
+                                        <?php else: ?>
+                                            <?php foreach($playlists_utilisateur_sans_musique_recherche as $playlist_utilisateur): ?>
+                                                <a href="/?action=ajouter_playlist&id_musique=<?php echo $musique_recherche->getIdMusique(); ?>&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" class="para2">
+                                                    <?php echo $playlist_utilisateur->getNomPlaylist(); ?>
+                                                </a>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
