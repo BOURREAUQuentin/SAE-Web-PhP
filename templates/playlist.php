@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <th>Artiste</th>
                             <th>Durée</th>
                             <th>Nombre de streams</th>
-                            <th>Favoris</th>
+                            <th>Favori</th>
                             <th>Enlever</th>
                         </tr>
                         <?php foreach($musiques_playlist as $musique_playlist): 
@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <!-- Ajoutez la classe "background" si la musique_playlist est déjà likée -->
                                     <td class="first"><div class='icon-text'><button id="buttonfav" class="play <?php echo $isLiked ? 'background' : ''; ?>" value="<?php echo $musique_playlist->getIdMusique(); ?>"><img class="fav" src="../static/images/<?php echo $isLiked ? "fav_rouge.png" : "fav_noir.png"; ?>" alt="" width="15" height="15"></button></div></td>
                                 <?php endif; ?>
-                                <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
+                                <td class="first"><div class='icon-text'><a href="/?action=supprimer_musique_playlist&id_musique=<?php echo $musique_playlist->getIdMusique(); ?>&id_playlist=<?php echo $id_playlist; ?>"><button class="play" ><img src="../static/images/croix.png" alt="" width="15" height="15"></button></a></div></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
