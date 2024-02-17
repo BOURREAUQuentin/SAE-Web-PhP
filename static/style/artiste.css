@@ -295,7 +295,7 @@ header{
   color: white;
 }
 
-.song{
+.song2{
   display: flex;
   justify-content: center;
   padding-top: 120px;
@@ -634,7 +634,7 @@ header{
   align-items: center;
   justify-content: center;
   margin-bottom: 0;
-
+  margin: 50px auto;
 }
 .buttons{
   display: flex;

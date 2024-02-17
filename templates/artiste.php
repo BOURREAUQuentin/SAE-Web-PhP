@@ -3,6 +3,9 @@ use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\RealiserParPDO;
+use Modele\modele_bd\LikerPDO;
+use Modele\modele_bd\MusiquePDO;
+use Modele\modele_bd\PlaylistPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -14,6 +17,9 @@ $artistePDO = new ArtistePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
 $realiserParPDO = new RealiserParPDO($pdo);
+$likerPDO = new LikerPDO($pdo);
+$musiquePDO = new MusiquePDO($pdo);
+$playlistPDO = new PlaylistPDO($pdo);
 
 // Récupération de l'id de l'artiste
 $id_artiste = intval($_GET['id_artiste']);
@@ -32,6 +38,27 @@ if (isset($_SESSION["username"])) {
 }
 $liste_albums = $artistePDO->getAlbumsByIdArtiste($id_artiste);
 $liste_musiques = $artistePDO->getMusiquesByIdArtiste($id_artiste);
+$playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
+
+// vérifie si la requête est une requête POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Si la clé 'musiqueId' existe dans $_POST, cela signifie que le like pour une musique est envoyé
+    if (isset($_POST['musiqueId'])) {
+        // Récupère les données de la requête
+        $musiqueId = intval($_POST['musiqueId']);
+        $isChecked = $_POST['isChecked'] === 'false';
+
+        // ajoute ou supprime le like
+        if ($isChecked) {
+            $likerPDO->ajouterLiker($musiqueId, $utilisateur_connecte->getIdUtilisateur());
+        } 
+        else {
+            $likerPDO->supprimerLiker($musiqueId, $utilisateur_connecte->getIdUtilisateur());
+        }
+
+        exit;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -155,12 +182,14 @@ $liste_musiques = $artistePDO->getMusiquesByIdArtiste($id_artiste);
                         <div class="disc-container">
                             <a href="/?action=album&id_album=<?php echo $album->getIdAlbum(); ?>">
                                 <div class="cover"><img src="../images/<?php echo $image_path_album; ?>" alt="" width="220" height="220"></div>
-                                <div class="cd"><p class="art-name"><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album->getIdAlbum()))[0]))->getNomArtiste(); ?></p><p class="song"><?php echo $album->getTitre(); ?></p></div>
+                                <div class="cd">
+                                    <p class="art-name"><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
+                                    <p class="song2"><?php echo $album->getTitre(); ?></p></div>
                             </a>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p>Aucun album disponible</p>
+                    <p>Aucun album de <?php echo $artiste->getNomArtiste(); ?></p>
                 <?php endif; ?>
             </div>
             <button class="btn" id="buttonVoirPlus">
@@ -168,17 +197,37 @@ $liste_musiques = $artistePDO->getMusiquesByIdArtiste($id_artiste);
                 </span>
                 <span class="text" id="voir">Voir plus</span>
             </button>
-            <!-- <h3 class="T-part">Les Sons</h3>
+            <h3 class="T-part">Les Sons</h3>
             <div class="album">
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
+                <?php if (!empty($liste_musiques)): ?>
+                    <?php foreach ($liste_musiques as $musique):
+                    $id_image_musique = $musiquePDO->getIdImageByIdMusique($musique->getIdMusique());
+                    $image_musique = $imagePDO->getImageByIdImage($id_image_musique);
+                    $image_path_musique = $image_musique->getImage() ? "../images/" . $image_musique->getImage() : '../images/default.jpg';
+                    ?>
+                    <div class="song">
+                        <div class="disc-container2">
+                            <div class="cover">
+                                <img src="../images/<?php echo $image_path_musique; ?>" alt="Image de la musique <?php echo $musique->getNomMusique(); ?>" width="220" height="220">
+                            </div>
+                            <div class="cd">
+                                <p class="art-name"><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($musique->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
+                                <p class="song2"><?php echo $musique->getNomMusique(); ?></p>
+                            </div>
+                        </div>
+                        <div class="buttons">
+                        <?php if (!isset($utilisateur_connecte)): ?>
+                            <button id="buttonfav" value="<?php echo $musique->getIdMusique(); ?>">
+                                <img class="fav" src="../static/images/fav_noir.png" alt="">
+                            </button>
+                        <?php else:
+                            // Vérifie si la musique est likée par l'utilisateur connecté
+                            $isLiked = $likerPDO->verifieMusiqueLiker($musique->getIdMusique(), $utilisateur_connecte->getIdUtilisateur()); ?>
+                            <!-- Ajoutez la classe "background" si la musique est déjà likée -->
+                            <button id="buttonfav" <?php echo $isLiked ? 'class="background"' : ''; ?> value="<?php echo $musique->getIdMusique(); ?>">
+                                <img class="fav" src="../static/images/<?php echo $isLiked ? "fav_rouge.png" : "fav_noir.png"; ?>" alt="">
+                            </button>
+                        <?php endif; ?>
                         <button class="buttonadd open-modal-btn2">
                             <img class="add" src="../static/images/add.png" alt="">
                         </button>
@@ -189,290 +238,40 @@ $liste_musiques = $artistePDO->getMusiquesByIdArtiste($id_artiste);
                                     <button class="close-modal-btn2">&times;</button>
                                 </div>
                                 <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
+                                    <?php if (!isset($_SESSION["username"])): ?>
+                                        <a href="/?action=connexion_inscription" class="para2">Connectez vous pour choisir une playlist</a>
+                                    <?php else:
+                                        $playlists_utilisateur_sans_musique = $playlistPDO->getPlaylistsUtilisateurSansMusiqueByIdMusique($utilisateur_connecte->getIdUtilisateur(), $musique->getIdMusique());
+                                        ?>
+                                        <?php if (count($playlists_utilisateur) == 0): ?>
+                                            <a href="/?action=playlists_utilisateur" class="para2">Aucune playlist. Créez une nouvelle playlist</a>
+                                        <?php elseif (count($playlists_utilisateur_sans_musique) == 0): ?>
+                                            <p class="para2">Déjà dans vos playlists</p>
+                                        <?php else: ?>
+                                            <?php foreach($playlists_utilisateur_sans_musique as $playlist_utilisateur): ?>
+                                                <a href="/?action=ajouter_playlist&id_musique=<?php echo $musique->getIdMusique(); ?>&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" class="para2">
+                                                    <?php echo $playlist_utilisateur->getNomPlaylist(); ?>
+                                                </a>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
                     </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="song">
-                    <div class="disc-container2">
-                        <div class="cover"><img src="../static/images/500x500.jpg" alt="" width="220" height="220"></div>
-                        <div class="cd"><p class="art-name">Fave</p><p class="song">Il le fallait</p></div>
-                    </div>
-                    <div class="buttons">
-                        <button id="buttonfav" onclick="toggleBackgroundColor()">
-                            <img class="fav" src="../static/images/fav.png" alt="">
-                        </button>
-                        <button class="buttonadd open-modal-btn2">
-                            <img class="add" src="../static/images/add.png" alt="">
-                        </button>
-                        <div class="modal-overlay2">
-                            <div class="modal2">
-                                <div class="modal-header2">
-                                    <h2>Playlists</h2>
-                                    <button class="close-modal-btn2">&times;</button>
-                                </div>
-                                <div class="modal-content2">
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 1</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                    <a href="" class="para2"><p><img src="../static/images/playlist.jpg" alt="" width="30" height="30">Playlist 2</p></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>Aucune musique de <?php echo $artiste->getNomArtiste(); ?></p>
+                <?php endif; ?>
             </div>
-            <button class="btn btn2" id="buttonVoirPlus2">
-                <span class="icon" id="icon2">+</span>
-                </span>
-                <span class="text" id="voir2">Voir plus</span>
-            </button>  -->
+            <?php if (!empty($liste_musiques)): ?>
+                <button class="btn btn2" id="buttonVoirPlus2">
+                    <span class="icon" id="icon2">+</span>
+                    </span>
+                    <span class="text" id="voir2">Voir plus</span>
+                </button>
+            <?php endif; ?>
 		</main>
 
 	</section>
