@@ -40,6 +40,17 @@ else{
 }
 $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 
+$file_attente_sons = array();
+$id_musique_file_attente_sons = array();
+foreach ($musiques_playlist as $musique_playlist){
+    array_push($file_attente_sons, $musique_playlist->getSonMusique());
+    array_push($id_musique_file_attente_sons, $musique_playlist->getIdMusique());
+}
+// Récupérer les musiques et les encoder en JSON
+$musiques_playlist_json = json_encode($file_attente_sons);
+// Récupérer les id_musiques et les encoder en JSON
+$id_musiques_playlist_json = json_encode($id_musique_file_attente_sons);
+
 // vérifie si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si la clé 'musiqueId' existe dans $_POST, cela signifie que le like pour une musique est envoyé
@@ -67,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lavound</title>
+    <link rel="stylesheet" href="../static/style/son.css">
     <link rel="stylesheet" href="../static/style/playlist.css">
 </head>
 <!-- Obligé de mettre ce style en dur (pas dans un fichier css car on veut récupérer l'image de l'album actuel) -->
@@ -80,6 +92,131 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-position: center;
         width: 100%;
         height: 10%;
+    }
+
+    .player .control-panel {
+        position: relative;
+        background-color: #fff;
+        border-radius: 15px;
+        width: 435px;
+        height: 80px;
+        z-index: 5;
+        box-shadow: 0px 20px 20px 5px rgba(132, 132, 132, 0.3);
+        
+        .album-art {
+            position: absolute;
+            left: 20px;
+            top: -15px;
+            height: 80px;
+            width: 80px;
+            border-radius: 50%;
+            box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0);
+            transform: scale(1);
+            transition: all .5s ease;
+    
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 15px;
+                height: 15px;
+                background-color: #fff;
+                border-radius: 50%;
+                z-index: 5;
+                transform: translate(-50%, -50%);
+                -webkit-transform: translate(-50%, -50%);
+            }
+            
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 50%;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: 80px;
+                background-image: 	url('<?php echo $image_path; ?>');
+            }
+        }
+        
+        &.active .album-art {
+            box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.2);
+            transform: scale(1.2);
+            transition: all .5s ease;
+        }
+        
+        &.active .album-art::before {
+            animation: rotation 3s infinite linear;
+            -webkit-animation: rotation 3s infinite linear;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            height: 80px;
+            padding: 0 15px;
+            
+            .prev, 
+            .play, 
+            .next,
+            .restart {
+                width: 55px;
+                height: auto;
+                border-radius: 10px;
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-size: 20px;
+                margin: 5px 0;
+                background-color: #fff;
+                cursor: pointer;
+                transition: background-color .3s ease;
+                -webkit-transition: background-color .3s ease;
+            }
+            
+            .prev:hover, 
+            .play:hover, 
+            .next:hover,
+            .restart:hover {
+                background-color: #eee;
+                transition: background-color .3s ease;
+                -webkit-transition: background-color .3s ease;
+            }
+            
+            .prev {
+                background-image: url("../static/images/previous.png");
+            }
+            
+            .play {
+                background-image: url("../static/images/play.png");
+            }
+            
+            .next {
+                background-image: url("../static/images/next.png")
+            }
+
+            .restart {
+                background-image: url("../static/images/restart.png");
+            }
+        }
+        
+        &.active .controls .play {
+            background-image: url("../static/images/pause.png")
+        }
     }
 </style>
 <body ng-app="app">
@@ -211,10 +348,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tbody>
                   </table>
                 </div>
-                
               </div>
+              <div class="lecteur">
+                <div class="player">
+                    <div id="info" class="info">
+                        <span class="name"></span>
+                        <span class="artist"><?php echo $playlist->getNomPlaylist(); ?></span>
+                        <div class="progress-bar">
+                            <div class="bar">
+                                <audio id="audio" controls style="display: none;">
+                                <source src="" type="audio/mp3">
+                                Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="control-panel" class="control-panel">
+                        <div class="album-art"></div>
+                        <div class="controls">
+                            <div class="duration">
+                                <div>
+                                    <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+                                    <div>
+                                        <label for="volume-slider" class="volume-label">Volume</label>
+                                        <input type="range" id="volume-slider" min="0" max="100" step="1" value="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="prev" class="prev"></div>
+                            <div id="play" class="play"></div>
+                            <div id="next" class="next"></div>
+                            <div id="restart" class="restart"></div>
+                        </div>
+                    </div>
+                </div>
+                <ul id="file-attente"></ul>
+            </div>
 		</main>
-
 	</section>
 	<script src="../static/script/search.js"></script>
     <script>
@@ -269,5 +439,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     </script>
+    <script>
+        // Injecter les données JSON dans une variable JavaScript
+        const musiques = <?php echo $musiques_playlist_json; ?>;
+        // Injecter les données JSON dans une variable JavaScript
+        const id_musiques = <?php echo $id_musiques_playlist_json; ?>;
+    </script>
+    <script src="../static/script/son.js"></script>
 </body>
 </html>
