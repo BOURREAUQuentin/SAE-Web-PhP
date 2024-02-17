@@ -265,4 +265,41 @@ class PlaylistPDO
             return $les_playlists_sans_musique;
         }
     }
+
+    /**
+     * Obtient la durée totale d'une playlist spécifique.
+     *
+     * @param int $id_playlist L'identifiant de la playlist pour lequel calculer la durée totale.
+     *
+     * @return string La durée totale d'une playlist ou 0 en cas d'erreur.
+     */
+    public function getDureeTotalByIdPlaylist(int $id_playlist): string
+    {
+        $requete_durees_musiques_playlist = <<<EOF
+        select duree_musique from PLAYLIST natural join CONTENIR natural join MUSIQUE where id_playlist = :id_playlist;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_durees_musiques_playlist);
+            $stmt->bindParam("id_playlist", $id_playlist, PDO::PARAM_INT);
+            $stmt->execute();
+            $durees_musiques = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $duree_total_secondes = 0;
+            foreach ($durees_musiques as $duree_musique){
+                list($minutes, $secondes) = explode(":", $duree_musique["duree_musique"]);
+                $duree_secondes_musique = ($minutes * 60) + $secondes; // conversion des minutes en secondes et ajout aux secondes
+                $duree_total_secondes += intval($duree_secondes_musique);
+            }
+            // calcul des minutes et des secondes
+            $duree_total_heures = floor($duree_total_secondes / 3600);
+            $duree_total_secondes %= 3600;
+            $duree_total_minutes = floor($duree_total_secondes / 60);
+            $duree_total_secondes %= 60;
+            $duree_total_lisible = sprintf("%02d:%02d:%02d", $duree_total_heures, $duree_total_minutes, $duree_total_secondes); // formattage du résultat
+            return $duree_total_lisible;
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return "00:00";
+        }
+    }
 }

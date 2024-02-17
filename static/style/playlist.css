@@ -298,6 +298,7 @@ header{
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 2000;
 }
 
 .modal {
@@ -326,21 +327,16 @@ header{
   background: 0;
   border: 0;
 }
-.open-modal-btn:focus ~ .modal-overlay{
+.open-modal-btn:focus ~ .modal-overlay, .open-modal-btn:focus ~ .modal-overlay .modal{
   opacity: 1;
   visibility: visible;
   z-index: 999;
-}
-.open-modal-btn:focus ~ .modal-overlay .modal{
-  opacity: 1;
-  transform: translateY(0);
 }
 .close-modal-btn {
   background-color: transparent;
   border: none;
   color: #333;
   font-size: 24px;
-  cursor: pointer;
 }
 
 .close-modal-btn:hover {
@@ -378,17 +374,6 @@ header{
 
 
 /* top */
-
-.sticky {
-    position: sticky;
-    top: 20;
-    z-index: 1000; 
-    background-image: url(../images/playlist.jpg);
-    background-size: cover;
-    background-position: center;
-    width: 100%;
-    height: 10%;
-}
 .top {
     padding: 20px;
     display: flex;
@@ -396,7 +381,12 @@ header{
     justify-content: space-around;
     backdrop-filter: blur(15px);
 }
-
+.infos{
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  text-shadow: 0 0 10px #bc85fa, 0 0 40px var(--lavender);
+}
 .art {
     display: flex;
     flex-direction: column; 
