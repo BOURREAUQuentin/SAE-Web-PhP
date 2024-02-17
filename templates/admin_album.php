@@ -76,125 +76,156 @@ $les_artistes = $artistePDO->getArtistes();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music'O</title>
-    <style>
-        body{
-            background-color: #424242;
-        }
-
-        .album-container {
-            border: 1px solid #ccc;
-            margin: 10px;
-            padding: 5px;
-            background-color: #ffffff;
-            text-align: center;
-            display: flex; /* Utilisation de flexbox pour aligner les éléments sur la même ligne */
-            align-items: center; /* Alignement vertical */
-        }
-
-        .album-container > * {
-            margin-inline: auto;
-        }
-
-        .album-image {
-            width: 10%;
-            height: 187px;
-        }
-
-        .view-album-button {
-            margin-top: 10px;
-            background-color: #2196F3;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #container_infos_album {
-            width: 70%; /* Set a fixed width for the container (adjust as needed) */
-            margin: 0 auto; /* Center the container */
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-        }
-
-        #container_infos_album > div {
-            flex: 1; /* Equal width for each block */
-            padding: 10px;
-            text-align: left;
-        }
-
-        #container_infos_album p {
-            margin: 0;
-        }
-    </style>
+    <title>Lavound</title>
+    <link rel="stylesheet" href="../static/style/genre.css">
+    <link rel="stylesheet" href="../static/style/admin.css">
 </head>
-<body>
-<h1>Ajouter un album</h1>
-<div class="album-container">
-    <!-- Formulaire pour ajouter un nouvel album -->
-    <form action="?action=ajouter_album" method="post" enctype="multipart/form-data">
-        <label for="nom_album">Nom de l'album :</label>
-        <input type="text" id="nom_album" name="nom_album" required>
-        <label for="annee_sortie">Année de sortie :</label>
-        <input type="text" id="annee_sortie" name="annee_sortie" required>
-        <label for="genre">Genres associés :</label>
-        <select name="genres[]" id="genre" multiple required>
-            <?php foreach ($les_genres as $genre): ?>
-                <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
-            <?php endforeach; ?>
-        </select>
-        <label for="artiste">Artiste associé :</label>
-        <select name="artiste" id="artiste">
-        <?php foreach ($les_artistes as $artiste): ?>
-            <option value="<?php echo $artiste->getIdArtiste(); ?>"><?php echo $artiste->getNomArtiste(); ?></option>
-        <?php endforeach; ?>
-        </select>
-        <label for="image_album">Image de l'album :</label>
-        <img id="preview" class="album-image" src="#" alt="Image de l'album" style="display: none;">
-        <input type="file" id="image_album" name="image_album" accept="image/*" required onchange="previewImage()">
-        <button type="submit">Ajouter un album</button>
-    </form>
-</div>
-<h1>Listes des albums</h1>
-<?php foreach ($les_albums as $album):
-    $image_album = $imagePDO->getImageByIdImage($album->getIdImage());
-    $image_path = $image_album->getImage() ? "../images/" . $image_album->getImage() : '../images/default.jpg';
-    ?>
-    <div class="album-container">
-    <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
-        <div id="container_infos_album">
-            <div>
-                <p>Titre : <?php echo $album->getTitre(); ?></p>
+<body ng-app="app">
+	<section class='global-wrapper' ng-controller="ctrl">
+        <aside>
+                <img src="../static/images/logo.png" alt="" width="80px" height="80px">
+                <!--top nav -->
+                <ul>
+                    <li>
+            <a href="#" onclick="toggleSearchBar()">
+                <div class="nav-item">
+                    <img src="../static/images/loupe.png" alt="">
+                    <span>Recherche</span>
+                </div>
+            </a>
+        </li>
+                    <li class="active">
+                <a href="/?action=accueil">
+                    <div class="nav-item">
+                            <img src="../static/images/home.png" alt="">
+                            <span>Accueil</span>
+                    </div>
+                </a>	
+            </li>
+            <li>
+                <a href="/?action=playlists_utilisateur">
+                    <div class="nav-item">
+                        <img src="../static/images/add-to-playlist.png" alt="">
+                        <span>Playlist</span>
+                    </div>
+                </a>
+                    </li>
+                </ul>
+
+                <!--bottom nav -->
+                <ul>
+                    <li>
+                <button class="nav-item open-modal-btn">
+                    <img src="../static/images/setting.png" alt="">
+                    <span>Paramètres</span>
+                </button>
+                <div class="modal-overlay">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h2>Paramètres</h2>
+                            <button class="close-modal-btn">&times;</button>
+                        </div>
+                        <div class="modal-content">
+                            <?php if ($est_admin) : ?>
+                                <a href="/?action=admin" class="para">Admin</a>
+                            <?php endif; ?>
+                            <?php if (isset($_SESSION["username"])) : ?>
+                                <a href="/?action=profil" class="para"><p>Mon profil</p></a>
+                                <a href="/?action=logout" class="para">Déconnexion</a>
+                            <?php else: ?>
+                                <a href="?action=connexion_inscription" class="para">Connexion</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                    </li>
+                </ul>
+            </aside>
+            <main id="main">
+                <div id="blackout-on-hover"></div>
+            <header>
+                <h2>Lavound</h2>
+            <div id="search-bar" class="div-top">
+            <div class="search-box">
+                <form method="GET" action="">
+                    <input type="hidden" name="action" value="rechercher_requete">
+                    <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                    <button class="search-button">Go</button>
+                </form>
             </div>
-            <div>
-                <p>Année de sortie : <?php echo $album->getAnneeSortie(); ?></p>
+            <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
             </div>
-            <div>
-                <p><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
+            <div></div>
+            </header>
+            <div class="center-part">
+                <h3 class="T-part">Nouveau album</h3>
+                <div class="album-container">
+                    <!-- Formulaire pour ajouter un nouvel album -->
+                    <form action="?action=ajouter_album" method="post" enctype="multipart/form-data">
+                        <label for="nom_album">Nom de l'album :</label>
+                        <input type="text" id="nom_album" name="nom_album" required>
+                        <label for="annee_sortie">Année de sortie :</label>
+                        <input type="text" id="annee_sortie" name="annee_sortie" required>
+                        <label for="genre">Genres associés :</label>
+                        <select name="genres[]" id="genre" multiple required>
+                            <?php foreach ($les_genres as $genre): ?>
+                                <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <label for="artiste">Artiste associé :</label>
+                        <select name="artiste" id="artiste">
+                        <?php foreach ($les_artistes as $artiste): ?>
+                            <option value="<?php echo $artiste->getIdArtiste(); ?>"><?php echo $artiste->getNomArtiste(); ?></option>
+                        <?php endforeach; ?>
+                        </select>
+                        <label for="image_album">Image de l'album :</label>
+                        <img id="preview" class="album-image" src="#" alt="Image de l'album" style="display: none;">
+                        <input type="file" id="image_album" name="image_album" accept="image/*" required onchange="previewImage()">
+                        <button type="submit">Ajouter un album</button>
+                    </form>
+                </div>
+                <h3 class="T-part">Les albums</h3>
+                <?php foreach ($les_albums as $album):
+                    $image_album = $imagePDO->getImageByIdImage($album->getIdImage());
+                    $image_path = $image_album->getImage() ? "../images/" . urlencode($image_album->getImage()) : '../images/default.jpg';
+                    ?>
+                    <div class="album-container">
+                    <img class="album-image" src="<?php echo $image_path ?>" alt="Image de l'album <?php echo $album->getTitre(); ?>"/>
+                        <div id="container_infos_album">
+                            <div>
+                                <p>Titre : <?php echo $album->getTitre(); ?></p>
+                            </div>
+                            <div>
+                                <p>Année de sortie : <?php echo $album->getAnneeSortie(); ?></p>
+                            </div>
+                            <div>
+                                <p><?php echo ($artistePDO->getArtisteByIdArtiste(($realiserParPDO->getIdArtistesByIdAlbum($album->getIdAlbum()))[0]))->getNomArtiste(); ?></p>
+                            </div>
+                        </div>
+                        <a href="/?action=album&id_album=<?php echo $album->getIdAlbum(); ?>">
+                            <button class="view-album-button">Voir l'album</button>
+                        </a>
+                        <a href="#" onclick="return confirmSuppressionAlbum(<?php echo $album->getIdAlbum(); ?>)">
+                            <button class="view-album-button">Supprimer l'album</button>
+                        </a>
+                        <!-- Bouton de modification -->
+                        <button class="view-album-button" onclick="showEditForm(<?php echo $album->getIdAlbum(); ?>)">Modifier l'album</button>
+                        <!-- Formulaire de modification -->
+                        <form id="editForm_<?php echo $album->getIdAlbum(); ?>" style="display: none;" action="/?action=modifier_album&id_album=<?php echo $album->getIdAlbum(); ?>" method="post">
+                            <input type="hidden" name="id_album" value="<?php echo $album->getIdAlbum(); ?>">
+                            <label for="nouveau_titre">Nouveau titre de l'album :</label>
+                            <input type="text" id="nouveau_titre" name="nouveau_titre" value="<?php echo $album->getTitre(); ?>" required>
+                            <label for="nouvelle_annee_sortie">Nouvelle année de sortie :</label>
+                            <input type="text" id="nouvelle_annee_sortie" name="nouvelle_annee_sortie" value="<?php echo $album->getAnneeSortie(); ?>" required>
+                            <button class="view-album-button" type="submit">Modifier</button>
+                            <!-- Bouton Annuler -->
+                            <button class="view-album-button" type="button" onclick="cancelEdit(<?php echo $album->getIdAlbum(); ?>)">Annuler</button>
+                        </form>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        </div>
-        <a href="/?action=album&id_album=<?php echo $album->getIdAlbum(); ?>">
-            <button class="view-album-button">Voir l'album</button>
-        </a>
-        <a href="#" onclick="return confirmSuppressionAlbum(<?php echo $album->getIdAlbum(); ?>)">
-            <button class="view-album-button">Supprimer l'album</button>
-        </a>
-        <!-- Bouton de modification -->
-        <button class="view-album-button" onclick="showEditForm(<?php echo $album->getIdAlbum(); ?>)">Modifier l'album</button>
-        <!-- Formulaire de modification -->
-        <form id="editForm_<?php echo $album->getIdAlbum(); ?>" style="display: none;" action="/?action=modifier_album&id_album=<?php echo $album->getIdAlbum(); ?>" method="post">
-            <input type="hidden" name="id_album" value="<?php echo $album->getIdAlbum(); ?>">
-            <label for="nouveau_titre">Nouveau titre de l'album :</label>
-            <input type="text" id="nouveau_titre" name="nouveau_titre" value="<?php echo $album->getTitre(); ?>" required>
-            <label for="nouvelle_annee_sortie">Nouvelle année de sortie :</label>
-            <input type="text" id="nouvelle_annee_sortie" name="nouvelle_annee_sortie" value="<?php echo $album->getAnneeSortie(); ?>" required>
-            <button class="view-album-button" type="submit">Modifier</button>
-            <!-- Bouton Annuler -->
-            <button class="view-album-button" type="button" onclick="cancelEdit(<?php echo $album->getIdAlbum(); ?>)">Annuler</button>
-        </form>
-    </div>
-<?php endforeach; ?>
+        </main>
+	</section>
+    <script src="../static/script/search.js"></script>
 </body>
 </html>
