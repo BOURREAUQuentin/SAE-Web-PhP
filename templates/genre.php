@@ -22,7 +22,7 @@ $musiquePDO = new MusiquePDO($pdo);
 $genrePDO = new GenrePDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
 $realiserParPDO = new RealiserParPDO($pdo);
-$utilisateurPDO = new utilisateurPDO($pdo);
+$utilisateurPDO = new UtilisateurPDO($pdo);
 $likerPDO = new LikerPDO($pdo);
 
 // Récupération de l'id de l'album

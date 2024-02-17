@@ -354,7 +354,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php if ($note_album > 0): ?>
                             <p class="moyenne-album note"><span id="moyenne-note"><?php echo $note_album; ?></span>/5</p>
                         <?php else: ?>
-                            <p class="moyenne-album note">Aucune note</p>
+                            <p class="moyenne-album note"><span id="moyenne-note">Aucune note</span></p>
                         <?php endif; ?>
                         <p id="nbPersonnesNotes">Nombre de notes : <?php echo $nbNote ?></p>
                         <button class="feedback-btn">Noter cet album</button>
@@ -365,12 +365,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form action="" class="feedback">
                         <?php for ($i = 1; $i <= 5; $i++): ?>
                             <div class="score">
-                                <?php if (!isset($utilisateur) || $utilisteur_a_noteer==$i): ?>
-                                    <input  id="score<?php echo $i ?>" type="radio" value="<?php echo $i ?>" name="score">
-                                    <label class="active-note" for="score<?php echo $i ?>"><?php echo $i ?></label>
-                                <?php else: ?>
-                                    <input id="score<?php echo $i ?>" type="radio" value="<?php echo $i ?>" name="score">
+                                <input id="score<?php echo $i ?>" type="radio" value="<?php echo $i ?>" name="score">
+                                <?php if (!isset($utilisateur) || $utilisteur_a_noteer != $i): ?>
                                     <label for="score<?php echo $i ?>"><?php echo $i ?></label>
+                                <?php else: ?>
+                                    <label class="active-note" for="score<?php echo $i ?>"><?php echo $i ?></label>
                                 <?php endif; ?>
                             </div>
                         <?php endfor; ?>
@@ -554,7 +553,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const jsonResponse = await response.json();
                     const nvMoyenne = jsonResponse.nvMoyenne;
                     const nbNotes = jsonResponse.nbNotes;
-                    moyenneNote.textContent = nvMoyenne;
+                    moyenneNote.textContent = nvMoyenne + "/5";
                     nbPersonnesNotes.textContent = "Nombre de notes : " + nbNotes;
                 }
                 else {

@@ -256,7 +256,7 @@ header{
     top: 0;
     left: 0;
     transform: rotate(90deg);
-    background-image: url(vinyle_noir.png);
+    background-image: url(../images/vinyle_noir.png);
     background-size: cover;
     transition: all 0.3s linear;
 }
@@ -295,7 +295,7 @@ header{
   color: white;
 }
 
-.song{
+.song2{
   display: flex;
   justify-content: center;
   padding-top: 120px;
@@ -422,6 +422,7 @@ header{
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 2000;
 }
 
 .modal {
@@ -450,21 +451,16 @@ header{
   background: 0;
   border: 0;
 }
-.open-modal-btn:focus ~ .modal-overlay{
+.open-modal-btn:focus ~ .modal-overlay, .open-modal-btn:focus ~ .modal-overlay .modal{
   opacity: 1;
   visibility: visible;
   z-index: 999;
-}
-.open-modal-btn:focus ~ .modal-overlay .modal{
-  opacity: 1;
-  transform: translateY(0);
 }
 .close-modal-btn {
   background-color: transparent;
   border: none;
   color: #333;
   font-size: 24px;
-  cursor: pointer;
 }
 
 .close-modal-btn:hover {
@@ -638,7 +634,7 @@ header{
   align-items: center;
   justify-content: center;
   margin-bottom: 0;
-
+  margin: 50px auto;
 }
 .buttons{
   display: flex;
