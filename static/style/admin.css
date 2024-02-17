@@ -123,6 +123,22 @@ select[multiple] option:checked {
     color: #fff;
 }
 
+/* partie modification (artiste, musique ou album) */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.input-container {
+    margin-bottom: 10px; /* Espacement entre le champ d'entrée et les boutons */
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+}
 
 /* partie upload d'image */
 .header {

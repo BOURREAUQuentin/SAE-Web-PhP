@@ -238,15 +238,20 @@ $les_artistes = $artistePDO->getArtistes();
                         <!-- Bouton de modification -->
                         <button class="view-album-button" onclick="showEditForm(<?php echo $album->getIdAlbum(); ?>)">Modifier l'album</button>
                         <!-- Formulaire de modification -->
-                        <form id="editForm_<?php echo $album->getIdAlbum(); ?>" style="display: none;" action="/?action=modifier_album&id_album=<?php echo $album->getIdAlbum(); ?>" method="post">
+                        <form id="editForm_<?php echo $album->getIdAlbum(); ?>" class="edit-form" style="display: none;" action="/?action=modifier_album&id_album=<?php echo $album->getIdAlbum(); ?>" method="post">
+                            <div class="input-container">
+                                <label for="nouveau_titre">Nouveau titre de l'album :</label>
+                                <input class="input-infos" type="text" id="nouveau_titre" name="nouveau_titre" value="<?php echo $album->getTitre(); ?>" required>
+                            </div>
+                            <div class="input-container">
+                                <label for="nouvelle_annee_sortie">Nouvelle année de sortie :</label>
+                                <input class="input-infos" type="text" id="nouvelle_annee_sortie" name="nouvelle_annee_sortie" value="<?php echo $album->getAnneeSortie(); ?>" required>
+                            </div>
+                            <div class="button-container">
+                                <button class="view-album-button" type="submit">Modifier</button>
+                                <button class="view-album-button" type="button" onclick="cancelEdit(<?php echo $album->getIdAlbum(); ?>)">Annuler</button>
+                            </div>
                             <input type="hidden" name="id_album" value="<?php echo $album->getIdAlbum(); ?>">
-                            <label for="nouveau_titre">Nouveau titre de l'album :</label>
-                            <input type="text" id="nouveau_titre" name="nouveau_titre" value="<?php echo $album->getTitre(); ?>" required>
-                            <label for="nouvelle_annee_sortie">Nouvelle année de sortie :</label>
-                            <input type="text" id="nouvelle_annee_sortie" name="nouvelle_annee_sortie" value="<?php echo $album->getAnneeSortie(); ?>" required>
-                            <button class="view-album-button" type="submit">Modifier</button>
-                            <!-- Bouton Annuler -->
-                            <button class="view-album-button" type="button" onclick="cancelEdit(<?php echo $album->getIdAlbum(); ?>)">Annuler</button>
                         </form>
                     </div>
                 <?php endforeach; ?>

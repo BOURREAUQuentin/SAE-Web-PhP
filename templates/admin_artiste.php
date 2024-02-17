@@ -202,13 +202,16 @@ $les_artistes = $artistePDO->getArtistes();
                         <!-- Bouton de modification -->
                         <button class="view-album-button" onclick="showEditForm(<?php echo $artiste->getIdArtiste(); ?>)">Modifier l'artiste</button>
                         <!-- Formulaire de modification -->
-                        <form id="editForm_<?php echo $artiste->getIdArtiste(); ?>" style="display: none;" action="/?action=modifier_artiste&id_artiste=<?php echo $artiste->getIdArtiste() ?>" method="post">
+                        <form id="editForm_<?php echo $artiste->getIdArtiste(); ?>" class="edit-form" style="display: none;" action="/?action=modifier_artiste&id_artiste=<?php echo $artiste->getIdArtiste() ?>" method="post">
                             <input type="hidden" name="id_artiste" value="<?php echo $artiste->getIdArtiste() ?>">
-                            <label for="nouveau_nom">Nom de l'artiste :</label>
-                            <input type="text" id="nouveau_nom" name="nouveau_nom" value="<?php echo $artiste->getNomArtiste(); ?>" required>
-                            <button class="view-album-button" type="submit">Modifier</button>
-                            <!-- Bouton Annuler -->
-                            <button class="view-album-button" type="button" onclick="cancelEdit(<?php echo $artiste->getIdArtiste(); ?>)">Annuler</button>
+                            <div class="input-container">
+                                <label for="nouveau_nom">Nouveau nom :</label>
+                                <input class="input-infos" type="text" id="nouveau_nom" name="nouveau_nom" value="<?php echo $artiste->getNomArtiste(); ?>" required>
+                            </div>
+                            <div class="button-container">
+                                <button class="view-album-button" type="submit">Modifier</button>
+                                <button class="view-album-button" type="button" onclick="cancelEdit(<?php echo $artiste->getIdArtiste(); ?>)">Annuler</button>
+                            </div>
                         </form>
                     </div>
                 <?php endforeach; ?>
