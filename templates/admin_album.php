@@ -162,26 +162,53 @@ $les_artistes = $artistePDO->getArtistes();
                 <div class="album-container">
                     <!-- Formulaire pour ajouter un nouvel album -->
                     <form action="?action=ajouter_album" method="post" enctype="multipart/form-data">
-                        <label for="nom_album">Nom de l'album :</label>
-                        <input type="text" id="nom_album" name="nom_album" required>
-                        <label for="annee_sortie">Année de sortie :</label>
-                        <input type="text" id="annee_sortie" name="annee_sortie" required>
-                        <label for="genre">Genres associés :</label>
-                        <select name="genres[]" id="genre" multiple required>
-                            <?php foreach ($les_genres as $genre): ?>
-                                <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <label for="artiste">Artiste associé :</label>
-                        <select name="artiste" id="artiste">
-                        <?php foreach ($les_artistes as $artiste): ?>
-                            <option value="<?php echo $artiste->getIdArtiste(); ?>"><?php echo $artiste->getNomArtiste(); ?></option>
-                        <?php endforeach; ?>
-                        </select>
-                        <label for="image_album">Image de l'album :</label>
-                        <img id="preview" class="album-image" src="#" alt="Image de l'album" style="display: none;">
-                        <input type="file" id="image_album" name="image_album" accept="image/*" required onchange="previewImage()">
-                        <button type="submit">Ajouter un album</button>
+                        <div class="form-ajout">
+                            <div class="container">
+                                <div class="header">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
+                                    <path d="M7 10V9C7 6.23858 9.23858 4 12 4C14.7614 4 17 6.23858 17 9V10C19.2091 10 21 11.7909 21 14C21 15.4806 20.1956 16.8084 19 17.5M7 10C4.79086 10 3 11.7909 3 14C3 15.4806 3.8044 16.8084 5 17.5M7 10C7.43285 10 7.84965 10.0688 8.24006 10.1959M12 12V21M12 12L15 15M12 12L9 15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg> <p>Parcourir l'image à télécharger</p>
+                                    <img id="preview-image" src="#" alt="Preview Image" style="display: none;">
+                                </div>
+                                <label for="file" class="footer"> 
+                                    <svg fill="#000000" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M15.331 6H8.5v20h15V14.154h-8.169z"></path><path d="M18.153 6h-.009v5.342H23.5v-.002z"></path></g></svg> 
+                                    <p id="upload-text">Pas d'image sélectionnée</p> 
+                                </label>
+                                <input id="file" name="image_album" type="file" accept="image/jpeg"> 
+                            </div>
+                            <div class="infos-new-artiste">
+                                <div class="flex-container">
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="nom_album">Nom de l'album :</label>
+                                            <input class="input-infos" type="text" id="nom_album" name="nom_album" required>
+                                        </div>
+                                        <div class="input-simple">
+                                            <label for="annee_sortie">Année de sortie :</label>
+                                            <input class="input-infos" type="text" id="annee_sortie" name="annee_sortie" required>
+                                        </div>
+                                    </div>
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="genre">Genres associés :</label>
+                                            <select name="genres[]" id="genre" multiple required>
+                                                <?php foreach ($les_genres as $genre): ?>
+                                                    <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="input-simple">
+                                            <label for="artiste">Artiste associé :</label>
+                                            <select name="artiste" id="artiste">
+                                                <?php foreach ($les_artistes as $artiste): ?>
+                                                    <option value="<?php echo $artiste->getIdArtiste(); ?>"><?php echo $artiste->getNomArtiste(); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="view-album-button" type="submit">Ajouter un album</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <h3 class="T-part">Les albums</h3>
@@ -227,5 +254,49 @@ $les_artistes = $artistePDO->getArtistes();
         </main>
 	</section>
     <script src="../static/script/search.js"></script>
+    <script>
+        const previewImage = document.getElementById('preview-image');
+        const uploadText = document.getElementById('upload-text');
+        const input = document.getElementById('file');
+        const header = document.querySelector('.header'); // Sélectionnez l'élément contenant le texte "Browse File to upload!"
+
+        // Ajoutez un écouteur d'événements pour détecter les changements dans le champ de fichier
+        input.addEventListener('change', function() {
+            // Vérifiez si des fichiers ont été sélectionnés
+            if (input.files && input.files[0]) {
+                // Créez un objet URL à partir du premier fichier sélectionné
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Mettez à jour l'attribut src de l'élément img avec l'URL de l'image
+                    previewImage.src = e.target.result;
+                    // Réduisez la taille de l'image à 206x120 pixels
+                    previewImage.style.width = '200px';
+                    previewImage.style.height = '180px';
+                    // Affichez l'aperçu de l'image
+                    previewImage.style.display = 'block';
+                    // Affichez le nom de l'image sélectionnée à la place de "No uploaded image"
+                    uploadText.textContent = input.files[0].name;
+                    // Supprimez tous les enfants du header sauf l'image de prévisualisation
+                    while (header.firstChild !== previewImage) {
+                        header.removeChild(header.firstChild);
+                    }
+                }
+                // Lisez le contenu du premier fichier sélectionné en tant qu'URL de données
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form[action="?action=ajouter_album"]');
+        const fileInput = document.getElementById('file');
+
+        form.addEventListener('submit', function(event) {
+            if (fileInput.files.length === 0) {
+                event.preventDefault(); // Empêche la soumission du formulaire
+                alert('Veuillez sélectionner une image avant de soumettre le formulaire.');
+            }
+        });
+    });
+    </script>
 </body>
 </html>

@@ -152,7 +152,7 @@ $les_artistes = $artistePDO->getArtistes();
                 <h3 class="T-part">Nouveau artiste</h3>
                 <div class="album-container">
                     <!-- Formulaire pour ajouter un nouvel artiste -->
-                    <form id="form-ajout-artiste" action="?action=ajouter_artiste" method="post" enctype="multipart/form-data">
+                    <form action="?action=ajouter_artiste" method="post" enctype="multipart/form-data">
                         <div class="form-ajout">
                             <div class="container">
                                 <div class="header">
@@ -166,10 +166,14 @@ $les_artistes = $artistePDO->getArtistes();
                                 </label>
                                 <input id="file" name="image_artiste" type="file" accept="image/jpeg"> 
                             </div>
-                            <div class="infos-new-artiste">
-                                <div>
-                                    <label for="nom_artiste">Nom de l'artiste :</label>
-                                    <input class="input-infos" type="text" id="nom_artiste" name="nom_artiste" required>
+                            <div class="infos-new-album">
+                                <div class="flex-container">
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="nom_artiste">Nom de l'artiste :</label>
+                                            <input class="input-infos" type="text" id="nom_artiste" name="nom_artiste" required>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button class="view-album-button" type="submit">Ajouter un artiste</button>
                             </div>

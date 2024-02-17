@@ -72,7 +72,7 @@
     padding: 15px;
 }
 
-.infos-new-artiste{
+.infos-new-album{
     display: flex;
     flex-direction: column;
     gap: 30px;
@@ -83,6 +83,46 @@
     padding: 10px;
     border-radius: 5px;
 }
+
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.flex-item {
+    flex-basis: 50%;
+    margin-bottom: 20px;
+}
+
+.input-simple {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+select, select[multiple] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    width: 100%;
+    color: #333;
+}
+
+select option {
+    background-color: #fff;
+    color: #333;
+}
+
+select[multiple] option:checked {
+    background-color: #3498db;
+    color: #fff;
+}
+
 
 /* partie upload d'image */
 .header {
@@ -118,6 +158,7 @@
     justify-content: flex-end;
     color: black;
     border: none;
+    cursor: pointer;
 }
 
 .footer svg {
