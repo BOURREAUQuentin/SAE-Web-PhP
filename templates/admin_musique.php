@@ -155,21 +155,39 @@ $les_albums = $albumPDO->getAlbums();
                 <div class="album-container">
                     <!-- Formulaire pour ajouter une nouvelle musique -->
                     <form action="?action=ajouter_musique" method="post" enctype="multipart/form-data">
-                        <label for="nom_musique">Nom de la musique :</label>
-                        <input type="text" id="nom_musique" name="nom_musique" required>
-                        <label for="album">Album associé :</label>
-                        <select name="album" id="album">
-                        <?php foreach ($les_albums as $album): ?>
-                            <option value="<?php echo $album->getIdAlbum(); ?>"><?php echo $album->getTitre(); ?></option>
-                        <?php endforeach; ?>
-                        </select>
-                        <label for="fichier_mp3">Fichier MP3 :</label>
-                        <input type="file" id="fichier_mp3" name="fichier_mp3" accept=".mp3" required>
-                        <!-- balise pour obtenir les informations sur la durée du fichier audio (pas affiché à l'utilisateur) -->
-                        <audio id="audioPreview" style="display:none;" controls></audio>
-                        <!-- pour afficher la durée du fichier audio -->
-                        <input type="hidden" id="duree_audio" name="duree_audio">
-                        <button type="submit">Ajouter une musique</button>
+                        <div class="form-ajout">
+                            <div class="infos-new-artiste">
+                                <div class="flex-container">
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="nom_musique">Nom de la musique :</label>
+                                            <input class="input-infos" type="text" id="nom_musique" name="nom_musique" required>
+                                        </div>
+                                    </div>
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="album">Album associé :</label>
+                                            <select name="album" id="album">
+                                            <?php foreach ($les_albums as $album): ?>
+                                                <option value="<?php echo $album->getIdAlbum(); ?>"><?php echo $album->getTitre(); ?></option>
+                                            <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="fichier_mp3">Fichier MP3 :</label>
+                                            <input type="file" id="fichier_mp3" name="fichier_mp3" accept=".mp3">
+                                            <!-- balise pour obtenir les informations sur la durée du fichier audio (pas affiché à l'utilisateur) -->
+                                            <audio id="audioPreview" style="display:none;" controls></audio>
+                                            <!-- pour afficher la durée du fichier audio -->
+                                            <input type="hidden" id="duree_audio" name="duree_audio">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="view-album-button" type="submit">Ajouter une musique</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <h3 class="T-part">Les musiques</h3>
