@@ -210,6 +210,7 @@ $les_albums = $albumPDO->getAlbums();
             </div>
         </main>
 	</section>
+    <script src="../static/script/search.js"></script>
     <script>
         // Fonction pour obtenir la durée formatée du fichier audio
         function obtenirDureeFormattee(duree) {
