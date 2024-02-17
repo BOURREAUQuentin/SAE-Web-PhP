@@ -392,7 +392,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <th>Artiste</th>
                         <th>Durée</th>
                         <th>Nombre de streams</th>
-                        <th>Favoris</th>
+                        <th>Favori</th>
                     </tr>
                     <?php foreach($les_musiques as $musique): ?>
                         <tr>

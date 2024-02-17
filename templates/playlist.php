@@ -3,6 +3,8 @@ use Modele\modele_bd\PlaylistPDO;
 use Modele\modele_bd\MusiquePDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
+use Modele\modele_bd\ArtistePDO;
+use Modele\modele_bd\LikerPDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -14,6 +16,8 @@ $playlistPDO = new PlaylistPDO($pdo);
 $musiquePDO = new MusiquePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
+$artistePDO = new ArtistePDO($pdo);
+$likerPDO = new LikerPDO($pdo);
 
 // Récupération de l'id de l'album
 $id_playlist = intval($_GET['id_playlist']);
@@ -30,6 +34,26 @@ if (isset($_SESSION["username"])) {
     $est_admin = ($utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte))->isAdmin();
 }
 $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
+
+// vérifie si la requête est une requête POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Si la clé 'musiqueId' existe dans $_POST, cela signifie que le like pour une musique est envoyé
+    if (isset($_POST['musiqueId'])) {
+        // Récupère les données de la requête
+        $musiqueId = intval($_POST['musiqueId']);
+        $isChecked = $_POST['isChecked'] === 'false';
+
+        // ajoute ou supprime le like
+        if ($isChecked) {
+            $likerPDO->ajouterLiker($musiqueId, $utilisateur_connecte->getIdUtilisateur());
+        } 
+        else {
+            $likerPDO->supprimerLiker($musiqueId, $utilisateur_connecte->getIdUtilisateur());
+        }
+
+        exit;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -150,83 +174,35 @@ $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_uti
                 <div>
                   <table>
                     <tbody>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
-                      <tr>
-                        <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
-                        <td>En vrai</td>
-                         <td>Fave</td>
-                         <td>3:10</td>
-                         <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/croix.png" alt="" width="15" height="15"></button></div></td>
-                      </tr>
+                        <tr>
+                            <th>Play</th>
+                            <th>Nom</th>
+                            <th>Artiste</th>
+                            <th>Durée</th>
+                            <th>Nombre de streams</th>
+                            <th>Favori</th>
+                            <th>Enlever</th>
+                        </tr>
+                        <?php foreach($musiques_playlist as $musique_playlist): 
+                        $artiste_musique = $artistePDO->getArtisteByIdMusique($musique_playlist->getIdMusique()); // récupération de l'artiste ayant réalisé la musique
+                        ?>
+                            <tr>
+                                <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
+                                <td><?php echo $musique_playlist->getNomMusique(); ?></td>
+                                <td><?php echo $artiste_musique->getNomArtiste(); ?></td>
+                                <td><?php echo $musique_playlist->getDureeMusique(); ?></td>
+                                <td><?php echo $musique_playlist->getNbStreams(); ?></td>
+                                <?php if (!isset($utilisateur_connecte)): ?>
+                                    <td class="first"><div class='icon-text'><button id="buttonfav" class="play background" value="<?php echo $musique_playlist->getIdMusique(); ?>"><img class="fav" src="../static/images/fav_noir.png" alt="" width="15" height="15"></button></div></td>
+                                <?php else:
+                                    // Vérifie si la musique_playlist est likée par l'utilisateur connecté
+                                    $isLiked = $likerPDO->verifieMusiqueLiker($musique_playlist->getIdMusique(), $utilisateur_connecte->getIdUtilisateur()); ?>
+                                    <!-- Ajoutez la classe "background" si la musique_playlist est déjà likée -->
+                                    <td class="first"><div class='icon-text'><button id="buttonfav" class="play <?php echo $isLiked ? 'background' : ''; ?>" value="<?php echo $musique_playlist->getIdMusique(); ?>"><img class="fav" src="../static/images/<?php echo $isLiked ? "fav_rouge.png" : "fav_noir.png"; ?>" alt="" width="15" height="15"></button></div></td>
+                                <?php endif; ?>
+                                <td class="first"><div class='icon-text'><a href="/?action=supprimer_musique_playlist&id_musique=<?php echo $musique_playlist->getIdMusique(); ?>&id_playlist=<?php echo $id_playlist; ?>"><button class="play" ><img src="../static/images/croix.png" alt="" width="15" height="15"></button></a></div></td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                   </table>
                 </div>
@@ -236,5 +212,57 @@ $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_uti
 
 	</section>
 	<script src="../static/script/search.js"></script>
+    <script>
+        // Récupère tous les éléments avec l'ID "like"
+        const likeElements = document.querySelectorAll('#buttonfav');
+
+        // Ajoute un écouteur d'événements à chaque élément
+        likeElements.forEach(likeElement => {
+            likeElement.addEventListener('click', async (event) => {
+                // Vérifie si l'utilisateur est connecté
+                if (!<?php echo isset($utilisateur_connecte) ? 'true' : 'false' ?>) {
+                    // Redirige l'utilisateur vers la page de connexion
+                    window.location.href = '/?action=connexion_inscription';
+                    return;
+                }
+
+                const musiqueId = likeElement.value;
+                const isChecked = likeElement.classList.contains('background');
+
+                // Envoie une requête POST à la page actuelle
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        musiqueId,
+                        isChecked,
+                    }),
+                });
+
+                // Appeler la fonction pour mettre à jour l'image
+                updateImageSource(!isChecked, likeElement);
+
+                // Vérifie si la requête a réussi
+                if (response.ok) {
+                    console.log('Like ajouté ou supprimé');
+                    // Ajoute ou supprime la classe "background" selon l'état précédent
+                    likeElement.classList.toggle('background');
+                } else {
+                    console.error('Erreur lors de la requête');
+                }
+            });
+        });
+
+        function updateImageSource(isLiked, buttonElement) {
+            const imgElement = buttonElement.querySelector('.fav');
+            if (isLiked) {
+                imgElement.src = '../static/images/fav_rouge.png';
+            } else {
+                imgElement.src = '../static/images/fav_noir.png';
+            }
+        }
+    </script>
 </body>
 </html>

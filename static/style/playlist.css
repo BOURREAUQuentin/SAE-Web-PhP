@@ -437,6 +437,9 @@ body{
     padding:1rem;
     border:none;
   }
+  th {
+    font-size: 12px;
+  }
   
   td{
     text-align:center;
