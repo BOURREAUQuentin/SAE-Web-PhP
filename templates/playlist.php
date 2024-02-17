@@ -33,6 +33,11 @@ if (isset($_SESSION["username"])) {
     $nom_utilisateur_connecte = $_SESSION["username"];
     $est_admin = ($utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte))->isAdmin();
 }
+else{
+    // redirigez l'utilisateur vers la page de connexion
+    header('Location: ?action=connexion_inscription');
+    exit();
+}
 $utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
 
 // vérifie si la requête est une requête POST
