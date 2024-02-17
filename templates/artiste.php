@@ -192,11 +192,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Aucun album de <?php echo $artiste->getNomArtiste(); ?></p>
                 <?php endif; ?>
             </div>
-            <button class="btn" id="buttonVoirPlus">
-                <span class="icon" id="icon">+</span>
-                </span>
-                <span class="text" id="voir">Voir plus</span>
-            </button>
+            <?php if (!empty($liste_albums)): ?>
+                <button class="btn" id="buttonVoirPlus">
+                    <span class="icon" id="icon">+</span>
+                    </span>
+                    <span class="text" id="voir">Voir plus</span>
+                </button>
+            <?php endif; ?>
             <h3 class="T-part">Les Sons</h3>
             <div class="album">
                 <?php if (!empty($liste_musiques)): ?>
