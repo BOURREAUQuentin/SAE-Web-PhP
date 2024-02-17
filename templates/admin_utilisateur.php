@@ -154,13 +154,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="album-container">
                     <!-- Formulaire pour ajouter un nouvel utilisateur -->
                     <form action="" method="post">
-                        <label for="nom_utilisateur">Nom d'utilisateur :</label>
-                        <input type="text" id="nom_utilisateur" name="nom_utilisateur" required>
-                        <label for="mail_utilisateur">Mail d'utilisateur :</label>
-                        <input type="text" id="mail_utilisateur" name="mail_utilisateur" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}" title="Entrez une adresse e-mail valide">
-                        <label for="mdp">Mot de passe :</label>
-                        <input type="text" id="mdp" name="mdp" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,}$" title="Le mot de passe doit comporter au moins 8 caractères, y compris au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.">
-                        <button type="submit">Ajouter un utilisateur</button>
+                        <div class="form-ajout">
+                            <div class="infos-new-artiste">
+                                <div class="flex-container">
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="nom_utilisateur">Nom d'utilisateur :</label>
+                                            <input class="input-infos" type="text" id="nom_utilisateur" name="nom_utilisateur" required>
+                                        </div>
+                                    </div>
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="mail_utilisateur">Mail d'utilisateur :</label>
+                                            <input class="input-infos" type="text" id="mail_utilisateur" name="mail_utilisateur" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}" title="Entrez une adresse e-mail valide">
+                                        </div>
+                                    </div>
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="mdp">Mot de passe :</label>
+                                            <input class="input-infos" type="text" id="mdp" name="mdp" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,}$" title="Le mot de passe doit comporter au moins 8 caractères, y compris au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="view-album-button" type="submit">Ajouter un utilisateur</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <h3 class="T-part">Les utilisateurs</h3>
