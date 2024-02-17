@@ -367,4 +367,36 @@ class ArtistePDO
             return $les_musiques;
         }
     }
+
+    /**
+     * Obtient l'artiste ayant réalisé la musique dans la table.
+     *
+     * @param int    $id_musique   L'identifiant de la musique à rechercher.
+     * 
+     * @return Artiste L'artiste ayant réalisé la musique correspondante à l'identifiant donné, ou null si la musique n'est pas trouvée.
+     */
+    public function getArtisteByIdMusique(int $id_musique): ?Artiste
+    {
+        $requete_artiste = <<<EOF
+        select id_artiste, nom_artiste, id_image from MUSIQUE natural join REALISER_PAR natural join ARTISTE where id_musique = :id_musique;
+        EOF;
+        try{
+            $stmt = $this->pdo->prepare($requete_artiste);
+            $stmt->bindParam("id_musique", $id_musique, PDO::PARAM_INT);
+            $stmt->execute();
+            // fetch le résultat sous forme de tableau associatif
+            $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($resultat) {
+                // retourne une instance de la classe Artiste avec les données récupérées
+                return new Artiste($resultat['id_artiste'], $resultat['nom_artiste'], $resultat['id_image']);
+            } else {
+                // Aucun artiste trouvé avec l'identifiant donné
+                return null;
+            }
+        }
+        catch (PDOException $e){
+            var_dump($e->getMessage());
+            return null;
+        }
+    }
 }
