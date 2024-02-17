@@ -141,9 +141,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="album-container">
                     <!-- Formulaire pour ajouter un nouveau genre -->
                     <form action="" method="post">
-                        <label for="nom_genre">Nom du genre :</label>
-                        <input type="text" id="nom_genre" name="nom_genre" required>
-                        <button type="submit" value="ajouter_genre">Ajouter un genre</button>
+                        <div class="form-ajout">
+                            <div class="infos-new-artiste">
+                                <div class="flex-container">
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="nom_genre">Nom du genre :</label>
+                                            <input class="input-infos" type="text" id="nom_genre" name="nom_genre" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="view-album-button" type="submit" value="ajouter_genre">Ajouter un genre</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <h3 class="T-part">Les genres</h3>
