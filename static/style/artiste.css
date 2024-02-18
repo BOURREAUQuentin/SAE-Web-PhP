@@ -591,14 +591,10 @@ header{
   display: flex;
   flex-direction: column;
 }
-.open-modal-btn2:focus ~ .modal-overlay2{
+.open-modal-btn2:focus ~ .modal-overlay2, .open-modal-btn2:focus ~ .modal-overlay2 .modal2{
   opacity: 1;
   visibility: visible;
   z-index: 999;
-}
-.open-modal-btn2:focus ~ .modal-overlay2 .modal2{
-  opacity: 1;
-  transform: translateY(0);
 }
 .close-modal-btn2 {
   background-color: transparent;

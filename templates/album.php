@@ -393,6 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <th>Durée</th>
                         <th>Nombre de streams</th>
                         <th>Favori</th>
+                        <th>Ajouter</th>
                     </tr>
                     <?php foreach($les_musiques as $musique): ?>
                         <tr>
@@ -409,6 +410,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <!-- Ajoutez la classe "background" si la musique est déjà likée -->
                                 <td class="first"><div class='icon-text'><button id="buttonfav" class="play <?php echo $isLiked ? 'background' : ''; ?>" value="<?php echo $musique->getIdMusique(); ?>"><img class="fav" src="../static/images/<?php echo $isLiked ? "fav_rouge.png" : "fav_noir.png"; ?>" alt="" width="15" height="15"></button></div></td>
                             <?php endif; ?>
+                            <td class="first">
+                                <div class='icon-text'>
+                                    <button class="play buttonadd open-modal-btn2">
+                                        <img class="add" src="../static/images/add.png" alt="" width="15" height="15">
+                                    </button>
+                                    <div class="modal-overlay2">
+                                        <div class="modal2">
+                                            <div class="modal-header2">
+                                                <h2>Playlists</h2>
+                                                <button class="close-modal-btn2">&times;</button>
+                                            </div>
+                                            <div class="modal-content2">
+                                                <?php if (!isset($_SESSION["username"])): ?>
+                                                    <a href="/?action=connexion_inscription" class="para2">Connectez vous pour choisir une playlist</a>
+                                                <?php else:
+                                                    $playlists_utilisateur_sans_musique = $playlistPDO->getPlaylistsUtilisateurSansMusiqueByIdMusique($utilisateur->getIdUtilisateur(), $musique->getIdMusique());
+                                                    ?>
+                                                    <?php if (count($playlists_utilisateur) == 0): ?>
+                                                        <a href="/?action=playlists_utilisateur" class="para2">Aucune playlist. Créez une nouvelle playlist</a>
+                                                    <?php elseif (count($playlists_utilisateur_sans_musique) == 0): ?>
+                                                        <p class="para2">Déjà dans vos playlists</p>
+                                                    <?php else: ?>
+                                                        <?php foreach($playlists_utilisateur_sans_musique as $playlist_utilisateur): ?>
+                                                            <a href="/?action=ajouter_playlist&id_musique=<?php echo $musique->getIdMusique(); ?>&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" class="para2">
+                                                                <?php echo $playlist_utilisateur->getNomPlaylist(); ?>
+                                                            </a>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
