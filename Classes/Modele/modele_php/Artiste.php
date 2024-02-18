@@ -59,16 +59,6 @@ class Artiste
     }
 
     /**
-     * Modifie le nom de l'artiste.
-     *
-     * @param string $nom_artiste Le nouveau nom de l'artiste.
-     */
-    public function setNomArtiste(string $nom_artiste): void
-    {
-        $this->nom_artiste = $nom_artiste;
-    }
-
-    /**
      * Obtient l'identifiant de l'image associée à l'artiste.
      *
      * @return int L'identifiant de l'image.
@@ -76,15 +66,5 @@ class Artiste
     public function getIdImage(): int
     {
         return $this->id_image;
-    }
-
-    /**
-     * Modifie l'identifiant de l'image associée à l'artiste.
-     *
-     * @param int $id_image Le nouvel identifiant de l'image.
-     */
-    public function setIdImage(int $id_image): void
-    {
-        $this->id_image = $id_image;
     }
 }

@@ -245,6 +245,7 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
                         <h2>Validation de la création</h2>
                         <h3>Appuyez sur le bouton ci-dessous</h3>
                         <a class="reset" href="#" target="_blank">Ajouter</a>
+                        <a class="cancel" href="/?action=playlists_utilisateur">Annuler</a>
                     </div>
                     </div>
                 </div>

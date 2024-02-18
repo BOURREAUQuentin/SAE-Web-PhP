@@ -573,12 +573,14 @@ button:focus {
 }
 
 button:hover,
-.reset:hover {
+.reset:hover,
+.cancel:hover {
 	opacity: .8;
 }
 
 button:active,
-.reset:active {
+.reset:active,
+.cancel:hover {
 	opacity: .5;
 }
 
@@ -814,7 +816,7 @@ button:active,
 }
 
 .slider-form button,
-.reset {
+.reset, .cancel {
   display: inline-block;
   text-decoration: none;
 	background: #bc85fa;

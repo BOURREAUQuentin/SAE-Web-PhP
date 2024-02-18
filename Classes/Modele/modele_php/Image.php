@@ -50,14 +50,4 @@ class Image
     {
         return $this->image;
     }
-
-    /**
-     * Modifie le chemin ou le nom de l'image.
-     *
-     * @param string $image Le nouveau chemin ou nom de l'image.
-     */
-    public function setImage(string $image): void
-    {
-        $this->image = $image;
-    }
 }
