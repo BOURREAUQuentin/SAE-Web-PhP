@@ -446,21 +446,17 @@ switch ($action) {
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_utilisateur');
         exit;
-
-    case 'modifier_infos_utilisateur':
+    
+    case 'supprimer_musique_likee':
+        // récupération de l'id de la musique
+        $id_musique = $_GET['id_musique'] ?? null;
+        // récupération de l'id de l'utilisateur
         $id_utilisateur = $_GET['id_utilisateur'] ?? null;
 
-        // récupération des informations du formulaire
-        $nom_utilisateur = $_POST['nouveau_nom_utilisateur'];
-        $mail_utilisateur = $_POST['nouveau_mail_utilisateur'];
-        $mdp = $_POST['nouveau_mdp'];
-
-        $_SESSION["username"] = $nom_utilisateur;
-
-        $utilisateurPDO->mettreAJourInfosUtilisateur($id_utilisateur, $nom_utilisateur, $mail_utilisateur, $mdp);
+        $likerPDO->supprimerLiker($id_musique, $id_utilisateur);
 
         // redirection de l'utilisateur vers la même page
-        header('Location: ?action=profil');
+        header('Location: ?action=titres_likes');
         exit;
 
     default:

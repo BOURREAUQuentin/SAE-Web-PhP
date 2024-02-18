@@ -588,7 +588,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const jsonResponse = await response.json();
                     const nvMoyenne = jsonResponse.nvMoyenne;
                     const nbNotes = jsonResponse.nbNotes;
-                    moyenneNote.textContent = nvMoyenne + "/5";
+                    moyenneNote.textContent = nvMoyenne;
                     nbPersonnesNotes.textContent = "Nombre de notes : " + nbNotes;
                 }
                 else {
