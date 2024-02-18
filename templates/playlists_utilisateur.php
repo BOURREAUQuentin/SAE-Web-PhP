@@ -165,7 +165,7 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
                                     </button>
                                 </div>
                                 <!-- Formulaire de modification -->
-                                <form id="editForm_1" style="display: none;" action="/?action=modifier_playlist&id_playlist=1" method="post">
+                                <form id="editForm_<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" style="display: none;" action="/?action=modifier_playlist&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" method="post">
                                     <input type="hidden" name="id_playlist" value="1">
                                     <div class="form-control">
                                         <input type="text" id="nouveau_nom" name="nouveau_nom" required>
@@ -187,7 +187,7 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
                                     </div>
                                     <button class="custom-btn bouton-modif" type="submit">valider</button>
                                     <!-- Bouton Annuler -->
-                                    <button class="custom-btn bouton-modif" type="button" onclick="cancelEdit(1)">Annuler</button>
+                                    <button class="custom-btn bouton-modif" type="button" onclick="cancelEdit(<?php echo $playlist_utilisateur->getIdPlaylist(); ?>)">Annuler</button>
                                 </form>
                             </div>
                         </div>
@@ -220,39 +220,38 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
                     <form class="slider-form slider-one">
                         <h2>Rentrez le nom de la playlist</h2>
                         <label class="input">
-                        <input type="text" class="name" placeholder="Nom playlist">
+                        <input type="text" id="nom_playlist" class="name" name="nom_playlist" placeholder="Nom playlist">
                         </label>
                         <button class="first next">Prochaine étape</button>
                     </form>
-                    <form class="slider-form slider-two">
+                    <form class="slider-form slider-two dragger padding_2x" method="post" action="/?action=creer_playlist" enctype="multipart/form-data">
+                        <label class="input">
+                            <input type="text" style="display: none;" id="nom_playlist form-nom-playlist" class="name" name="nom_playlist" placeholder="Nom playlist" readonly>
+                        </label>
                         <div class="label-ctr">
-                        <div class="border">
-                        <form class="dragger padding_2x">
-                            <label class="fixed_flex padding_3x">
-                                <i class="fa fa-cloud-upload"></i>
-                                <h2 class="title">Drag & Drop<br>une image</h2>
-                                <p>Accepté : png, jpg, jpeg</p>
-                                <input class="input-image" type="file" name="dragger[]" input-mode="file" accept=".png,.jpg,.jpeg" />
-                            </label>
-                        </div>
-                            
+                            <div class="border">
+                                <label class="fixed_flex padding_3x">
+                                    <i class="fa fa-cloud-upload"></i>
+                                    <h2 class="title">Drag & Drop<br>une image</h2>
+                                    <p>Accepté : png, jpg, jpeg</p>
+                                    <input class="input-image" type="file" name="dragger[]" input-mode="file" accept=".png,.jpg,.jpeg" required/>
+                                </label>
+                            </div>
                             <ul class="file_preview"></ul>
-                        </form>
-                        <button class="second next">Prochaine étape</button>
+                            <button class="second next">Prochaine étape</button>
                         </div>
                     </form>
                     <div class="slider-form slider-three">
-                        <h2>Pour finir,</h2>
-                        <h3>Appuyez sur le bouton ci-dessous
-                                    </h3>
+                        <h2>Validation de la création</h2>
+                        <h3>Appuyez sur le bouton ci-dessous</h3>
                         <a class="reset" href="#" target="_blank">Ajouter</a>
                     </div>
                     </div>
                 </div>
                 </div>
                 <button class="buttonadd addplay" onclick="actionPopup()">
-                <img class="add" src="../static/images/add.png" alt="">
-            </button>
+                    <img class="add" src="../static/images/add.png" alt="">
+                </button>
         </main>
 	</section>
 	<script src="../static/script/search.js"></script>

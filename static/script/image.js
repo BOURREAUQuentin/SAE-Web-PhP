@@ -65,7 +65,6 @@ function stop(e){
 }
 
 
-//Upload file
 function Upload(formdata, e){
     $.ajax({
          url: url,
@@ -83,7 +82,8 @@ function Upload(formdata, e){
             if (JSON.stringify(response['type']).replace(/"/g, "") == 0){
                 popup(0, response['mssg']);
                 $(".file_preview li:last-child").remove();
-            } else {
+            }
+            else {
                 $(".file_preview li:last-child").html('<a href=https://bboysdreamspells.000webhostapp.com/dragdrop/assets/images/'+response["name"]+' class="link" target="_blank">'+ file_name +'</a><a href="javascript:void(0)" class="remove" onclick="remove(\''+JSON.stringify(response['name']).replace(/"/g, "")+'\', this)"><i class="fa fa-times">Supprimer</i></a>');
               }
          },
@@ -94,14 +94,8 @@ function Upload(formdata, e){
     });
 }
 
-
-
-
 //Variables globales
 var popup_content, timer, count = 0;
-
-//Closer
-
 
 //PopUp
 function popup(type, mssg){
