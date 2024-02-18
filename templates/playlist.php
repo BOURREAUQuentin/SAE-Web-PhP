@@ -297,7 +297,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div></div>
         </header>
-                <!-- genres -->
             <div class="center-part">
             <div class="sticky">
                 <div class="top">

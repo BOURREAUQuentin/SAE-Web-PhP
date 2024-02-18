@@ -101,34 +101,4 @@ class Utilisateur
     {
         return $this->admin == "O";
     }
-
-    /**
-     * Modifie le nom de l'utilisateur.
-     *
-     * @param string $nom_utilisateur Le nouveau nom de l'utilisateur.
-     */
-    public function setNomUtilisateur(string $nom_utilisateur): void
-    {
-        $this->nom_utilisateur = $nom_utilisateur;
-    }
-
-    /**
-     * Modifie le mail de l'utilisateur.
-     *
-     * @param string $mail_utilisateur Le nouveau mail de l'utilisateur.
-     */
-    public function setMailUtilisateur(string $mail_utilisateur): void
-    {
-        $this->mail_utilisateur = $mail_utilisateur;
-    }
-
-    /**
-     * Modifie le mot de passe de l'utilisateur.
-     *
-     * @param string $mdp Le nouveau mot de passe de l'utilisateur.
-     */
-    public function setMdp(string $mdp): void
-    {
-        $this->mdp = $mdp;
-    }
 }

@@ -66,16 +66,6 @@ class Playlist
     }
 
     /**
-     * Modifie le nom de la playlist.
-     *
-     * @param string $nom_playlist Le nouveau nom de la playlist.
-     */
-    public function setNomPlaylist(string $nom_playlist): void
-    {
-        $this->nom_playlist = $nom_playlist;
-    }
-
-    /**
      * Obtient l'identifiant de l'image associée à la playlist.
      *
      * @return int L'identifiant de l'image associée à la playlist.

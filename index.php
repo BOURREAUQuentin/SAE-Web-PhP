@@ -148,16 +148,14 @@ switch ($action) {
             $nom_playlist = $_POST['nom_playlist'];
 
             // gestion de l'image de la playlist
-            $image_playlist = $_FILES['image_playlist']['name'];
-            $image_temp = $_FILES['image_playlist']['tmp_name'];
+            $url = $_POST["url_image"];
+            $image = file_get_contents($url);
 
             $nombre_aleatoire = rand(1, 10000);
             $nom_playlist_transforme = str_replace(' ', '-', $nom_playlist);
             $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme); // nom image -> nom_utilisateur-nombre_aleatoire-nom_playlist_transforme
-            if ($_FILES["image_playlist"]["error"] > 0){
-                $image_temp = "./images/default.jpg";
-            }
-            move_uploaded_file($image_temp, "./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme);
+            // Écriture du contenu de l'image dans un fichier sur le serveur
+            file_put_contents("./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme, $image);
 
             // appel de la méthode pour créer la playlist
             $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme))->getIdImage();
@@ -431,21 +429,17 @@ switch ($action) {
         // redirection de l'utilisateur vers la même page
         header('Location: ?action=admin_utilisateur');
         exit;
-
-    case 'modifier_infos_utilisateur':
+    
+    case 'supprimer_musique_likee':
+        // récupération de l'id de la musique
+        $id_musique = $_GET['id_musique'] ?? null;
+        // récupération de l'id de l'utilisateur
         $id_utilisateur = $_GET['id_utilisateur'] ?? null;
 
-        // récupération des informations du formulaire
-        $nom_utilisateur = $_POST['nouveau_nom_utilisateur'];
-        $mail_utilisateur = $_POST['nouveau_mail_utilisateur'];
-        $mdp = $_POST['nouveau_mdp'];
-
-        $_SESSION["username"] = $nom_utilisateur;
-
-        $utilisateurPDO->mettreAJourInfosUtilisateur($id_utilisateur, $nom_utilisateur, $mail_utilisateur, $mdp);
+        $likerPDO->supprimerLiker($id_musique, $id_utilisateur);
 
         // redirection de l'utilisateur vers la même page
-        header('Location: ?action=profil');
+        header('Location: ?action=titres_likes');
         exit;
 
     default:

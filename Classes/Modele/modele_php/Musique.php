@@ -118,14 +118,4 @@ class Musique
     {
         return $this->id_album;
     }
-
-    /**
-     * Modifie le nom de la musique.
-     *
-     * @param string $nom_musique Le nouveau nom de la musique.
-     */
-    public function setNomMusique(string $nom_musique): void
-    {
-        $this->nom_musique = $nom_musique;
-    }
 }

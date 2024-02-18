@@ -84,24 +84,4 @@ class Album
     {
         return $this->id_image;
     }
-
-    /**
-     * Modifie le titre de l'album.
-     *
-     * @param string $titre Le nouveau titre de l'album.
-     */
-    public function setTitre(string $titre): void
-    {
-        $this->titre = $titre;
-    }
-
-    /**
-     * Modifie l'année de sortie de l'album.
-     *
-     * @param int $annee_sortie La nouvelle année de sortie de l'album.
-     */
-    public function setAnneeSortie(int $annee_sortie): void
-    {
-        $this->annee_sortie = $annee_sortie;
-    }
 }

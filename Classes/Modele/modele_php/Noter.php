@@ -67,14 +67,4 @@ class Noter
     {
         return $this->note;
     }
-
-    /**
-     * Modifie la note attribuée à l'album.
-     *
-     * @param int $note La nouvelle note attribuée à l'album.
-     */
-    public function setNote(int $note): void
-    {
-        $this->note = $note;
-    }
 }

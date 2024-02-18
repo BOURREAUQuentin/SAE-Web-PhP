@@ -4,45 +4,44 @@ use Modele\modele_bd\LikerPDO;
 use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\MusiquePDO;
 use Modele\modele_bd\ImagePDO;
+use Modele\modele_bd\ArtistePDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
 // Permet de gérer le niveau des erreurs
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-
-
-$likePDO = new LikerPDO($pdo);
+$likerPDO = new LikerPDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
 $musiquePDO = new MusiquePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
+$artistePDO = new ArtistePDO($pdo);
 
-if (!isset($_SESSION['username'])) {
+$nom_utilisateur_connecte = "pas connecté";
+$est_admin = false;
+if (isset($_SESSION["username"])) {
+    $nom_utilisateur_connecte = $_SESSION["username"];
+    $est_admin = ($utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte))->isAdmin();
+}
+else{
+    // redirigez l'utilisateur vers la page de connexion
     header('Location: ?action=connexion_inscription');
-    exit;
+    exit();
 }
+$utilisateur_connecte = $utilisateurPDO->getUtilisateurByNomUtilisateur($nom_utilisateur_connecte);
+$les_musiques_likes = $likerPDO->getMusiqueByUtilisateur($utilisateur_connecte->getIdUtilisateur());
+$duree_titres_likes = $likerPDO->getDureeTotalByIdUtilisateur($utilisateur_connecte->getIdUtilisateur());
 
-$utilisateur = $utilisateurPDO->getUtilisateurByNomUtilisateur($_SESSION['username']);
-$les_musiques_likes = $likePDO->getMusiqueByUtilisateur($utilisateur->getIdUtilisateur());
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupère les données de la requête
-    $musiqueId = intval($_POST['musiqueId']);
-    $isChecked = $_POST['isChecked'] === 'true';
-
-    // Ajoute ou supprime le like
-    if ($isChecked) {
-        $likePDO->ajouterLiker($musiqueId, $utilisateur->getIdUtilisateur());
-    } else {
-        $likePDO->supprimerLiker($musiqueId, $utilisateur->getIdUtilisateur());
-    }
-
-    // Envoie une réponse JSON
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true]);
-    exit;
+$file_attente_sons = array();
+$id_musique_file_attente_sons = array();
+foreach ($les_musiques_likes as $musique_likee){
+    array_push($file_attente_sons, $musique_likee->getSonMusique());
+    array_push($id_musique_file_attente_sons, $musique_likee->getIdMusique());
 }
+// Récupérer les musiques et les encoder en JSON
+$musiques_likees_json = json_encode($file_attente_sons);
+// Récupérer les id_musiques et les encoder en JSON
+$id_musiques_likees_json = json_encode($id_musique_file_attente_sons);
 ?>
 
 <!DOCTYPE html>
@@ -50,125 +49,364 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music'O</title>
-    <style>
-        body{
-            background-color: #424242;
-        }
-
-        .album-container {
-        display: flex;
-        flex-direction: column; /* Définir la direction du flux en colonne */
-        border: 1px solid #ccc;
-        margin: 10px;
-        padding: 10px;
-        background-color: #ffffff;
-        width: 300px;
-        text-align: center;
-        }
-
-        .musique-container {
-            margin-bottom: 10px; /* Espacement entre les conteneurs de musique */
-        }
-
-        .album-image {
-            max-width: 100%;
-            height: auto;
-        }
-
-
-        .container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-  }
-  
-  .container {
-    display: block;
-    position: relative;
-    cursor: pointer;
-    user-select: none;
-  }
-  
-  .container svg {
-    position: relative;
-    top: 0;
-    left: 0;
-    height: 50px;
-    width: 50px;
-    transition: all 0.3s;
-    fill: #666;
-  }
-  
-  .container svg:hover {
-    transform: scale(1.1);
-  }
-  
-  .container input:checked ~ svg { 
-    fill: #E3474F;
-  }
-    </style>
+    <title>Lavound</title>
+    <link rel="stylesheet" href="../static/style/son.css">
+    <link rel="stylesheet" href="../static/style/playlist.css">
 </head>
-<body>
-    <div class="album-container">
-        <h1>Musiques likées</h1>
-        <?php foreach ($les_musiques_likes as $musique):
-            $id_image_musique = $musiquePDO->getIdImageByIdMusique($musique->getIdMusique());
-            $image_musique = $imagePDO->getImageByIdImage($id_image_musique);
-            $image_path_musique = $image_musique->getImage() ? "../images/" . $image_musique->getImage() : '../images/default.jpg';
-            
-            ?>
-            <div class="musique-container">
-                <p>Son : <?php echo $musique->getNomMusique(); ?></p>
-                <p>Durée : <?php echo $musique->getDureeMusique(); ?></p>
-                <p>Nombre d'écoutes : <?php echo $musique->getNbStreams(); ?></p>
-                <img class="genre-image" src="<?php echo $image_path_musique ?>" alt="Image de la musique <?php echo $musique->getNomMusique(); ?>"/>
-                
-                <!-- permet de liker une musique-->
-                <div id="like" data-id="<?php echo $musique->getIdMusique(); ?>">
-                <label class="container">
-                            <input type="checkbox" checked>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </label>
-                </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
+<!-- Obligé de mettre ce style en dur) -->
+<style>
+    .sticky {
+        position: sticky;
+        top: 0;
+        z-index: 1000; 
+        background-image: url("../static/images/titres_likes.jpeg");
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: 10%;
+    }
 
-    <script>
+    .player .control-panel {
+        position: relative;
+        background-color: #fff;
+        border-radius: 15px;
+        width: 435px;
+        height: 80px;
+        z-index: 5;
+        box-shadow: 0px 20px 20px 5px rgba(132, 132, 132, 0.3);
+        
+        .album-art {
+            position: absolute;
+            left: 20px;
+            top: -15px;
+            height: 80px;
+            width: 80px;
+            border-radius: 50%;
+            box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0);
+            transform: scale(1);
+            transition: all .5s ease;
     
-    // Récupère tous les éléments avec l'ID "like"
-    const likeElements = document.querySelectorAll('#like');
-
-    // Ajoute un écouteur d'événements à chaque élément
-    likeElements.forEach(likeElement => {
-        likeElement.addEventListener('change', async (event) => {
-            const musiqueId = likeElement.getAttribute('data-id');
-            const isChecked = event.target.checked;
-
-            // Envoie une requête POST à la page actuelle
-            const response = await fetch(window.location.href, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    musiqueId,
-                    isChecked,
-                }),
-            });
-            likeElement.closest('.musique-container').remove();
-            // Vérifie si la requête a réussi
-            if (response.ok) {
-                console.log('Like ajouté ou supprimé');
-                
-            } else {
-                console.error('Erreur lors de la requête');
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 15px;
+                height: 15px;
+                background-color: #fff;
+                border-radius: 50%;
+                z-index: 5;
+                transform: translate(-50%, -50%);
+                -webkit-transform: translate(-50%, -50%);
             }
+            
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 50%;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: 80px;
+                background-image: 	url("../static/images/titres_likes.jpeg");
+            }
+        }
+        
+        &.active .album-art {
+            box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.2);
+            transform: scale(1.2);
+            transition: all .5s ease;
+        }
+        
+        &.active .album-art::before {
+            animation: rotation 3s infinite linear;
+            -webkit-animation: rotation 3s infinite linear;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            height: 80px;
+            padding: 0 15px;
+            
+            .prev, 
+            .play, 
+            .next,
+            .restart {
+                width: 55px;
+                height: auto;
+                border-radius: 10px;
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-size: 20px;
+                margin: 5px 0;
+                background-color: #fff;
+                cursor: pointer;
+                transition: background-color .3s ease;
+                -webkit-transition: background-color .3s ease;
+            }
+            
+            .prev:hover, 
+            .play:hover, 
+            .next:hover,
+            .restart:hover {
+                background-color: #eee;
+                transition: background-color .3s ease;
+                -webkit-transition: background-color .3s ease;
+            }
+            
+            .prev {
+                background-image: url("../static/images/previous.png");
+            }
+            
+            .play {
+                background-image: url("../static/images/play.png");
+            }
+            
+            .next {
+                background-image: url("../static/images/next.png")
+            }
+
+            .restart {
+                background-image: url("../static/images/restart.png");
+            }
+        }
+        
+        &.active .controls .play {
+            background-image: url("../static/images/pause.png")
+        }
+    }
+</style>
+<body ng-app="app">
+	<section class='global-wrapper' ng-controller="ctrl">
+		<aside>
+            <img src="../static/images/logo.png" alt="" width="80px" height="80px">
+			<!--top nav -->
+			<ul>
+				<li>
+          <a href="#" onclick="toggleSearchBar()">
+              <div class="nav-item">
+                  <img src="../static/images/loupe.png" alt="">
+                  <span>Recherche</span>
+              </div>
+          </a>
+      </li>
+				<li class="active">
+            <a href="/?action=accueil">
+                <div class="nav-item">
+						<img src="../static/images/home.png" alt="">
+					    <span>Accueil</span>
+				</div>
+            </a>	
+		</li>
+        <li>
+            <a href="/?action=playlists_utilisateur">
+                <div class="nav-item">
+                    <img src="../static/images/add-to-playlist.png" alt="">
+                    <span>Playlist</span>
+                </div>
+            </a>
+				</li>
+			</ul>
+
+			<!--bottom nav -->
+			<ul>
+				<li>
+              <button class="nav-item open-modal-btn">
+                  <img src="../static/images/setting.png" alt="">
+                  <span>Paramètres</span>
+              </button>
+              <div class="modal-overlay">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>Paramètres</h2>
+                        <button class="close-modal-btn">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <?php if ($est_admin) : ?>
+                            <a href="/?action=admin" class="para">Admin</a>
+                        <?php endif; ?>
+                        <?php if (isset($_SESSION["username"])) : ?>
+                            <a href="/?action=profil" class="para"><p>Mon profil</p></a>
+                            <a href="/?action=logout" class="para">Déconnexion</a>
+                        <?php else: ?>
+                            <a href="?action=connexion_inscription" class="para">Connexion</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+				</li>
+			</ul>
+		</aside>
+
+		<main id="main">
+			<div id="blackout-on-hover"></div>
+        <header>
+            <h2>Lavound</h2>
+          <div id="search-bar" class="div-top">
+          <div class="search-box">
+            <form method="GET" action="">
+                <input type="hidden" name="action" value="rechercher_requete">
+                <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                <button class="search-button">Go</button>
+            </form>
+        </div>
+        <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
+        </div>
+        <div></div>
+        </header>
+        <div class="center-part">
+            <div class="sticky">
+                <div class="top">
+                    <div class="infos">
+                        <p class="nomart">Durée : <?php echo $duree_titres_likes; ?></p>
+                        <p class="nomart"><?php echo count($les_musiques_likes); ?> titres</p>
+                    </div>
+                    <img src="../static/images/titres_likes.jpeg" alt="" height="200" width="200" class="imgart">
+                    <div class="art">
+                        <h2 class="nomart">Titres likés</h2>
+                        <p class="desc">Par : <?php echo $nom_utilisateur_connecte; ?></p>
+                    </div>
+            </div>
+            </div>
+            <div class='main-table-container'>
+                <div>
+                  <table>
+                    <tbody>
+                        <tr>
+                            <th>Play</th>
+                            <th>Nom</th>
+                            <th>Artiste</th>
+                            <th>Durée</th>
+                            <th>Nombre de streams</th>
+                            <th>Enlever</th>
+                        </tr>
+                        <?php foreach($les_musiques_likes as $musique): 
+                        $artiste_musique = $artistePDO->getArtisteByIdMusique($musique->getIdMusique()); // récupération de l'artiste ayant réalisé la musique
+                        ?>
+                            <tr>
+                                <td class="first"><div class='icon-text'><button class="play"><img src="../static/images/play.png" alt="" width="15" height="15"></button></div></td>
+                                <td><?php echo $musique->getNomMusique(); ?></td>
+                                <td><?php echo $artiste_musique->getNomArtiste(); ?></td>
+                                <td><?php echo $musique->getDureeMusique(); ?></td>
+                                <td><?php echo $musique->getNbStreams(); ?></td>
+                                <td class="first"><div class='icon-text'><a href="/?action=supprimer_musique_likee&id_musique=<?php echo $musique->getIdMusique(); ?>&id_utilisateur=<?php echo $utilisateur_connecte->getIdUtilisateur(); ?>"><button class="play" ><img src="../static/images/croix.png" alt="" width="15" height="15"></button></a></div></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="lecteur">
+                <div class="player">
+                    <div id="info" class="info">
+                        <span class="name"></span>
+                        <span class="artist">Titres likés</span>
+                        <div class="progress-bar">
+                            <div class="bar">
+                                <audio id="audio" controls style="display: none;">
+                                <source src="" type="audio/mp3">
+                                Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="control-panel" class="control-panel">
+                        <div class="album-art"></div>
+                        <div class="controls">
+                            <div class="duration">
+                                <div>
+                                    <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+                                    <div>
+                                        <label for="volume-slider" class="volume-label">Volume</label>
+                                        <input type="range" id="volume-slider" min="0" max="100" step="1" value="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="prev" class="prev"></div>
+                            <div id="play" class="play"></div>
+                            <div id="next" class="next"></div>
+                            <div id="restart" class="restart"></div>
+                        </div>
+                    </div>
+                </div>
+                <ul id="file-attente"></ul>
+            </div>
+		</main>
+	</section>
+	<script src="../static/script/search.js"></script>
+    <script>
+        // Récupère tous les éléments avec l'ID "like"
+        const likeElements = document.querySelectorAll('#buttonfav');
+
+        // Ajoute un écouteur d'événements à chaque élément
+        likeElements.forEach(likeElement => {
+            likeElement.addEventListener('click', async (event) => {
+                // Vérifie si l'utilisateur est connecté
+                if (!<?php echo isset($utilisateur_connecte) ? 'true' : 'false' ?>) {
+                    // Redirige l'utilisateur vers la page de connexion
+                    window.location.href = '/?action=connexion_inscription';
+                    return;
+                }
+
+                const musiqueId = likeElement.value;
+                const isChecked = likeElement.classList.contains('background');
+
+                // Envoie une requête POST à la page actuelle
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        musiqueId,
+                        isChecked,
+                    }),
+                });
+
+                // Appeler la fonction pour mettre à jour l'image
+                updateImageSource(!isChecked, likeElement);
+
+                // Vérifie si la requête a réussi
+                if (response.ok) {
+                    console.log('Like ajouté ou supprimé');
+                    // Ajoute ou supprime la classe "background" selon l'état précédent
+                    likeElement.classList.toggle('background');
+                } else {
+                    console.error('Erreur lors de la requête');
+                }
+            });
         });
-    });
+
+        function updateImageSource(isLiked, buttonElement) {
+            const imgElement = buttonElement.querySelector('.fav');
+            if (isLiked) {
+                imgElement.src = '../static/images/fav_rouge.png';
+            } else {
+                imgElement.src = '../static/images/fav_noir.png';
+            }
+        }
     </script>
+    <script>
+        // Injecter les données JSON dans une variable JavaScript
+        const musiques = <?php echo $musiques_likees_json; ?>;
+        // Injecter les données JSON dans une variable JavaScript
+        const id_musiques = <?php echo $id_musiques_likees_json; ?>;
+    </script>
+    <script src="../static/script/son.js"></script>
 </body>
 </html>

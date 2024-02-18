@@ -50,14 +50,4 @@ class Genre
     {
         return $this->nom_genre;
     }
-
-    /**
-     * Modifie le nom du genre musical.
-     *
-     * @param string $nom_genre Le nouveau nom du genre musical.
-     */
-    public function setNomGenre(string $nom_genre): void
-    {
-        $this->nom_genre = $nom_genre;
-    }
 }
