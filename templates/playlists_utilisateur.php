@@ -228,6 +228,7 @@ $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_uti
                         <label class="input">
                             <input type="text" style="display: none;" id="nom_playlist form-nom-playlist" class="name" name="nom_playlist" placeholder="Nom playlist" readonly>
                         </label>
+                        <input type="text" style="display: none;" id="url_image" name="url_image">
                         <div class="label-ctr">
                             <div class="border">
                                 <label class="fixed_flex padding_3x">

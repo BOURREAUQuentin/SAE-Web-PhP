@@ -148,31 +148,14 @@ switch ($action) {
             $nom_playlist = $_POST['nom_playlist'];
 
             // gestion de l'image de la playlist
-            // $image_playlist = $_POST['image_playlist'];
-            // $image_temp = $_FILES['image_playlist']['tmp_name'];
-
-            $url = "https://bboysdreamspells.000webhostapp.com/dragdrop/assets/images/996408102.jpg";
+            $url = $_POST["url_image"];
             $image = file_get_contents($url);
-
-            if ($image !== false) {
-                // Chemin où vous souhaitez enregistrer l'image sur votre serveur
-                $nom_fichier = "HOUDI.jpg";
-
-                // Écriture du contenu de l'image dans un fichier sur le serveur
-                file_put_contents("./images/".$nom_fichier, $image);
-
-                echo "L'image a été téléchargée avec succès.";
-            } else {
-                echo "Erreur lors du téléchargement de l'image.";
-            }
 
             $nombre_aleatoire = rand(1, 10000);
             $nom_playlist_transforme = str_replace(' ', '-', $nom_playlist);
             $imagePDO->ajouterImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme); // nom image -> nom_utilisateur-nombre_aleatoire-nom_playlist_transforme
-            // if ($_FILES["image_playlist"]["error"] > 0){
-            //     $image_temp = "./images/default.jpg";
-            // }
-            // move_uploaded_file($image_temp, "./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme);
+            // Écriture du contenu de l'image dans un fichier sur le serveur
+            file_put_contents("./images/" . $_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme, $image);
 
             // appel de la méthode pour créer la playlist
             $id_new_image = ($imagePDO->getImageByNomImage($_SESSION["username"] . "-" . $nombre_aleatoire . "-" . $nom_playlist_transforme))->getIdImage();

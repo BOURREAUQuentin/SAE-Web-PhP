@@ -85,7 +85,8 @@ function Upload(formdata, e){
             }
             else {
                 $(".file_preview li:last-child").html('<a href=https://bboysdreamspells.000webhostapp.com/dragdrop/assets/images/'+response["name"]+' class="link" target="_blank">'+ file_name +'</a><a href="javascript:void(0)" class="remove" onclick="remove(\''+JSON.stringify(response['name']).replace(/"/g, "")+'\', this)"><i class="fa fa-times">Supprimer</i></a>');
-              }
+                $("#url_image").val("https://bboysdreamspells.000webhostapp.com/dragdrop/assets/images/"+response["name"]); // Change la valeur de l'input caché avec l'ID "url_image"
+            }
          },
          complete: function() {
             $(".dragger").css("opacity","1");
