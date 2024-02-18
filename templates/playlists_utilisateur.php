@@ -30,133 +30,355 @@ else{
 $les_playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisateur_connecte);
 
 ?>
-<script>
-    function confirmSuppressionPlaylist(id_playlist) {
-        // Affiche une boîte de dialogue de confirmation
-        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer cette playlist ?");
-        // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
-        // Sinon, retourne false (arrête la suppression)
-        if (confirmation) {
-            window.location.href = "?action=supprimer_playlist&id_playlist=" + id_playlist;
-        }
-        return false;
-    }
-    function showEditForm(id_playlist) {
-        // Récupérer le formulaire de modification correspondant à l'ID de la playlist
-        var editForm = document.getElementById("editForm_" + id_playlist);
-        // Afficher le formulaire de modification en le rendant visible
-        editForm.style.display = "block";
-        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
-        return false;
-    }
-    function cancelEdit(id_playlist) {
-        // Récupérer le formulaire de modification correspondant à l'ID de la playlist
-        var editForm = document.getElementById("editForm_" + id_playlist);
-        // Masquer le formulaire de modification
-        editForm.style.display = "none";
-    }
-</script>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music'O</title>
-    <style>
-        body{
-            background-color: #424242;
-        }
-
-        .genre-list {
-            display: flex;
-            overflow-x: auto;
-            white-space: nowrap; /* Empêche le retour à la ligne des éléments */
-        }
-
-        .genre-container {
-            border: 1px solid #ccc;
-            margin: 10px;
-            padding: 10px;
-            background-color: #ffffff;
-            width: 300px;
-            text-align: center;
-        }
-
-        .genre-image {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .view-genre-button {
-            margin-top: 10px;
-            background-color: #2196F3;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        h1{
-            color: white;
-        }
-
-        .login-button,
-        .logout-button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .image-playlists{
-            max-width: 20%;
-            height: auto;
-        }
-    </style>
+    <title>Lavound</title>
+    <link rel="stylesheet" href="../static/style/playlists_utilisateur.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
-<body>
-<?php if (empty($les_playlists_utilisateur)) : ?>
-    <h2>Vous n'avez pas encore de playlists.</h2>
-<?php else : ?>
-    <?php foreach ($les_playlists_utilisateur as $playlist_utilisateur):
-        $image_playlist = $imagePDO->getImageByIdImage($playlist_utilisateur->getIdImage());
-        $image_path_playlist = $image_playlist->getImage() ? "../images/" . $image_playlist->getImage() : '../images/default.jpg';
-        ?>
-        <div class="genre-container">
-            <p><?php echo $playlist_utilisateur->getNomPlaylist(); ?></p>
-            <img class="image-playlists" src="<?php echo $image_path_playlist ?>" alt="Image de la playlist <?php echo $playlist_utilisateur->getNomPlaylist(); ?>"/>
-            <a href="/?action=playlist&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>">
-                <button class="view-genre-button">Voir la playlist</button>
+<body ng-app="app">
+	<section class='global-wrapper' ng-controller="ctrl">
+    <aside>
+            <img src="../static/images/logo.png" alt="" width="80px" height="80px">
+			<!--top nav -->
+			<ul>
+				<li>
+          <a href="#" onclick="toggleSearchBar()">
+              <div class="nav-item">
+                  <img src="../static/images/loupe.png" alt="">
+                  <span>Recherche</span>
+              </div>
+          </a>
+      </li>
+				<li class="active">
+            <a href="/?action=accueil">
+                <div class="nav-item">
+						<img src="../static/images/home.png" alt="">
+					    <span>Accueil</span>
+				</div>
+            </a>	
+		</li>
+        <li>
+            <a href="/?action=playlists_utilisateur">
+                <div class="nav-item">
+                    <img src="../static/images/add-to-playlist.png" alt="">
+                    <span>Playlist</span>
+                </div>
             </a>
-            <a href="#" onclick="return confirmSuppressionPlaylist(<?php echo $playlist_utilisateur->getIdPlaylist(); ?>)">
-                <button class="view-genre-button">Supprimer la playlist</button>
-            </a>
-            <!-- Bouton de modification -->
-            <button class="view-genre-button" onclick="showEditForm(<?php echo $playlist_utilisateur->getIdPlaylist(); ?>)">Modifier la playlist</button>
-            <!-- Formulaire de modification -->
-            <form id="editForm_<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" style="display: none;" action="/?action=modifier_playlist&id_playlist=<?php echo $playlist_utilisateur->getIdPlaylist(); ?>" method="post">
-                <input type="hidden" name="id_playlist" value="<?php echo $playlist_utilisateur->getIdPlaylist(); ?>">
-                <label for="nouveau_nom">Nouveau nom de votre playlist :</label>
-                <input type="text" id="nouveau_nom" name="nouveau_nom" value="<?php echo $playlist_utilisateur->getNomPlaylist(); ?>" required>
-                <button class="view-genre-button" type="submit">Modifier</button>
-                <!-- Bouton Annuler -->
-                <button class="view-genre-button" type="button" onclick="cancelEdit(<?php echo $playlist_utilisateur->getIdPlaylist(); ?>)">Annuler</button>
+				</li>
+			</ul>
+
+			<!--bottom nav -->
+			<ul>
+				<li>
+              <button class="nav-item open-modal-btn">
+                  <img src="../static/images/setting.png" alt="">
+                  <span>Paramètres</span>
+              </button>
+              <div class="modal-overlay">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>Paramètres</h2>
+                        <button class="close-modal-btn">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <?php if ($est_admin) : ?>
+                            <a href="/?action=admin" class="para">Admin</a>
+                        <?php endif; ?>
+                        <?php if (isset($_SESSION["username"])) : ?>
+                            <a href="/?action=profil" class="para"><p>Mon profil</p></a>
+                            <a href="/?action=logout" class="para">Déconnexion</a>
+                        <?php else: ?>
+                            <a href="?action=connexion_inscription" class="para">Connexion</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+				</li>
+			</ul>
+		</aside>
+
+		<main id="main">
+			<div id="blackout-on-hover"></div>
+        <header>
+            <h2>Lavound</h2>
+          <div id="search-bar" class="div-top">
+          <div class="search-box">
+            <form method="GET" action="">
+                <input type="hidden" name="action" value="rechercher_requete">
+                <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                <button class="search-button">Go</button>
             </form>
         </div>
-    <?php endforeach; ?>
-<?php endif; ?>
-<h2>Ajout d'une nouvelle playlist</h2>
-<form method="post" action="?action=creer_playlist" enctype="multipart/form-data">
-    <label for="nom_playlist">Nom de la playlist :</label>
-    <input type="text" id="nom_playlist" name="nom_playlist" required>
-    
-    <label for="image_playlist">Image de la playlist :</label>
-    <input type="file" id="image_playlist" name="image_playlist" accept="image/*" required>
-
-    <button type="submit">Créer la playlist</button>
-</form>
+        <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
+      </div>
+      <div></div>
+        </header>
+        <div class="content">
+                <div class="playlist">
+                <a href="/?action=titres_likes" style="text-decoration: none;">
+                    <div class="card">
+                        <div class="img">
+                            <img src="../static/images/titres_likes.jpeg">
+                            <button>
+                                <svg height="16" role="img" width="16" viewBox="0 0 24 24" aria-hidden="true"><polygon points="21.57 12 5.98 3 5.98 21 21.57 12" fill="currentColor"></polygon></svg>
+                            </button>
+                        </div>
+                        <div class="textos">
+                            <h2>Favoris</h2>
+                            <p>Tes musiques favorites</p>
+                        </div>
+                    </div>
+                </a>
+                <div class="genre-container">
+                    <!-- Bouton de modification -->
+                    <div class="boutons">
+                        <button class="custom-btn bouton-modif" onclick="showEditForm(1)">Modifier</button>
+                        <button class="buttonadd" onclick="return confirmSuppressionPlaylist(1)">
+                            <img class="add" src="../static/images/croix.png" alt="">
+                        </button>
+                    </div>
+                    <!-- Formulaire de modification -->
+                    <form class="form" id="editForm_1" style="display: none;" action="/?action=modifier_playlist&id_playlist=1" method="post">
+                        <input type="hidden" name="id_playlist" value="1">
+                        <div class="form-control">
+                            <input type="text" id="nouveau_nom" name="nouveau_nom" required>
+                            <label>
+                                <span style="transition-delay:0ms">N</span>
+                                <span style="transition-delay:50ms">o</span>
+                                <span style="transition-delay:100ms">u</span>
+                                <span style="transition-delay:150ms">v</span>
+                                <span style="transition-delay:200ms">e</span>
+                                <span style="transition-delay:250ms">a</span>
+                                <span style="transition-delay:300ms">u</span>
+                                <span style="transition-delay:400ms"> </span>
+                                <span style="transition-delay:450ms">n</span>
+                                <span style="transition-delay:500ms">o</span>
+                                <span style="transition-delay:550ms">m</span>
+                                <span style="transition-delay:600ms"> </span>
+                                <span style="transition-delay:650ms">:</span>
+                            </label>
+                        </div>
+                        <button class="custom-btn bouton-modif" type="submit">Valider</button>
+                        <!-- Bouton Annuler -->
+                        <button class="custom-btn bouton-modif" type="button" onclick="cancelEdit(1)">Annuler</button>
+                    </form>
+                </div>
+                </div>
+                <div class="playlist">
+                <div class="card">
+                    <div class="img">
+                    <img src="../static/images/playlist.jpg">
+                    <button>
+                        <svg height="16" role="img" width="16" viewBox="0 0 24 24" aria-hidden="true"><polygon points="21.57 12 5.98 3 5.98 21 21.57 12" fill="currentColor"></polygon></svg>
+                    </button>
+                    </div>
+                    <div class="textos">
+                    <h2>Rap</h2>
+                    <p>Votre playlist Rap</p>
+                    </div>
+                </div>
+                <div class="genre-container">
+                    <!-- Bouton de modification -->
+                    <div class="boutons">
+                        <button class="custom-btn bouton-modif" onclick="showEditForm(1)">Modifier</button>
+                        <button class="buttonadd" onclick="return confirmSuppressionPlaylist(1)">
+                            <img class="add" src="../static/images/croix.png" alt="">
+                        </button>
+                    </div>
+                    <!-- Formulaire de modification -->
+                    <form id="editForm_1" style="display: none;" action="/?action=modifier_playlist&id_playlist=1" method="post">
+                        <input type="hidden" name="id_playlist" value="1">
+                        <div class="form-control">
+                            <input type="text" id="nouveau_nom" name="nouveau_nom" required>
+                            <label>
+                                <span style="transition-delay:0ms">N</span>
+                                <span style="transition-delay:50ms">o</span>
+                                <span style="transition-delay:100ms">u</span>
+                                <span style="transition-delay:150ms">v</span>
+                                <span style="transition-delay:200ms">e</span>
+                                <span style="transition-delay:250ms">a</span>
+                                <span style="transition-delay:300ms">u</span>
+                                <span style="transition-delay:400ms"> </span>
+                                <span style="transition-delay:450ms">n</span>
+                                <span style="transition-delay:500ms">o</span>
+                                <span style="transition-delay:550ms">m</span>
+                                <span style="transition-delay:600ms"> </span>
+                                <span style="transition-delay:650ms">:</span>
+                            </label>
+                        </div>
+                        <button class="custom-btn bouton-modif" type="submit">valider</button>
+                        <!-- Bouton Annuler -->
+                        <button class="custom-btn bouton-modif" type="button" onclick="cancelEdit(1)">Annuler</button>
+                    </form>
+                </div>
+            </div>
+                <div class="playlist">
+                <div class="card">
+                    <div class="img">
+                        <img src="../static/images/playlist.jpg">
+                        <button>
+                        <svg height="16" role="img" width="16" viewBox="0 0 24 24" aria-hidden="true"><polygon points="21.57 12 5.98 3 5.98 21 21.57 12" fill="currentColor"></polygon></svg>
+                        </button>
+                    </div>
+                    <div class="textos">
+                        <h2>Rock</h2>
+                        <p>Votre playlist Rock</p>
+                    </div>
+                    </div>
+                    <div class="genre-container">
+                    <!-- Bouton de modification -->
+                    <div class="boutons">
+                        <button class="custom-btn bouton-modif" onclick="showEditForm(1)">Modifier</button>
+                        <button class="buttonadd" onclick="return confirmSuppressionPlaylist(1)">
+                            <img class="add" src="../static/images/croix.png" alt="">
+                        </button>
+                    </div>
+                    <!-- Formulaire de modification -->
+                    <form id="editForm_1" style="display: none;" action="/?action=modifier_playlist&id_playlist=1" method="post">
+                        <input type="hidden" name="id_playlist" value="1">
+                        <div class="form-control">
+                            <input type="text" id="nouveau_nom" name="nouveau_nom" required>
+                            <label>
+                                <span style="transition-delay:0ms">N</span>
+                                <span style="transition-delay:50ms">o</span>
+                                <span style="transition-delay:100ms">u</span>
+                                <span style="transition-delay:150ms">v</span>
+                                <span style="transition-delay:200ms">e</span>
+                                <span style="transition-delay:250ms">a</span>
+                                <span style="transition-delay:300ms">u</span>
+                                <span style="transition-delay:400ms"> </span>
+                                <span style="transition-delay:450ms">n</span>
+                                <span style="transition-delay:500ms">o</span>
+                                <span style="transition-delay:550ms">m</span>
+                                <span style="transition-delay:600ms"> </span>
+                                <span style="transition-delay:650ms">:</span>
+                            </label>
+                        </div>
+                        <button class="custom-btn bouton-modif" type="submit">valider</button>
+                        <!-- Bouton Annuler -->
+                        <button class="custom-btn bouton-modif" type="button" onclick="cancelEdit(1)">Annuler</button>
+                    </form>
+                </div>
+                </div>
+                    <div class="playlist">
+                    <div class="card">
+                    <div class="img">
+                        <img src="../static/images/playlist.jpg">
+                        <button>
+                        <svg height="16" role="img" width="16" viewBox="0 0 24 24" aria-hidden="true"><polygon points="21.57 12 5.98 3 5.98 21 21.57 12" fill="currentColor"></polygon></svg>
+                        </button>
+                    </div>
+                    <div class="textos">
+                        <h2>Pop</h2>
+                        <p>Votre playlist Pop</p>
+                    </div>
+                    </div>
+                    <div class="genre-container">
+                    <!-- Bouton de modification -->
+                    <div class="boutons">
+                        <button class="custom-btn bouton-modif" onclick="showEditForm(1)">Modifier</button>
+                        <button class="buttonadd" onclick="return confirmSuppressionPlaylist(1)">
+                            <img class="add" src="../static/images/croix.png" alt="">
+                        </button>
+                    </div>
+                    <!-- Formulaire de modification -->
+                    <form id="editForm_1" style="display: none;" action="/?action=modifier_playlist&id_playlist=1" method="post">
+                        <input type="hidden" name="id_playlist" value="1">
+                        <div class="form-control">
+                            <input type="text" id="nouveau_nom" name="nouveau_nom" required>
+                            <label>
+                                <span style="transition-delay:0ms">N</span>
+                                <span style="transition-delay:50ms">o</span>
+                                <span style="transition-delay:100ms">u</span>
+                                <span style="transition-delay:150ms">v</span>
+                                <span style="transition-delay:200ms">e</span>
+                                <span style="transition-delay:250ms">a</span>
+                                <span style="transition-delay:300ms">u</span>
+                                <span style="transition-delay:400ms"> </span>
+                                <span style="transition-delay:450ms">n</span>
+                                <span style="transition-delay:500ms">o</span>
+                                <span style="transition-delay:550ms">m</span>
+                                <span style="transition-delay:600ms"> </span>
+                                <span style="transition-delay:650ms">:</span>
+                            </label>
+                        </div>
+                        <button class="custom-btn bouton-modif" type="submit">valider</button>
+                        <!-- Bouton Annuler -->
+                        <button class="custom-btn bouton-modif" type="button" onclick="cancelEdit(1)">Annuler</button>
+                    </form>
+                </div>
+                </div>
+                </div>
+                <!-- formadd -->
+                <div class="container slider-one-active" id="container">
+                <div class="steps">
+                    <div class="step step-one">
+                    <div class="liner"></div>
+                    <span>Nom</span>
+                    </div>
+                    <div class="step step-two">
+                    <div class="liner"></div>
+                    <span>Image</span>
+                    </div>
+                    <div class="step step-three">
+                    <div class="liner"></div>
+                    <span>Validation</span>
+                    </div>
+                </div>
+                <div class="line">
+                    <div class="dot-move"></div>
+                    <div class="dot zero"></div>
+                    <div class="dot center"></div>
+                    <div class="dot full"></div>
+                </div>
+                <div class="slider-ctr">
+                    <div class="slider">
+                    <form class="slider-form slider-one">
+                        <h2>Rentrez le nom de la playlist</h2>
+                        <label class="input">
+                        <input type="text" class="name" placeholder="Nom playlist">
+                        </label>
+                        <button class="first next">Prochaine étape</button>
+                    </form>
+                    <form class="slider-form slider-two">
+                        <div class="label-ctr">
+                        <div class="border">
+                        <form class="dragger padding_2x">
+                            <label class="fixed_flex padding_3x">
+                                <i class="fa fa-cloud-upload"></i>
+                                <h2 class="title">Drag & Drop<br>une image</h2>
+                                <p>Accepté : png, jpg, jpeg</p>
+                                <input class="input-image" type="file" name="dragger[]" input-mode="file" accept=".png,.jpg,.jpeg" />
+                            </label>
+                        </div>
+                            
+                            <ul class="file_preview"></ul>
+                        </form>
+                        <button class="second next">Prochaine étape</button>
+                        </div>
+                    </form>
+                    <div class="slider-form slider-three">
+                        <h2>Pour finir,</h2>
+                        <h3>Appuyez sur le bouton ci-dessous
+                                    </h3>
+                        <a class="reset" href="#" target="_blank">Ajouter</a>
+                    </div>
+                    </div>
+                </div>
+                </div>
+                <button class="buttonadd addplay" onclick="actionPopup()">
+                <img class="add" src="../static/images/add.png" alt="">
+            </button>
+        </main>
+	</section>
+	<script src="../static/script/search.js"></script>
+    <script src="../static/script/image.js"></script>
+    <script src="../static/script/popup.js"></script>
+    <script src="../static/script/form.js"></script>
+    <script src="../static/script/playlists_utilisateur.js"></script>
 </body>
 </html>
