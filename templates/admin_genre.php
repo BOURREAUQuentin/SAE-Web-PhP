@@ -52,90 +52,127 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music'O</title>
-    <style>
-        body{
-            background-color: #424242;
-        }
-
-        .genre-container {
-            border: 1px solid #ccc;
-            margin: 10px;
-            padding: 5px;
-            background-color: #ffffff;
-            text-align: center;
-            display: flex; /* Utilisation de flexbox pour aligner les éléments sur la même ligne */
-            align-items: center; /* Alignement vertical */
-        }
-
-        .genre-container > * {
-            margin-inline: auto;
-        }
-
-        .genre-image {
-            width: 10%;
-            height: auto;
-        }
-
-        .view-genre-button {
-            margin-top: 10px;
-            background-color: #2196F3;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        h1{
-            color: #ffffff;
-        }
-
-        #container_infos_genre {
-            width: 70%; /* Set a fixed width for the container (adjust as needed) */
-            margin: 0 auto; /* Center the container */
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-        }
-
-        #container_infos_genre > div {
-            flex: 1; /* Equal width for each block */
-            padding: 10px;
-            text-align: left;
-        }
-
-        #container_infos_genre p {
-            margin: 0;
-        }
-    </style>
+    <title>Lavound</title>
+    <link rel="stylesheet" href="../static/style/genre.css">
+    <link rel="stylesheet" href="../static/style/admin.css">
 </head>
-<body>
-<h1>Ajouter un genre</h1>
-<div class="genre-container">
-    <?php if (!empty($message_erreur)): ?>
-        <p style="color: red;"><?php echo $message_erreur; ?></p>
-    <?php endif; ?>
-    <!-- Formulaire pour ajouter un nouveau genre -->
-    <form action="" method="post">
-        <label for="nom_genre">Nom du genre :</label>
-        <input type="text" id="nom_genre" name="nom_genre" required>
-        <button type="submit" value="ajouter_genre">Ajouter un genre</button>
-    </form>
-</div>
-<h1>Listes des genres</h1>
-<?php foreach ($les_genres as $genre): ?>
-    <div class="genre-container">
-        <div id="container_infos_genre">
-            <div>
-                <p>Nom : <?php echo $genre->getNomGenre(); ?></p>
+<body ng-app="app">
+	<section class='global-wrapper' ng-controller="ctrl">
+        <aside>
+                <img src="../static/images/logo.png" alt="" width="80px" height="80px">
+                <!--top nav -->
+                <ul>
+                    <li>
+            <a href="#" onclick="toggleSearchBar()">
+                <div class="nav-item">
+                    <img src="../static/images/loupe.png" alt="">
+                    <span>Recherche</span>
+                </div>
+            </a>
+        </li>
+                    <li class="active">
+                <a href="/?action=accueil">
+                    <div class="nav-item">
+                            <img src="../static/images/home.png" alt="">
+                            <span>Accueil</span>
+                    </div>
+                </a>	
+            </li>
+            <li>
+                <a href="/?action=playlists_utilisateur">
+                    <div class="nav-item">
+                        <img src="../static/images/add-to-playlist.png" alt="">
+                        <span>Playlist</span>
+                    </div>
+                </a>
+                    </li>
+                </ul>
+
+                <!--bottom nav -->
+                <ul>
+                    <li>
+                <button class="nav-item open-modal-btn">
+                    <img src="../static/images/setting.png" alt="">
+                    <span>Paramètres</span>
+                </button>
+                <div class="modal-overlay">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h2>Paramètres</h2>
+                            <button class="close-modal-btn">&times;</button>
+                        </div>
+                        <div class="modal-content">
+                            <?php if ($est_admin) : ?>
+                                <a href="/?action=admin" class="para">Admin</a>
+                            <?php endif; ?>
+                            <?php if (isset($_SESSION["username"])) : ?>
+                                <a href="/?action=profil" class="para"><p>Mon profil</p></a>
+                                <a href="/?action=logout" class="para">Déconnexion</a>
+                            <?php else: ?>
+                                <a href="?action=connexion_inscription" class="para">Connexion</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                    </li>
+                </ul>
+            </aside>
+            <main id="main">
+                <div id="blackout-on-hover"></div>
+            <header>
+                <h2>Lavound</h2>
+            <div id="search-bar" class="div-top">
+            <div class="search-box">
+                <form method="GET" action="">
+                    <input type="hidden" name="action" value="rechercher_requete">
+                    <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                    <button class="search-button">Go</button>
+                </form>
             </div>
-        </div>
-        
-        <a href="/?action=genre&id_genre=<?php echo $genre->getIdGenre(); ?>">
-            <button class="view-genre-button">Voir le genre</button>
-        </a>
-    </div>
-<?php endforeach; ?>
+            <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
+            </div>
+            <div></div>
+            </header>
+            <div class="center-part">
+                <h3 class="T-part">Nouveau genre</h3>
+                <?php if (!empty($message_erreur)): ?>
+                    <p style="color: red;"><?php echo $message_erreur; ?></p>
+                <?php endif; ?>
+                <div class="album-container">
+                    <!-- Formulaire pour ajouter un nouveau genre -->
+                    <form action="" method="post">
+                        <div class="form-ajout">
+                            <div class="infos-new-artiste">
+                                <div class="flex-container">
+                                    <div class="flex-item">
+                                        <div class="input-simple">
+                                            <label for="nom_genre">Nom du genre :</label>
+                                            <input class="input-infos" type="text" id="nom_genre" name="nom_genre" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="view-album-button" type="submit" value="ajouter_genre">Ajouter un genre</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <h3 class="T-part">Les genres</h3>
+                <?php foreach ($les_genres as $genre): ?>
+                    <div class="album-container">
+                        <div id="container_infos_album">
+                            <div>
+                                <p>Nom : <?php echo $genre->getNomGenre(); ?></p>
+                            </div>
+                        </div>
+                        
+                        <a href="/?action=genre&id_genre=<?php echo $genre->getIdGenre(); ?>">
+                            <button class="view-album-button">Voir le genre</button>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+                </div>
+        </main>
+	</section>
+    <script src="../static/script/search.js"></script>
 </body>
 </html>
