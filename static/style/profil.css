@@ -346,7 +346,7 @@ header{
 .card .content .details {
   position: absolute;
   top: 0;
-  padding: 20px;
+  padding: 10px;
   text-align: center;
   width: 100%;
   transition: 0.5s;
