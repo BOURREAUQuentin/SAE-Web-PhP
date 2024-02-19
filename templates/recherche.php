@@ -7,6 +7,7 @@ use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\PlaylistPDO;
 use Modele\modele_bd\LikerPDO;
+use Modele\modele_bd\GenrePDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -22,6 +23,7 @@ $utilisateurPDO = new utilisateurPDO($pdo);
 $realiserParPDO = new RealiserParPDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
 $likerPDO = new LikerPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 
 // récupération de l'utilisateur connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -35,7 +37,9 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
 
 // Récupération de la recherche
 $intitule_recherche = $_GET['intitule_recherche'];
-$les_albums_recherche = $albumPDO->getAlbumsByRecherche($intitule_recherche);
+$id_genre_recherche = $_GET['genre_recherche'];
+$annee_recherche = $_GET['annee_recherche'];
+$les_albums_recherche = $albumPDO->getAlbumsByRecherche($intitule_recherche, $id_genre_recherche, $annee_recherche);
 $les_musiques_recherche = $musiquePDO->getMusiquesByRecherche($intitule_recherche);
 $les_artistes_recherche = $artistePDO->getArtistesByRecherche($intitule_recherche);
 
@@ -146,7 +150,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
       <div></div>
         </header>
-            <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?></h2>
+            <?php if ($id_genre_recherche != 0 && $annee_recherche != "0"): ?>
+                <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?>, <?php echo ($genrePDO->getGenreByIdGenre($id_genre_recherche))->getNomGenre(); ?>, <?php echo $annee_recherche; ?></h2>
+            <?php elseif ($id_genre_recherche != 0): ?>
+                <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?>, <?php echo ($genrePDO->getGenreByIdGenre($id_genre_recherche))->getNomGenre(); ?></h2>
+            <?php elseif ($annee_recherche != "0"): ?>
+                <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?>, <?php echo $annee_recherche; ?></h2>
+            <?php else: ?>
+                <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?></h2>
+            <?php endif; ?>
                 <!-- genres -->
             <div class="center-part">
             <h3 class="T-part">Les Albums</h3>

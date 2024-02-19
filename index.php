@@ -136,10 +136,12 @@ switch ($action) {
         exit;
     
     case 'rechercher_requete':
-        // récupération de la valeur saisie dans le champ de recherche
-        $intitule_playlist = $_GET['search_query'] ?? ''; // si la valeur n'est pas définie, utilisez une chaîne vide par défaut
+        // récupération des valeurs saisies dans les champs de recherche
+        $intitule_recherche = $_GET['search_query'] ?? ''; // si la valeur n'est pas définie, utilisez une chaîne vide par défaut
+        $genre_recherche = $_GET['genre'];
+        $annee_recherche = $_GET['annee'];
         // Redirection de l'utilisateur vers la page de la recherche
-        header('Location: ?action=recherche&intitule_recherche=' . $intitule_playlist);
+        header('Location: ?action=recherche&intitule_recherche=' . $intitule_recherche . "&genre_recherche=" . $genre_recherche . "&annee_recherche=" . $annee_recherche);
         exit;
     
     case 'creer_playlist':

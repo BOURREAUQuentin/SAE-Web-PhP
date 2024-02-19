@@ -263,17 +263,50 @@ class AlbumPDO
      * Obtient la liste des albums pour la recherche dans la table.
      * 
      * @param string $intitule_recherche L'intitulé de la recherche pour lequel récupérer la liste des albums.
+     * @param int $id_genre_recherche L'id du genre de la recherche pour lequel récupérer la liste des albums.
+     * @param string $annee_recherche L'année de la recherche pour laquelle récupérer la liste des albums.
      * 
      * @return array La liste des albums des résultats de la recherche.
      */
-    public function getAlbumsByRecherche(string $intitule_recherche): array
+    public function getAlbumsByRecherche(string $intitule_recherche, int $id_genre_recherche, string $annee_recherche): array
     {
         $requete_albums_recherche = <<<EOF
-        select id_album, titre, annee_sortie, id_image from ALBUM where titre LIKE :intitule_recherche;
+        select id_album, titre, annee_sortie, id_image from ALBUM natural join FAIRE_PARTIE where titre LIKE :intitule_recherche and id_genre = :id_genre_recherche and annee_sortie >= :annee_recherche and annee_sortie < :annee_recherche_max;
         EOF;
+        $stmt = $this->pdo->prepare($requete_albums_recherche);
+        $stmt->bindParam("id_genre_recherche", $id_genre_recherche, PDO::PARAM_INT);
+        $stmt->bindParam("annee_recherche", $annee_recherche, PDO::PARAM_STR);
+        $annee_recherche_max = strval((intval($annee_recherche)+10));
+        $stmt->bindParam("annee_recherche_max", $annee_recherche_max, PDO::PARAM_STR);
+        if ($id_genre_recherche == 0){
+            if ($annee_recherche == "0"){
+                // cas où l'utilisateur ne recherche ni par genre ni par année spécifique
+                $requete_albums_recherche = <<<EOF
+                select id_album, titre, annee_sortie, id_image from ALBUM where titre LIKE :intitule_recherche;
+                EOF;
+                $stmt = $this->pdo->prepare($requete_albums_recherche);
+            }
+            else{
+                // cas où l'utilisateur ne recherche pas par genre mais par année spécifique
+                $requete_albums_recherche = <<<EOF
+                select id_album, titre, annee_sortie, id_image from ALBUM natural join FAIRE_PARTIE where titre LIKE :intitule_recherche and annee_sortie >= :annee_recherche and annee_sortie < :annee_recherche_max;
+                EOF;
+                $stmt = $this->pdo->prepare($requete_albums_recherche);
+                $stmt->bindParam("annee_recherche", $annee_recherche, PDO::PARAM_STR);
+                $annee_recherche_max = strval((intval($annee_recherche)+10));
+                $stmt->bindParam("annee_recherche_max", $annee_recherche_max, PDO::PARAM_STR);
+            }
+        }
+        else if ($annee_recherche == "0"){
+            // cas où l'utilisateur recherche par genre mais pas par année spécifique
+            $requete_albums_recherche = <<<EOF
+            select id_album, titre, annee_sortie, id_image from ALBUM natural join FAIRE_PARTIE where titre LIKE :intitule_recherche and id_genre = :id_genre_recherche;
+            EOF;
+            $stmt = $this->pdo->prepare($requete_albums_recherche);
+            $stmt->bindParam("id_genre_recherche", $id_genre_recherche, PDO::PARAM_INT);
+        }
         $les_albums_genre = array();
         try{
-            $stmt = $this->pdo->prepare($requete_albums_recherche);
             $intitule_recherche = '%' . $intitule_recherche . '%';
             $stmt->bindParam("intitule_recherche", $intitule_recherche, PDO::PARAM_STR);
             $stmt->execute();
