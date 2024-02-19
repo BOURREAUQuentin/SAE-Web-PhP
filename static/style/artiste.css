@@ -651,15 +651,6 @@ header{
 
 /* top */
 
-.sticky {
-    top: 0;
-    z-index: 1000; 
-    background-image: url(500x500.jpg);
-    background-size: cover;
-    background-position: center;
-    width: 100%;
-    height: 10%;
-}
 .top{
     padding: 20px;
     display: flex;

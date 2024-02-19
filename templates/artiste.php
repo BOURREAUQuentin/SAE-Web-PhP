@@ -69,6 +69,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Lavound</title>
     <link rel="stylesheet" href="../static/style/artiste.css">
 </head>
+<!-- Obligé de mettre ce style en dur (pas dans un fichier css car on veut récupérer l'image de l'album actuel) -->
+<style>
+    .sticky {
+        position: sticky;
+        top: 0;
+        z-index: 1000; 
+        background-image: url(<?php echo $image_path; ?>);
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: 10%;
+    }
+</style>
 <body ng-app="app">
 	<section class='global-wrapper' ng-controller="ctrl">
     <aside>
