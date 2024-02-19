@@ -7,6 +7,7 @@ use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\PlaylistPDO;
+use Modele\modele_bd\GenrePDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -22,6 +23,7 @@ $likerPDO = new LikerPDO($pdo);
 $utilisateurPDO = new UtilisateurPDO($pdo);
 $noterPDO = new NoterPDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 
 // Récupération de l'id de l'album
 $id_album = intval($_GET['id_album']);
@@ -99,6 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Récupération de la liste des genres et des filtres par années
+$les_genres = $genrePDO->getGenres();
+$les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 ?>
 
 <!DOCTYPE html>
@@ -315,14 +320,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			<div id="blackout-on-hover"></div>
         <header>
             <h2>Lavound</h2>
-          <div id="search-bar" class="div-top">
-          <div class="search-box">
+            <div id="search-bar" class="div-top">
             <form method="GET" action="">
-                <input type="hidden" name="action" value="rechercher_requete">
-                <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
-                <button class="search-button">Go</button>
+                <div class="search-box">
+                    <input type="hidden" name="action" value="rechercher_requete">
+                    <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                    <button class="search-button">Go</button>
+                </div>
+                <!-- Sélecteur de genre -->
+                <select class="search-select" name="genre" id="genre">
+                    <option value="0">Tous les genres</option>
+                    <?php foreach ($les_genres as $genre): ?>
+                        <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <!-- Sélecteur d'année -->
+                <select class="search-select" name="annee" id="annee">
+                    <option value="0">Toutes les années</option>
+                    <?php foreach ($les_filtres_annees as $filtre_annee): ?>
+                        <option value="<?php echo $filtre_annee; ?>"><?php echo $filtre_annee; ?></option>
+                    <?php endforeach; ?>
+                </select>
             </form>
-        </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
         </div>
         <div></div>

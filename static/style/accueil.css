@@ -185,9 +185,9 @@ header{
   border: 2px solid #fff;
 }
 .search-box{
-  display: flex; /* Utiliser Flexbox */
-  justify-content: space-between; /* Aligner les éléments sur les extrémités */
-  align-items: center; /* Aligner verticalement les éléments enfants */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .search-input{
   border: none;
@@ -196,7 +196,7 @@ header{
   background-color: #bc85fa;
   color: white;
   font-weight: bold;
-  flex-grow: 1; /* Faire en sorte que l'input prenne tout l'espace disponible */
+  flex-grow: 1;
 }
 .search-input::placeholder{
     color: white;
