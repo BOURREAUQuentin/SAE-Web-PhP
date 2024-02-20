@@ -10,6 +10,9 @@ Autoloader::register();
 // lancement de la session
 session_start();
 
+// augmenter la taille des images uploadées
+ini_set("memory_limit", "2048M");
+
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
 // Permet de gérer le niveau des erreurs
@@ -188,6 +191,7 @@ switch ($action) {
         $image_playlist = ($imagePDO->getImageByIdImage($id_image_playlist))->getImage();
         if ($image_playlist != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
             $imagePDO->supprimerImageByIdImage($id_image_playlist);
+            unlink("./images/" . $image_playlist); // supprime l'image du dossier images
         }
 
         // redirection de l'utilisateur vers la page principale ou autre
@@ -315,6 +319,7 @@ switch ($action) {
         $image_album = ($imagePDO->getImageByIdImage($id_image_album))->getImage();
         if ($image_album != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
             $imagePDO->supprimerImageByIdImage($id_image_album);
+            unlink("./images/" . $image_album); // supprime l'image du dossier images
         }
         
         // redirection de l'utilisateur vers la même page
@@ -324,8 +329,15 @@ switch ($action) {
     case 'supprimer_artiste':
         // récupération de l'id de l'artiste
         $id_artiste = $_GET['id_artiste'] ?? null;
-        print_r($id_artiste);
-        $artistePDO -> supprimerArtisteEtSesDependance($id_artiste);
+
+        // suppression de l'image associée à l'artiste
+        $artiste = $artistePDO->getArtisteByIdArtiste($id_artiste);
+        $image_artiste = ($imagePDO->getImageByIdImage($artiste->getIdImage()))->getImage();
+        if ($image_artiste != "default.jpg"){ // pour ne pas supprimer l'image par défaut de la table IMAGE
+            unlink("./images/" . $image_artiste); // supprime l'image du dossier images
+        }
+
+        $artistePDO->supprimerArtisteEtSesDependance($id_artiste);
         header('Location: ?action=admin_artiste');
         exit;
 
