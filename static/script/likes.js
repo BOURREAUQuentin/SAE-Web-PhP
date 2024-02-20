@@ -1,5 +1,14 @@
 // Récupère tous les éléments avec l'ID "like"
 const likeElements = document.querySelectorAll('#buttonfav');
+var element = document.getElementById('buttonfav');
+
+function toggleBackgroundColor(){
+    if (element.classList.contains('background')) {
+        element.classList.remove('background');
+      } else {
+        element.classList.add('background');
+      }
+}
 
 // Ajoute un écouteur d'événements à chaque élément
 likeElements.forEach(likeElement => {
