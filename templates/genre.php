@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Aucun album disponible</p>
                 <?php endif; ?>
             </div>
-            <?php if (!empty($les_albums_genre)): ?>
+            <?php if (count($les_albums_genre) > 5): ?>
                 <button class="btn" id="buttonVoirPlus">
                     <span class="icon" id="icon">+</span>
                     </span>
@@ -268,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Aucune musique disponible</p>
                 <?php endif; ?>
             </div>
-            <?php if (!empty($les_musiques_genre)): ?>
+            <?php if (count($les_musiques_genre) > 5): ?>
                 <button class="btn btn2" id="buttonVoirPlus2">
                     <span class="icon" id="icon2">+</span>
                     </span>
@@ -320,7 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Aucun artiste disponible</p>
                 <?php endif; ?>
         </div>
-        <?php if (!empty($les_artistes_genre)): ?>
+        <?php if (count($les_artistes_genre) > 5): ?>
             <button class="btn" id="buttonVoirPlus3">
                 <span class="icon" id="icon3">+</span>
                 </span>

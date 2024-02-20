@@ -197,7 +197,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                         <p>Aucun album disponible</p>
                     <?php endif; ?>
                 </div>
-                <?php if (!empty($les_albums_filtre_annee)): ?>
+                <?php if (count($les_albums_filtre_annee) > 5): ?>
                     <button class="btn" id="buttonVoirPlus">
                         <span class="icon" id="icon">+</span>
                         </span>
@@ -272,7 +272,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                         <p>Aucune musique disponible</p>
                     <?php endif; ?>
                 </div>
-                <?php if (!empty($les_musiques_filtre_annee)): ?>
+                <?php if (count($les_musiques_filtre_annee) > 5): ?>
                     <button class="btn btn2" id="buttonVoirPlus2">
                         <span class="icon" id="icon2">+</span>
                         </span>
