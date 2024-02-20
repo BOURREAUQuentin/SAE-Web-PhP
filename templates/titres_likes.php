@@ -323,7 +323,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                                 <td><?php echo $musique->getNomMusique(); ?></td>
                                 <td><?php echo $artiste_musique->getNomArtiste(); ?></td>
                                 <td><?php echo $musique->getDureeMusique(); ?></td>
-                                <td><?php echo $musique->getNbStreams(); ?></td>
+                                <td id="nbStreamsMusique-<?php echo $musique->getIdMusique(); ?>"><?php echo $musique->getNbStreams(); ?></td>
                                 <td class="first"><div class='icon-text'><a href="/?action=supprimer_musique_likee&id_musique=<?php echo $musique->getIdMusique(); ?>&id_utilisateur=<?php echo $utilisateur_connecte->getIdUtilisateur(); ?>"><button class="play" ><img src="../static/images/croix.png" alt="" width="15" height="15"></button></a></div></td>
                             </tr>
                         <?php endforeach; ?>
