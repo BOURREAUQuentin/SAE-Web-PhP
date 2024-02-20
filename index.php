@@ -456,6 +456,15 @@ switch ($action) {
         header('Location: ?action=titres_likes');
         exit;
 
+    case 'incrementer_nb_streams':
+        // Récupérez l'ID ou l'indice de la musique à jouer
+        $id_musique_streame = $_POST['id_musique_streame'];
+        $musiquePDO->ajouterStreamMusique($id_musique_streame);
+        $musique_streame = $musiquePDO->getMusiqueByIdMusique($id_musique_streame);
+        // Envoyez une réponse pour indiquer que la musique a été jouée avec succès et on renvoie le nouveau nb de streams de la musique
+        echo json_encode(['success' => true, 'nvNbStreams' => $musique_streame->getNbStreams()]);
+        exit;
+
     default:
         include 'templates/accueil.php';
         break;

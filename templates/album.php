@@ -420,7 +420,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                             <td><?php echo $musique->getNomMusique(); ?></td>
                             <td><?php echo $nom_artistes_album; ?></td>
                             <td><?php echo $musique->getDureeMusique(); ?></td>
-                            <td><?php echo $musique->getNbStreams(); ?></td>
+                            <td id="nbStreamsMusique-<?php echo $musique->getIdMusique(); ?>"><?php echo $musique->getNbStreams(); ?></td>
                             <?php if (!isset($utilisateur)): ?>
                                 <td class="first"><div class='icon-text'><button id="buttonfav" class="play background" value="<?php echo $musique->getIdMusique(); ?>"><img class="fav" src="../static/images/fav_noir.png" alt="" width="15" height="15"></button></div></td>
                             <?php else:

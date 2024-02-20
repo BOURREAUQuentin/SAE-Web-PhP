@@ -320,9 +320,9 @@ class MusiquePDO
     /**
      * Ajoute 1 stream à la musique.
      *
-     * @param int    $id_musique   L'identifiant de la musique écouté.
+     * @param int    $id_musique   L'identifiant de la musique écoutée.
      */
-    public function ajouterStreamMusique(string $nom_musique): void
+    public function ajouterStreamMusique(int $id_musique): void
     {
         $maj_nb_streams = <<<EOF
         update MUSIQUE set nb_streams = nb_streams + 1 where id_musique = :id_musique;
