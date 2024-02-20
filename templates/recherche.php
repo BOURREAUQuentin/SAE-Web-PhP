@@ -40,8 +40,12 @@ $intitule_recherche = $_GET['intitule_recherche'];
 $id_genre_recherche = $_GET['genre_recherche'];
 $annee_recherche = $_GET['annee_recherche'];
 $les_albums_recherche = $albumPDO->getAlbumsByRecherche($intitule_recherche, $id_genre_recherche, $annee_recherche);
-$les_musiques_recherche = $musiquePDO->getMusiquesByRecherche($intitule_recherche);
-$les_artistes_recherche = $artistePDO->getArtistesByRecherche($intitule_recherche);
+$les_musiques_recherche = $musiquePDO->getMusiquesByRecherche($intitule_recherche, $id_genre_recherche, $annee_recherche);
+$les_artistes_recherche = $artistePDO->getArtistesByRecherche($intitule_recherche, $id_genre_recherche, $annee_recherche);
+
+// Récupération de la liste des genres et des filtres par années
+$les_genres = $genrePDO->getGenres();
+$les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 
 // vérifie si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
