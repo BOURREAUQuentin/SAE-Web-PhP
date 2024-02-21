@@ -58,7 +58,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
               </div>
           </a>
       </li>
-				<li class="active">
+				<li>
             <a href="/?action=accueil">
                 <div class="nav-item">
 						<img src="../static/images/home.png" alt="">
@@ -66,7 +66,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 				</div>
             </a>	
 		</li>
-        <li>
+        <li  class="active">
             <a href="/?action=playlists_utilisateur">
                 <div class="nav-item">
                     <img src="../static/images/add-to-playlist.png" alt="">
