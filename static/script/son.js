@@ -7,6 +7,8 @@ class musicPlayer {
             // Afficher un message d'erreur dans l'interface utilisateur si nécessaire
             return;
         }
+        this.premiereMusique = true;
+
         this.les_musiques = les_musiques;
         this.index_current_musique = 0;
         this.audio = document.getElementById("audio");
@@ -96,7 +98,10 @@ class musicPlayer {
             infoBarObj = this.infoBar;
         if (this.audio.paused) {
             this.audio.play();
-            // TODO
+            if (this.premiereMusique){
+                this.majNbStreams();
+                this.premiereMusique = false;
+            }
         }
         else {
             this.audio.pause();
@@ -153,6 +158,7 @@ class musicPlayer {
         if (nouvelle_track_a_relancer){
             // Relancer la lecture de la nouvelle piste
             this.audio.play();
+            this.majNbStreams();
         }
         // Mettre à jour les informations sur la piste en cours de lecture
         const nom_son_actuel = this.les_musiques[this.index_current_musique];
@@ -164,6 +170,36 @@ class musicPlayer {
         this.infoBar.querySelector('.name').textContent = nom_musique_actuelle;
         // Mise à jour de la file d'attente des musiques
         this.updateQueueList();
+    }
+
+    async majNbStreams(){
+        // Envoie une requête POST au contrôleur frontal pour incrémenter le nombre de streams de la musique
+        await fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'incrementer_nb_streams',
+                id_musique_streame: id_musiques[this.index_current_musique],
+            }),
+        })
+        .then(async response => {
+            if (!response.ok) {
+                console.error('Erreur lors de la requête pour incrémenter le nombre de streams de la musique');
+            }
+            else{
+                // Mise à jour du nombre de streams de la musique sur la page sans refresh la page entièrement
+                const classeMusiqueStreame = "#nbStreamsMusique-" + id_musiques[this.index_current_musique];
+                const tdNbStreamsMusique = document.querySelector(classeMusiqueStreame);
+                const jsonResponse = await response.json();
+                const nvNbStreams = jsonResponse.nvNbStreams;
+                tdNbStreamsMusique.innerHTML = nvNbStreams;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la requête fetch:', error);
+        });
     }
 
     restartTrack() {

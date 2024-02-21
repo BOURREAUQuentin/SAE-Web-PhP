@@ -190,17 +190,50 @@ class MusiquePDO
      * Obtient la liste des musiques pour la recherche dans la table.
      * 
      * @param string $intitule_recherche L'intitulé de la recherche pour lequel récupérer la liste des musiques.
+     * @param int $id_genre_recherche L'id du genre de la recherche pour lequel récupérer la liste des musiques.
+     * @param string $annee_recherche L'année de la recherche pour laquelle récupérer la liste des musiques.
      * 
      * @return array La liste des musiques des résultats de la recherche.
      */
-    public function getMusiquesByRecherche(string $intitule_recherche): array
+    public function getMusiquesByRecherche(string $intitule_recherche, int $id_genre_recherche, string $annee_recherche): array
     {
         $requete_musiques_recherche = <<<EOF
-        select id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE where nom_musique LIKE :intitule_recherche;
+        select distinct id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE natural join ALBUM natural join FAIRE_PARTIE where nom_musique LIKE :intitule_recherche and id_genre = :id_genre_recherche and annee_sortie >= :annee_recherche and annee_sortie < :annee_recherche_max;
         EOF;
+        $stmt = $this->pdo->prepare($requete_musiques_recherche);
+        $stmt->bindParam("id_genre_recherche", $id_genre_recherche, PDO::PARAM_INT);
+        $stmt->bindParam("annee_recherche", $annee_recherche, PDO::PARAM_STR);
+        $annee_recherche_max = strval((intval($annee_recherche)+10));
+        $stmt->bindParam("annee_recherche_max", $annee_recherche_max, PDO::PARAM_STR);
+        if ($id_genre_recherche == 0){
+            if ($annee_recherche == "0"){
+                // cas où l'utilisateur ne recherche ni par genre ni par année spécifique
+                $requete_musiques_recherche = <<<EOF
+                select distinct id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE where nom_musique LIKE :intitule_recherche;
+                EOF;
+                $stmt = $this->pdo->prepare($requete_musiques_recherche);
+            }
+            else{
+                // cas où l'utilisateur ne recherche pas par genre mais par année spécifique
+                $requete_musiques_recherche = <<<EOF
+                select distinct id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE natural join ALBUM where nom_musique LIKE :intitule_recherche and annee_sortie >= :annee_recherche and annee_sortie < :annee_recherche_max;
+                EOF;
+                $stmt = $this->pdo->prepare($requete_musiques_recherche);
+                $stmt->bindParam("annee_recherche", $annee_recherche, PDO::PARAM_STR);
+                $annee_recherche_max = strval((intval($annee_recherche)+10));
+                $stmt->bindParam("annee_recherche_max", $annee_recherche_max, PDO::PARAM_STR);
+            }
+        }
+        else if ($annee_recherche == "0"){
+            // cas où l'utilisateur recherche par genre mais pas par année spécifique
+            $requete_musiques_recherche = <<<EOF
+            select distinct id_musique, nom_musique, duree_musique, son_musique, nb_streams, id_album from MUSIQUE natural join FAIRE_PARTIE where nom_musique LIKE :intitule_recherche and id_genre = :id_genre_recherche;
+            EOF;
+            $stmt = $this->pdo->prepare($requete_musiques_recherche);
+            $stmt->bindParam("id_genre_recherche", $id_genre_recherche, PDO::PARAM_INT);
+        }
         $les_musiques_genre = array();
         try{
-            $stmt = $this->pdo->prepare($requete_musiques_recherche);
             $intitule_recherche = '%' . $intitule_recherche . '%';
             $stmt->bindParam("intitule_recherche", $intitule_recherche, PDO::PARAM_STR);
             $stmt->execute();
@@ -287,9 +320,9 @@ class MusiquePDO
     /**
      * Ajoute 1 stream à la musique.
      *
-     * @param int    $id_musique   L'identifiant de la musique écouté.
+     * @param int    $id_musique   L'identifiant de la musique écoutée.
      */
-    public function ajouterStreamMusique(string $nom_musique): void
+    public function ajouterStreamMusique(int $id_musique): void
     {
         $maj_nb_streams = <<<EOF
         update MUSIQUE set nb_streams = nb_streams + 1 where id_musique = :id_musique;
