@@ -508,83 +508,6 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 	</section>
 	<script src="../static/script/search.js"></script>
     <script>
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const scoreInputs = document.querySelectorAll('.feedback input[name="score"]');
-            const submitBtn = document.querySelector('.submit');
-            const albumId = document.querySelector('.feedback-btn').getAttribute('data-album-id');
-
-            submitBtn.addEventListener('click', async function () {
-                const selectedScore = document.querySelector('.feedback input[name="score"]:checked');
-                if (!selectedScore) {
-                    console.log('Aucune note sélectionnée');
-                    return;
-                }
-                if (!<?php echo isset($utilisateur) ? 'true' : 'false' ?>) {
-                        // Redirige l'utilisateur vers la page de connexion
-                        window.location.href = '/?action=connexion_inscription';
-                        return;
-                    }
-
-                const albumNote = parseInt(selectedScore.value); // Récupération de la note sélectionnée
-                const isChecked = true;
-
-                // Enleve le css des autres boutons et garder celui du bouton cliqué
-                scoreInputs.forEach(input => {
-                    input.nextElementSibling.classList.remove('active-note');
-                });
-
-                const response = await fetch(window.location.href, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        albumNote,
-                        isChecked,
-                        albumId,
-                    }),
-                });   
-
-                if (response.ok) {
-                    // Fermez la pop-up
-                    document.querySelector('.modal-note').style.display = 'none';
-                    // Mettre à jour la note moyenne
-                    const moyenneNote = document.querySelector('#moyenne-note');
-                    const nbPersonnesNotes = document.querySelector('#nbPersonnesNotes');
-                    const jsonResponse = await response.json();
-                    const nvMoyenne = jsonResponse.nvMoyenne;
-                    const nbNotes = jsonResponse.nbNotes;
-                    moyenneNote.textContent = nvMoyenne;
-                    nbPersonnesNotes.textContent = "Nombre de notes : " + nbNotes;
-                }
-                else {
-                    console.error('Erreur lors de la requête');
-                }    
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-        const scoreInputs = document.querySelectorAll('.feedback input[name="score"]');
-
-        // Ajoute un écouteur d'événements à chaque input de note
-        scoreInputs.forEach(input => {
-            input.addEventListener('change', function () {
-                // enlever le css des autres boutons
-                scoreInputs.forEach(otherInput => {
-                    otherInput.nextElementSibling.classList.remove('active-note');
-                });
-
-                // mettre en surbrillance le bouton sélectionné
-                if (this.checked) {
-                    this.nextElementSibling.classList.add('active-note');
-                }
-            });
-        });
-    });
-    </script>
-    <script src="../static/script/note.js"></script>
-    <script>
         // Injecter les données JSON dans une variable JavaScript
         const musiques = <?php echo $musiques_json; ?>;
         // Injecter les données JSON dans une variable JavaScript
@@ -593,6 +516,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
         const utilisateur_est_connecte = <?php echo isset($utilisateur) ? 'true' : 'false'; ?>;
     </script>
     <script src="../static/script/son.js"></script>
+    <script src="../static/script/note.js"></script>
     <script src="../static/script/likes.js"></script>
 </body>
 </html>
