@@ -3,6 +3,7 @@ use Modele\modele_bd\MusiquePDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\AlbumPDO;
+use Modele\modele_bd\GenrePDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -14,6 +15,7 @@ $musiquePDO = new MusiquePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new utilisateurPDO($pdo);
 $albumPDO = new AlbumPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 
 // vérification de si l'utilisateur est connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -31,39 +33,11 @@ if (!$est_admin) {
 // Récupération de la liste des musiques et albums
 $les_musiques = $musiquePDO->getMusiques();
 $les_albums = $albumPDO->getAlbums();
+
+// Récupération de la liste des genres et des filtres par années
+$les_genres = $genrePDO->getGenres();
+$les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 ?>
-<script>
-    function confirmSuppressionMusique(id_musique) {
-        // Affiche une boîte de dialogue de confirmation
-        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer cette musique ?");
-        // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
-        // Sinon, retourne false (arrête la suppression)
-        if (confirmation) {
-            window.location.href = "?action=supprimer_musique&id_musique=" + id_musique;
-        }
-        return false;
-    }
-    function showEditForm(id_musique) {
-        // Récupérer le formulaire de modification correspondant à l'ID de la musique
-        var editForm = document.getElementById("editForm_" + id_musique);
-        // Afficher le formulaire de modification en le rendant visible
-        editForm.style.display = "block";
-        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
-        return false;
-    }
-    function cancelEdit(id_musique) {
-        // Récupérer le formulaire de modification correspondant à l'ID de la musique
-        var editForm = document.getElementById("editForm_" + id_musique);
-        // Masquer le formulaire de modification
-        editForm.style.display = "none";
-
-        // Récupérer le champ de saisie correspondant
-        var nomMusiqueInput = document.getElementById("nouveau_nom_musique" + id_musique);
-
-        // Masquer le champ de saisie correspondant
-        nomMusiqueInput.style.display = "none";
-    }
-</script>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -87,7 +61,7 @@ $les_albums = $albumPDO->getAlbums();
                 </div>
             </a>
         </li>
-                    <li class="active">
+                    <li>
                 <a href="/?action=accueil">
                     <div class="nav-item">
                             <img src="../static/images/home.png" alt="">
@@ -107,7 +81,7 @@ $les_albums = $albumPDO->getAlbums();
 
                 <!--bottom nav -->
                 <ul>
-                    <li>
+                    <li class="active">
                 <button class="nav-item open-modal-btn">
                     <img src="../static/images/setting.png" alt="">
                     <span>Paramètres</span>
@@ -139,15 +113,29 @@ $les_albums = $albumPDO->getAlbums();
             <header>
                 <h2>Lavound</h2>
             <div id="search-bar" class="div-top">
-            <div class="search-box">
-                <form method="GET" action="">
+            <form method="GET" action="">
+                <div class="search-box">
                     <input type="hidden" name="action" value="rechercher_requete">
                     <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
                     <button class="search-button">Go</button>
-                </form>
-            </div>
-            <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
-            </div>
+                </div>
+                <!-- Sélecteur de genre -->
+                <select class="search-select" name="genre" id="genre">
+                    <option value="0">Tous les genres</option>
+                    <?php foreach ($les_genres as $genre): ?>
+                        <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <!-- Sélecteur d'année -->
+                <select class="search-select" name="annee" id="annee">
+                    <option value="0">Toutes les années</option>
+                    <?php foreach ($les_filtres_annees as $filtre_annee): ?>
+                        <option value="<?php echo $filtre_annee; ?>"><?php echo $filtre_annee; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+        <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
+        </div>
             <div></div>
             </header>
             <div class="center-part">
@@ -177,7 +165,7 @@ $les_albums = $albumPDO->getAlbums();
                                     <div class="flex-item">
                                         <div class="input-simple">
                                             <label for="fichier_mp3">Fichier MP3 :</label>
-                                            <input type="file" id="fichier_mp3" name="fichier_mp3" accept=".mp3">
+                                            <input type="file" id="fichier_mp3" name="fichier_mp3" accept=".mp3" required>
                                             <!-- balise pour obtenir les informations sur la durée du fichier audio (pas affiché à l'utilisateur) -->
                                             <audio id="audioPreview" style="display:none;" controls></audio>
                                             <!-- pour afficher la durée du fichier audio -->
@@ -233,44 +221,6 @@ $les_albums = $albumPDO->getAlbums();
         </main>
 	</section>
     <script src="../static/script/search.js"></script>
-    <script>
-        // Fonction pour obtenir la durée formatée du fichier audio
-        function obtenirDureeFormattee(duree) {
-            var minutes = Math.floor(duree / 60);
-            var secondes = Math.floor(duree % 60);
-            // Formatage de la durée au format MM:SS
-            var duree_formattee = (minutes < 10 ? '0' : '') + minutes + ':' + (secondes < 10 ? '0' : '') + secondes;
-            return duree_formattee;
-        }
-
-        // Fonction pour obtenir la durée du fichier audio
-        function obtenirDureeAudio(input) {
-            if (input.files && input.files[0]) {
-                var audio = document.getElementById('audioPreview');
-                var file = input.files[0];
-                var reader = new FileReader();
-
-                reader.onload = function(e) {
-                    // Charge le fichier audio pour obtenir ses informations
-                    audio.src = e.target.result;
-                };
-
-                // Attente que les métadonnées du fichier audio soient chargées
-                audio.onloadedmetadata = function() {
-                    // Affiche la durée du fichier audio formatée dans l'élément HTML
-                    var duree_formattee = obtenirDureeFormattee(audio.duration);
-                    document.getElementById('duree_audio').value = duree_formattee;
-                    console.log(duree_formattee);
-                };
-
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // Ajout d'un écouteur d'événements au champ de fichier MP3 pour détecter les changements
-        document.getElementById('fichier_mp3').addEventListener('change', function() {
-            obtenirDureeAudio(this);
-        });
-    </script>
+    <script src="../static/script/admin_musique.js"></script>
 </body>
 </html>

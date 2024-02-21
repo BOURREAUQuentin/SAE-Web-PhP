@@ -2,6 +2,7 @@
 use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
+use Modele\modele_bd\GenrePDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -12,6 +13,7 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $artistePDO = new ArtistePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new utilisateurPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 
 // vérification de si l'utilisateur est connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -28,40 +30,11 @@ if (!$est_admin) {
 
 // Récupération de la liste des artistes
 $les_artistes = $artistePDO->getArtistes();
+
+// Récupération de la liste des genres et des filtres par années
+$les_genres = $genrePDO->getGenres();
+$les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 ?>
-<script>
-    function confirmSuppressionArtiste(id_artiste) {
-        // Affiche une boîte de dialogue de confirmation
-        console.log(id_artiste);
-        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer l'artiste ?");
-        // Si l'utilisateur clique sur OK, retourne true (continue la suppression)
-        // Sinon, retourne false (arrête la suppression)
-        if (confirmation) {
-            window.location.href = "?action=supprimer_artiste&id_artiste=" + id_artiste;
-        }
-        return false;
-    }
-
-
-    function showEditForm(artisteId) {
-        // Récupérer le formulaire de modification correspondant à l'ID de l'artiste
-        var editForm = document.getElementById("editForm_" + artisteId);
-        // Afficher le formulaire de modification en le rendant visible
-        editForm.style.display = "block";
-        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
-        return false;
-    }
-
-    function cancelEdit(artisteId) {
-        // Récupérer le formulaire de modification correspondant à l'ID de l'artiste
-        var editForm = document.getElementById("editForm_" + artisteId);
-        // Masquer le formulaire de modification
-        editForm.style.display = "none";
-        // Retourner false pour éviter que le lien ne déclenche une action supplémentaire
-        return false;
-    }
-</script>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -85,7 +58,7 @@ $les_artistes = $artistePDO->getArtistes();
                 </div>
             </a>
         </li>
-                    <li class="active">
+                    <li>
                 <a href="/?action=accueil">
                     <div class="nav-item">
                             <img src="../static/images/home.png" alt="">
@@ -105,7 +78,7 @@ $les_artistes = $artistePDO->getArtistes();
 
                 <!--bottom nav -->
                 <ul>
-                    <li>
+                    <li class="active">
                 <button class="nav-item open-modal-btn">
                     <img src="../static/images/setting.png" alt="">
                     <span>Paramètres</span>
@@ -136,20 +109,34 @@ $les_artistes = $artistePDO->getArtistes();
                 <div id="blackout-on-hover"></div>
             <header>
                 <h2>Lavound</h2>
-            <div id="search-bar" class="div-top">
-            <div class="search-box">
-                <form method="GET" action="">
+                <div id="search-bar" class="div-top">
+            <form method="GET" action="">
+                <div class="search-box">
                     <input type="hidden" name="action" value="rechercher_requete">
                     <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
                     <button class="search-button">Go</button>
-                </form>
-            </div>
-            <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
-            </div>
+                </div>
+                <!-- Sélecteur de genre -->
+                <select class="search-select" name="genre" id="genre">
+                    <option value="0">Tous les genres</option>
+                    <?php foreach ($les_genres as $genre): ?>
+                        <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <!-- Sélecteur d'année -->
+                <select class="search-select" name="annee" id="annee">
+                    <option value="0">Toutes les années</option>
+                    <?php foreach ($les_filtres_annees as $filtre_annee): ?>
+                        <option value="<?php echo $filtre_annee; ?>"><?php echo $filtre_annee; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+        <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
+        </div>
             <div></div>
             </header>
             <div class="center-part">
-                <h3 class="T-part">Nouveau artiste</h3>
+                <h3 class="T-part">Nouvel artiste</h3>
                 <div class="album-container">
                     <!-- Formulaire pour ajouter un nouvel artiste -->
                     <form action="?action=ajouter_artiste" method="post" enctype="multipart/form-data">
@@ -219,49 +206,6 @@ $les_artistes = $artistePDO->getArtistes();
         </main>
 	</section>
     <script src="../static/script/search.js"></script>
-    <script>
-        const previewImage = document.getElementById('preview-image');
-        const uploadText = document.getElementById('upload-text');
-        const input = document.getElementById('file');
-        const header = document.querySelector('.header'); // Sélectionnez l'élément contenant le texte "Browse File to upload!"
-
-        // Ajoutez un écouteur d'événements pour détecter les changements dans le champ de fichier
-        input.addEventListener('change', function() {
-            // Vérifiez si des fichiers ont été sélectionnés
-            if (input.files && input.files[0]) {
-                // Créez un objet URL à partir du premier fichier sélectionné
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Mettez à jour l'attribut src de l'élément img avec l'URL de l'image
-                    previewImage.src = e.target.result;
-                    // Réduisez la taille de l'image à 206x120 pixels
-                    previewImage.style.width = '200px';
-                    previewImage.style.height = '180px';
-                    // Affichez l'aperçu de l'image
-                    previewImage.style.display = 'block';
-                    // Affichez le nom de l'image sélectionnée à la place de "No uploaded image"
-                    uploadText.textContent = input.files[0].name;
-                    // Supprimez tous les enfants du header sauf l'image de prévisualisation
-                    while (header.firstChild !== previewImage) {
-                        header.removeChild(header.firstChild);
-                    }
-                }
-                // Lisez le contenu du premier fichier sélectionné en tant qu'URL de données
-                reader.readAsDataURL(input.files[0]);
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form[action="?action=ajouter_artiste"]');
-        const fileInput = document.getElementById('file');
-
-        form.addEventListener('submit', function(event) {
-            if (fileInput.files.length === 0) {
-                event.preventDefault(); // Empêche la soumission du formulaire
-                alert('Veuillez sélectionner une image avant de soumettre le formulaire.');
-            }
-        });
-    });
-    </script>
+    <script src="../static/script/admin_artiste.js"></script>
 </body>
 </html>

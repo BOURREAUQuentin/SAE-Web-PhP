@@ -7,6 +7,7 @@ use Modele\modele_bd\UtilisateurPDO;
 use Modele\modele_bd\RealiserParPDO;
 use Modele\modele_bd\PlaylistPDO;
 use Modele\modele_bd\LikerPDO;
+use Modele\modele_bd\GenrePDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -22,6 +23,7 @@ $utilisateurPDO = new utilisateurPDO($pdo);
 $realiserParPDO = new RealiserParPDO($pdo);
 $playlistPDO = new PlaylistPDO($pdo);
 $likerPDO = new LikerPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 
 // récupération de l'utilisateur connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -35,9 +37,15 @@ $playlists_utilisateur = $playlistPDO->getPlaylistsByNomUtilisateur($nom_utilisa
 
 // Récupération de la recherche
 $intitule_recherche = $_GET['intitule_recherche'];
-$les_albums_recherche = $albumPDO->getAlbumsByRecherche($intitule_recherche);
-$les_musiques_recherche = $musiquePDO->getMusiquesByRecherche($intitule_recherche);
-$les_artistes_recherche = $artistePDO->getArtistesByRecherche($intitule_recherche);
+$id_genre_recherche = $_GET['genre_recherche'];
+$annee_recherche = $_GET['annee_recherche'];
+$les_albums_recherche = $albumPDO->getAlbumsByRecherche($intitule_recherche, $id_genre_recherche, $annee_recherche);
+$les_musiques_recherche = $musiquePDO->getMusiquesByRecherche($intitule_recherche, $id_genre_recherche, $annee_recherche);
+$les_artistes_recherche = $artistePDO->getArtistesByRecherche($intitule_recherche, $id_genre_recherche, $annee_recherche);
+
+// Récupération de la liste des genres et des filtres par années
+$les_genres = $genrePDO->getGenres();
+$les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 
 // vérifie si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -134,20 +142,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			<div id="blackout-on-hover"></div>
         <header>
             <h2>Lavound</h2>
-          <div id="search-bar" class="div-top">
-          <div class="search-box">
+            <div id="search-bar" class="div-top">
             <form method="GET" action="">
-                <input type="hidden" name="action" value="rechercher_requete">
-                <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
-                <button class="search-button">Go</button>
+                <div class="search-box">
+                    <input type="hidden" name="action" value="rechercher_requete">
+                    <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
+                    <button class="search-button">Go</button>
+                </div>
+                <!-- Sélecteur de genre -->
+                <select class="search-select" name="genre" id="genre">
+                    <option value="0">Tous les genres</option>
+                    <?php foreach ($les_genres as $genre): ?>
+                        <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <!-- Sélecteur d'année -->
+                <select class="search-select" name="annee" id="annee">
+                    <option value="0">Toutes les années</option>
+                    <?php foreach ($les_filtres_annees as $filtre_annee): ?>
+                        <option value="<?php echo $filtre_annee; ?>"><?php echo $filtre_annee; ?></option>
+                    <?php endforeach; ?>
+                </select>
             </form>
-        </div>
         <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
-      </div>
+        </div>
       <div></div>
         </header>
-            <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?></h2>
-                <!-- genres -->
+            <?php if ($id_genre_recherche != 0 && $annee_recherche != "0"): ?>
+                <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?>, <?php echo ($genrePDO->getGenreByIdGenre($id_genre_recherche))->getNomGenre(); ?>, <?php echo $annee_recherche; ?></h2>
+            <?php elseif ($id_genre_recherche != 0): ?>
+                <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?>, <?php echo ($genrePDO->getGenreByIdGenre($id_genre_recherche))->getNomGenre(); ?></h2>
+            <?php elseif ($annee_recherche != "0"): ?>
+                <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?>, <?php echo $annee_recherche; ?></h2>
+            <?php else: ?>
+                <h2 class="titre-genre">Résultats avec : <?php echo $intitule_recherche; ?></h2>
+            <?php endif; ?>
             <div class="center-part">
             <h3 class="T-part">Les Albums</h3>
             <div class="album">
@@ -172,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Aucun album disponible</p>
                 <?php endif; ?>
             </div>
-            <?php if (!empty($les_albums_recherche)): ?>
+            <?php if (count($les_albums_recherche) > 5): ?>
                 <button class="btn" id="buttonVoirPlus">
                     <span class="icon" id="icon">+</span>
                     </span>
@@ -247,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Aucune musique disponible</p>
                 <?php endif; ?>
             </div>
-            <?php if (!empty($les_musiques_recherche)): ?>
+            <?php if (count($les_musiques_recherche) > 5): ?>
                 <button class="btn btn2" id="buttonVoirPlus2">
                     <span class="icon" id="icon2">+</span>
                     </span>
@@ -299,7 +328,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Aucun artiste disponible</p>
                 <?php endif; ?>
         </div>
-        <?php if (!empty($les_artistes_recherche)): ?>
+        <?php if (count($les_artistes_recherche) > 5): ?>
             <button class="btn" id="buttonVoirPlus3">
                 <span class="icon" id="icon3">+</span>
                 </span>
@@ -314,56 +343,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../static/script/genre.js"></script>
 	<script src="../static/script/search.js"></script>
     <script>
-        // Récupère tous les éléments avec l'ID "like"
-        const likeElements = document.querySelectorAll('#buttonfav');
-
-        // Ajoute un écouteur d'événements à chaque élément
-        likeElements.forEach(likeElement => {
-            likeElement.addEventListener('click', async (event) => {
-                // Vérifie si l'utilisateur est connecté
-                if (!<?php echo isset($utilisateur_connecte) ? 'true' : 'false' ?>) {
-                    // Redirige l'utilisateur vers la page de connexion
-                    window.location.href = '/?action=connexion_inscription';
-                    return;
-                }
-
-                const musiqueId = likeElement.value;
-                const isChecked = likeElement.classList.contains('background');
-
-                // Envoie une requête POST à la page actuelle
-                const response = await fetch(window.location.href, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        musiqueId,
-                        isChecked,
-                    }),
-                });
-
-                // Appeler la fonction pour mettre à jour l'image
-                updateImageSource(!isChecked, likeElement);
-
-                // Vérifie si la requête a réussi
-                if (response.ok) {
-                    console.log('Like ajouté ou supprimé');
-                    // Ajoute ou supprime la classe "background" selon l'état précédent
-                    likeElement.classList.toggle('background');
-                } else {
-                    console.error('Erreur lors de la requête');
-                }
-            });
-        });
-
-        function updateImageSource(isLiked, buttonElement) {
-            const imgElement = buttonElement.querySelector('.fav');
-            if (isLiked) {
-                imgElement.src = '../static/images/fav_rouge.png';
-            } else {
-                imgElement.src = '../static/images/fav_noir.png';
-            }
-        }
+        const utilisateur_est_connecte = <?php echo isset($utilisateur_connecte) ? 'true' : 'false'; ?>;
     </script>
+    <script src="../static/script/likes.js"></script>
 </body>
 </html>

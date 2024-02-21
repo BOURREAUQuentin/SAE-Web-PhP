@@ -169,11 +169,16 @@ header{
   justify-content: space-between;
   align-items: center;
 }
-.search-box{
+.search-box, .search-select{
   background-color: #bc85fa;
   border-radius: 50px;
   padding: 10px;
   border: 2px solid #fff;
+}
+.search-box{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .search-input{
   border: none;
@@ -182,6 +187,7 @@ header{
   background-color: #bc85fa;
   color: white;
   font-weight: bold;
+  flex-grow: 1;
 }
 .search-input::placeholder{
     color: white;

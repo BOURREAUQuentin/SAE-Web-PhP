@@ -4,6 +4,7 @@ use Modele\modele_bd\MusiquePDO;
 use Modele\modele_bd\ArtistePDO;
 use Modele\modele_bd\ImagePDO;
 use Modele\modele_bd\UtilisateurPDO;
+use Modele\modele_bd\GenrePDO;
 
 // Connection en utlisant la connexion PDO avec le moteur en prefixe
 $pdo = new PDO('sqlite:Data/sae_php.db');
@@ -16,6 +17,7 @@ $musiquePDO = new MusiquePDO($pdo);
 $artistePDO = new ArtistePDO($pdo);
 $imagePDO = new ImagePDO($pdo);
 $utilisateurPDO = new utilisateurPDO($pdo);
+$genrePDO = new GenrePDO($pdo);
 
 // vérification de si l'utilisateur est connecté et s'il est admin
 $nom_utilisateur_connecte = "pas connecté";
@@ -36,6 +38,10 @@ $les_musiques = $musiquePDO->getMusiques();
 $les_artistes = $artistePDO->getArtistes();
 
 $actions_module_administrateur = array("album", "musique", "artiste", "utilisateur", "genre");
+
+// Récupération de la liste des genres et des filtres par années
+$les_genres = $genrePDO->getGenres();
+$les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 ?>
 
 <!DOCTYPE html>
@@ -60,7 +66,7 @@ $actions_module_administrateur = array("album", "musique", "artiste", "utilisate
                 </div>
             </a>
         </li>
-                    <li class="active">
+                    <li>
                 <a href="/?action=accueil">
                     <div class="nav-item">
                             <img src="../static/images/home.png" alt="">
@@ -80,7 +86,7 @@ $actions_module_administrateur = array("album", "musique", "artiste", "utilisate
 
                 <!--bottom nav -->
                 <ul>
-                    <li>
+                    <li class="active">
                 <button class="nav-item open-modal-btn">
                     <img src="../static/images/setting.png" alt="">
                     <span>Paramètres</span>
@@ -111,16 +117,30 @@ $actions_module_administrateur = array("album", "musique", "artiste", "utilisate
                 <div id="blackout-on-hover"></div>
             <header>
                 <h2>Lavound</h2>
-            <div id="search-bar" class="div-top">
-            <div class="search-box">
-                <form method="GET" action="">
+                <div id="search-bar" class="div-top">
+            <form method="GET" action="">
+                <div class="search-box">
                     <input type="hidden" name="action" value="rechercher_requete">
                     <input type="text" id="search-input" class="search-input" name="search_query" placeholder="Albums, Artistes...">
                     <button class="search-button">Go</button>
-                </form>
-            </div>
-            <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
-            </div>
+                </div>
+                <!-- Sélecteur de genre -->
+                <select class="search-select" name="genre" id="genre">
+                    <option value="0">Tous les genres</option>
+                    <?php foreach ($les_genres as $genre): ?>
+                        <option value="<?php echo $genre->getIdGenre(); ?>"><?php echo $genre->getNomGenre(); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <!-- Sélecteur d'année -->
+                <select class="search-select" name="annee" id="annee">
+                    <option value="0">Toutes les années</option>
+                    <?php foreach ($les_filtres_annees as $filtre_annee): ?>
+                        <option value="<?php echo $filtre_annee; ?>"><?php echo $filtre_annee; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+        <button class="croix-button" onclick="hideSearchBar()"><img class="croix" src="../static/images/croix.png" alt=""></button>
+        </div>
             <div></div>
             </header>
             <!-- module administrateur -->

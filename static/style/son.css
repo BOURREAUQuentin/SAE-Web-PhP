@@ -1,10 +1,14 @@
 @import url("https://fonts.googleapis.com/css?family=Fira+Sans");
 
 .lecteur{
-    padding: 20px;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
+    position: absolute;
+    bottom: 0;
+    left: 55%;
+    transform: translateX(-50%);
+    margin-bottom: 5px;
 }
 
 .player .info {
@@ -70,4 +74,28 @@
 
     input[type="range"] {
         width: 100px;
+    }
+
+    .infinite-scroll-text {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .scrolling-text {
+        display: inline-block;
+        animation: scroll 10s linear infinite;
+    }
+    .scrolling-text>li {
+        list-style-type: none;
+        font-weight: bold;
+        margin-top: 60px;
+    }
+
+    @keyframes scroll {
+        0% {
+            transform: translateX(100%);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
     }

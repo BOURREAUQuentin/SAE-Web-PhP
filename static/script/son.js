@@ -7,6 +7,8 @@ class musicPlayer {
             // Afficher un message d'erreur dans l'interface utilisateur si nécessaire
             return;
         }
+        this.premiereEcouteMusique = true;
+
         this.les_musiques = les_musiques;
         this.index_current_musique = 0;
         this.audio = document.getElementById("audio");
@@ -76,19 +78,18 @@ class musicPlayer {
     updateQueueList() {
         const queueList = document.getElementById('file-attente');
         // Efface la liste actuelle
-        queueList.innerHTML = "Liste d'attente";
+        queueList.innerHTML = "";
         // Ajoute chaque musique à la liste
-        for (let index_file_attente = this.index_current_musique + 1; index_file_attente < this.les_musiques.length; index_file_attente++){
-            const listItem = document.createElement('li');
-            const nom_son_actuel = this.les_musiques[index_file_attente];
-            const liste_mots_nom_musique = nom_son_actuel.replace(".mp3", "").replace(/-/g, " ").split(" ");
-            const nom_musique_actuelle = liste_mots_nom_musique.map(mot => {
-                // Capitaliser la première lettre de chaque mot
-                return mot.charAt(0).toUpperCase() + mot.slice(1);
-            }).join(" "); // Joindre les mots avec un espace
-            listItem.textContent = nom_musique_actuelle;
-            queueList.appendChild(listItem);   
-        }
+        const listItem = document.createElement('li');
+        const nom_son_actuel = this.les_musiques[this.index_current_musique + 1];
+        const liste_mots_nom_musique = nom_son_actuel.replace(".mp3", "").replace(/-/g, " ").split(" ");
+        const nom_musique_actuelle = liste_mots_nom_musique.map(mot => {
+            // Capitaliser la première lettre de chaque mot
+            return mot.charAt(0).toUpperCase() + mot.slice(1);
+        }).join(" "); // Joindre les mots avec un espace
+        listItem.textContent = "Prochain son : "+nom_musique_actuelle;
+        queueList.appendChild(listItem);   
+        
     }
 
     play() {
@@ -96,7 +97,10 @@ class musicPlayer {
             infoBarObj = this.infoBar;
         if (this.audio.paused) {
             this.audio.play();
-            // TODO
+            if (this.premiereEcouteMusique){
+                this.majNbStreams();
+                this.premiereEcouteMusique = false;
+            }
         }
         else {
             this.audio.pause();
@@ -153,6 +157,11 @@ class musicPlayer {
         if (nouvelle_track_a_relancer){
             // Relancer la lecture de la nouvelle piste
             this.audio.play();
+            this.majNbStreams();
+        }
+        else{
+            // on remet à true la variable premiereEcouteMusique pour que lorsqu'on relancera le son ca ajoute nbStreams + 1
+            this.premiereEcouteMusique = true;
         }
         // Mettre à jour les informations sur la piste en cours de lecture
         const nom_son_actuel = this.les_musiques[this.index_current_musique];
@@ -164,6 +173,36 @@ class musicPlayer {
         this.infoBar.querySelector('.name').textContent = nom_musique_actuelle;
         // Mise à jour de la file d'attente des musiques
         this.updateQueueList();
+    }
+
+    async majNbStreams(){
+        // Envoie une requête POST au contrôleur frontal pour incrémenter le nombre de streams de la musique
+        await fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'incrementer_nb_streams',
+                id_musique_streame: id_musiques[this.index_current_musique],
+            }),
+        })
+        .then(async response => {
+            if (!response.ok) {
+                console.error('Erreur lors de la requête pour incrémenter le nombre de streams de la musique');
+            }
+            else{
+                // Mise à jour du nombre de streams de la musique sur la page sans refresh la page entièrement
+                const classeMusiqueStreame = "#nbStreamsMusique-" + id_musiques[this.index_current_musique];
+                const tdNbStreamsMusique = document.querySelector(classeMusiqueStreame);
+                const jsonResponse = await response.json();
+                const nvNbStreams = jsonResponse.nvNbStreams;
+                tdNbStreamsMusique.innerHTML = nvNbStreams;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la requête fetch:', error);
+        });
     }
 
     restartTrack() {
