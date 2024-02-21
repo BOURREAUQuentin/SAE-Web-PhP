@@ -7,7 +7,7 @@ class musicPlayer {
             // Afficher un message d'erreur dans l'interface utilisateur si nécessaire
             return;
         }
-        this.premiereMusique = true;
+        this.premiereEcouteMusique = true;
 
         this.les_musiques = les_musiques;
         this.index_current_musique = 0;
@@ -98,9 +98,9 @@ class musicPlayer {
             infoBarObj = this.infoBar;
         if (this.audio.paused) {
             this.audio.play();
-            if (this.premiereMusique){
+            if (this.premiereEcouteMusique){
                 this.majNbStreams();
-                this.premiereMusique = false;
+                this.premiereEcouteMusique = false;
             }
         }
         else {
@@ -159,6 +159,10 @@ class musicPlayer {
             // Relancer la lecture de la nouvelle piste
             this.audio.play();
             this.majNbStreams();
+        }
+        else{
+            // on remet à true la variable premiereEcouteMusique pour que lorsqu'on relancera le son ca ajoute nbStreams + 1
+            this.premiereEcouteMusique = true;
         }
         // Mettre à jour les informations sur la piste en cours de lecture
         const nom_son_actuel = this.les_musiques[this.index_current_musique];
