@@ -84,7 +84,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
             <img src="../static/images/logo.png" alt="" width="80px" height="80px">
 			<!--top nav -->
 			<ul>
-				<li class="active">
+				<li>
           <a href="#" onclick="toggleSearchBar()">
               <div class="nav-item">
                   <img src="../static/images/loupe.png" alt="">
@@ -112,7 +112,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 
 			<!--bottom nav -->
 			<ul>
-				<li>
+				<li class="active">
               <button class="nav-item open-modal-btn">
                   <img src="../static/images/setting.png" alt="">
                   <span>Paramètres</span>

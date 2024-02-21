@@ -20,6 +20,7 @@
 .album-image {
     width: 10%;
     height: 187px;
+    object-fit: cover;
 }
 
 .view-album-button {
@@ -100,18 +101,6 @@
     text-align: left;
 }
 
-select, select[multiple] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    padding: 8px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
-    width: 100%;
-    color: #333;
-}
 
 select option {
     background-color: #fff;

@@ -239,7 +239,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
               </div>
           </a>
       </li>
-				<li class="active">
+				<li>
             <a href="/?action=accueil">
                 <div class="nav-item">
 						<img src="../static/images/home.png" alt="">
@@ -247,7 +247,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 				</div>
             </a>	
 		</li>
-        <li>
+        <li class="active">
             <a href="/?action=playlists_utilisateur">
                 <div class="nav-item">
                     <img src="../static/images/add-to-playlist.png" alt="">
@@ -401,7 +401,12 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                         </div>
                     </div>
                 </div>
-                <ul id="file-attente"></ul>
+                <div>
+            <div class="infinite-scroll-text">
+                <ul id="file-attente" class="scrolling-text">
+                </ul>
+            </div>
+            </div>
             </div>
 		</main>
 	</section>

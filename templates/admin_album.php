@@ -61,7 +61,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                 </div>
             </a>
         </li>
-                    <li class="active">
+                    <li>
                 <a href="/?action=accueil">
                     <div class="nav-item">
                             <img src="../static/images/home.png" alt="">
@@ -81,7 +81,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
 
                 <!--bottom nav -->
                 <ul>
-                    <li>
+                    <li class="active">
                 <button class="nav-item open-modal-btn">
                     <img src="../static/images/setting.png" alt="">
                     <span>Paramètres</span>
@@ -139,7 +139,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
             <div></div>
             </header>
             <div class="center-part">
-                <h3 class="T-part">Nouveau album</h3>
+                <h3 class="T-part">Nouvel album</h3>
                 <div class="album-container">
                     <!-- Formulaire pour ajouter un nouvel album -->
                     <form action="?action=ajouter_album" method="post" enctype="multipart/form-data">

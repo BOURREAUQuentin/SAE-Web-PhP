@@ -364,7 +364,12 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                         </div>
                     </div>
                 </div>
-                <ul id="file-attente"></ul>
+                <div>
+            <div class="infinite-scroll-text">
+                <ul id="file-attente" class="scrolling-text">
+                </ul>
+            </div>
+            </div>
             </div>
 		</main>
 	</section>
