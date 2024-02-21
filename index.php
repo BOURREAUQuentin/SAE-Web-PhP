@@ -408,8 +408,8 @@ switch ($action) {
             // appel de la méthode pour créer la musique
             $musiquePDO->ajouterMusique($nom_musique, $duree_audio, $nom_fichier_son_musique, $id_album_musique);
 
-            // redirection de l'utilisateur vers la même page
-            //header('Location: ?action=admin_musique');
+            //redirection de l'utilisateur vers la même page
+            header('Location: ?action=admin_musique');
             exit;
         }
         break;

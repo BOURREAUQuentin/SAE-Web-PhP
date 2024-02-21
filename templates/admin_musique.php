@@ -165,7 +165,7 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
                                     <div class="flex-item">
                                         <div class="input-simple">
                                             <label for="fichier_mp3">Fichier MP3 :</label>
-                                            <input type="file" id="fichier_mp3" name="fichier_mp3" accept=".mp3">
+                                            <input type="file" id="fichier_mp3" name="fichier_mp3" accept=".mp3" required>
                                             <!-- balise pour obtenir les informations sur la durée du fichier audio (pas affiché à l'utilisateur) -->
                                             <audio id="audioPreview" style="display:none;" controls></audio>
                                             <!-- pour afficher la durée du fichier audio -->
@@ -221,45 +221,6 @@ $les_filtres_annees = array("1970", "1980", "1990", "2000", "2010", "2020");
         </main>
 	</section>
     <script src="../static/script/search.js"></script>
-    <script>
-        // Fonction pour obtenir la durée formatée du fichier audio
-        function obtenirDureeFormattee(duree) {
-            var minutes = Math.floor(duree / 60);
-            var secondes = Math.floor(duree % 60);
-            // Formatage de la durée au format MM:SS
-            var duree_formattee = (minutes < 10 ? '0' : '') + minutes + ':' + (secondes < 10 ? '0' : '') + secondes;
-            return duree_formattee;
-        }
-
-        // Fonction pour obtenir la durée du fichier audio
-        function obtenirDureeAudio(input) {
-            if (input.files && input.files[0]) {
-                var audio = document.getElementById('audioPreview');
-                var file = input.files[0];
-                var reader = new FileReader();
-
-                reader.onload = function(e) {
-                    // Charge le fichier audio pour obtenir ses informations
-                    audio.src = e.target.result;
-                };
-
-                // Attente que les métadonnées du fichier audio soient chargées
-                audio.onloadedmetadata = function() {
-                    // Affiche la durée du fichier audio formatée dans l'élément HTML
-                    var duree_formattee = obtenirDureeFormattee(audio.duration);
-                    document.getElementById('duree_audio').value = duree_formattee;
-                    console.log(duree_formattee);
-                };
-
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // Ajout d'un écouteur d'événements au champ de fichier MP3 pour détecter les changements
-        document.getElementById('fichier_mp3').addEventListener('change', function() {
-            obtenirDureeAudio(this);
-        });
-    </script>
     <script src="../static/script/admin_musique.js"></script>
 </body>
 </html>
